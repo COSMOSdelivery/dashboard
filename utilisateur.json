@@ -1,0 +1,17 @@
+"utilisateur": {
+    "nom": "string",
+    "prenom": "string",
+    "nomShop": "string",
+    "email": "string",
+    "gouvernerat": "string",
+    "ville": "string",
+    "localité": "string",
+    "codePostal": "string",
+    "adresse": "string",
+    "telephone": "string",
+    "codeTVA": "string",
+    "cin": "string",
+    "role": "string",
+    "dateInscription": "date",
+    "derniereMiseAJour": "date"
+}
