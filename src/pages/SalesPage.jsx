@@ -8,8 +8,8 @@ import SalesByCategoryChart from "../components/sales/SalesByCategoryChart";
 import DailySalesTrend from "../components/sales/DailySalesTrend";
 
 const salesStats = {
-	totalRevenue: "$1,234,567",
-	averageOrderValue: "$78.90",
+	totalRevenue: "1,234,567 TND",
+	averageOrderValue: "78.90 TND",
 	conversionRate: "3.45%",
 	salesGrowth: "12.3%",
 };

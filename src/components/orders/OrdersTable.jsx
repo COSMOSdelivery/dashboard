@@ -4,13 +4,13 @@ import { Search, Eye } from "lucide-react";
 
 const orderData = [
 	
-	{ id: "ORD002", customer: "Jane Smith", total: 412.0, status: "En traitement", date: "2023-07-02" },
-	{ id: "ORD003", customer: "Bob Johnson", total: 162.5, status: "Expédié", date: "2023-07-03" },
-	{ id: "ORD004", customer: "Alice Brown", total: 750.2, status: "En attente", date: "2023-07-04" },
-	{ id: "ORD005", customer: "Charlie Wilson", total: 95.8, status: "Livré", date: "2023-07-05" },
-	{ id: "ORD006", customer: "Eva Martinez", total: 310.75, status: "En traitement", date: "2023-07-06" },
-	{ id: "ORD007", customer: "David Lee", total: 528.9, status: "Expédié", date: "2023-07-07" },
-	{ id: "ORD008", customer: "Grace Taylor", total: 189.6, status: "Livré", date: "2023-07-08" },
+	{ id: "ORD002", customer: "Ferjani Moemen", total: 412.0, status: "En traitement", date: "2023-07-02" },
+	{ id: "ORD003", customer: "Ben Khalaf Farouk", total: 162.5, status: "Expédié", date: "2023-07-03" },
+	{ id: "ORD004", customer: "Aymen Chibani", total: 750.2, status: "En attente", date: "2023-07-04" },
+	{ id: "ORD005", customer: "Youssef Ben Chaib", total: 95.8, status: "Livré", date: "2023-07-05" },
+	{ id: "ORD006", customer: "Ayoub Jemaa", total: 310.75, status: "En traitement", date: "2023-07-06" },
+	{ id: "ORD007", customer: "Ahmed Debbech", total: 528.9, status: "Expédié", date: "2023-07-07" },
+	{ id: "ORD008", customer: "Ayhem Hamdi", total: 189.6, status: "Livré", date: "2023-07-08" },
 ];
 
 const OrdersTable = () => {
@@ -87,7 +87,7 @@ const OrdersTable = () => {
 									{order.customer}
 								</td>
 								<td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-100'>
-									${order.total.toFixed(2)}
+									{order.total.toFixed(2)} TND
 								</td>
 								<td className='px-6 py-4 whitespace-nowrap text-sm text-gray-300'>
 									<span
