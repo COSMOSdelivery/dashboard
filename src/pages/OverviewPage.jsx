@@ -20,7 +20,7 @@ const OverviewPage = () => {
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1 }}
 				>
-					<StatCard name='Ventes totales' icon={Zap} value='$12,345' color='#6366F1' />
+					<StatCard name='Ventes totales' icon={Zap} value='12,345 TND' color='#6366F1' />
 					<StatCard name='Nouveaux utilisateurs' icon={Users} value='1,234' color='#8B5CF6' />
 					<StatCard name='Produits totaux' icon={ShoppingBag} value='567' color='#EC4899' />
 					<StatCard name='Taux de conversion' icon={BarChart2} value='12.5%' color='#10B981' />
