@@ -1,5 +1,5 @@
-import { Route, Routes } from "react-router-dom";
-import { LogOut } from "lucide-react"; // Ensure you have this import
+import { Route, Routes, useLocation } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import Sidebar from "./components/common/Sidebar";
 import OverviewPage from "./pages/OverviewPage";
 import UsersPage from "./pages/UsersPage";
@@ -7,11 +7,17 @@ import SalesPage from "./pages/SalesPage";
 import OrdersPage from "./pages/OrdersPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
+import LoginPage from './pages/LoginPage';
 
 function App() {
+    const location = useLocation();
+
     const handleLogoutClick = () => {
         console.log("Logout button clicked"); // Placeholder for logout logic
     };
+
+    // Check if the current route is the login page
+    const isLoginPage = location.pathname === '/login';
 
     return (
         <div className='flex h-screen bg-gray-900 text-gray-100 overflow-hidden'>
@@ -21,18 +27,20 @@ function App() {
                 <div className='absolute inset-0 backdrop-blur-sm' />
             </div>
 
-            <Sidebar />
+            {/* Conditionally render Sidebar and Logout button if not on login page */}
+            {!isLoginPage && <Sidebar />}
 
-            {/* Logout button */}
-            <div className='fixed top-4 right-4 z-20'>
-                <button 
-                    onClick={handleLogoutClick}
-                    className='bg-gray-800 hover:bg-gray-700 text-gray-300 p-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
-                    title="Log Out"
-                >
-                    <LogOut size={24} />
-                </button>
-            </div>
+            {!isLoginPage && (
+                <div className='fixed top-4 right-4 z-20'>
+                    <button 
+                        onClick={handleLogoutClick}
+                        className='bg-gray-800 hover:bg-gray-700 text-gray-300 p-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                        title="Log Out"
+                    >
+                        <LogOut size={24} />
+                    </button>
+                </div>
+            )}
 
             <Routes>
                 <Route path='/' element={<OverviewPage />} />
@@ -41,6 +49,7 @@ function App() {
                 <Route path='/orders' element={<OrdersPage />} />
                 <Route path='/analytics' element={<AnalyticsPage />} />
                 <Route path='/settings' element={<SettingsPage />} />
+                <Route path="/login" element={<LoginPage />} />
             </Routes>
         </div>
     );
