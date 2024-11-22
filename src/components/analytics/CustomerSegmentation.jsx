@@ -12,11 +12,11 @@ import {
 
 const customerSegmentationData = [
 	{ subject: "Engagement", A: 120, B: 110, fullMark: 150 },
-	{ subject: "Loyalty", A: 98, B: 130, fullMark: 150 },
+	{ subject: "Loyauté", A: 98, B: 130, fullMark: 150 },
 	{ subject: "Satisfaction", A: 86, B: 130, fullMark: 150 },
-	{ subject: "Spend", A: 99, B: 100, fullMark: 150 },
-	{ subject: "Frequency", A: 85, B: 90, fullMark: 150 },
-	{ subject: "Recency", A: 65, B: 85, fullMark: 150 },
+	{ subject: "Dépenses", A: 99, B: 100, fullMark: 150 },
+	{ subject: "Fréquence", A: 85, B: 90, fullMark: 150 },
+	{ subject: "Récence", A: 65, B: 85, fullMark: 150 },
 ];
 
 const CustomerSegmentation = () => {
@@ -27,7 +27,7 @@ const CustomerSegmentation = () => {
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ delay: 0.6 }}
 		>
-			<h2 className='text-xl font-semibold text-gray-100 mb-4'>Customer Segmentation</h2>
+			<h2 className='text-xl font-semibold text-gray-100 mb-4'>Segmentation des Clients</h2>
 			<div style={{ width: "100%", height: 300 }}>
 				<ResponsiveContainer>
 					<RadarChart cx='50%' cy='50%' outerRadius='80%' data={customerSegmentationData}>
