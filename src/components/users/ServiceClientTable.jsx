@@ -16,7 +16,7 @@ const userData = [
     cin: "CIN001",
     role: "Service_Client",
     dateInscription: "2023-09-10",
-    derniereMiseAJour: "2023-09-11"
+    derniereMiseAJour: "2023-09-11",
   },
   {
     nom: "الطاهر",
@@ -31,7 +31,7 @@ const userData = [
     cin: "CIN002",
     role: "Service_Client",
     dateInscription: "2023-09-15",
-    derniereMiseAJour: "2023-09-16"
+    derniereMiseAJour: "2023-09-16",
   },
   {
     nom: "الشابي",
@@ -46,7 +46,7 @@ const userData = [
     cin: "CIN003",
     role: "Service_Client",
     dateInscription: "2023-09-20",
-    derniereMiseAJour: "2023-09-21"
+    derniereMiseAJour: "2023-09-21",
   },
   {
     nom: "بوشناق",
@@ -61,9 +61,8 @@ const userData = [
     cin: "CIN004",
     role: "Service_Client",
     dateInscription: "2023-09-25",
-    derniereMiseAJour: "2023-09-26"
+    derniereMiseAJour: "2023-09-26",
   },
-  
 ];
 
 const roleStyles = {
@@ -82,7 +81,7 @@ const roleStyles = {
   Service_Client: {
     background: "bg-ServiceColor",
     text: "text-white",
-  }
+  },
 };
 
 const ServiceClientTable = () => {
@@ -147,13 +146,13 @@ const ServiceClientTable = () => {
 
   return (
     <motion.div
-  className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700 mb-4"
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ delay: 0.2 }}
->
+      className="bg-white backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-200 mb-4"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+    >
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-100">Service Client</h2>
+        <h2 className="text-xl font-semibold text-gray-700">Service Client</h2>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
           onClick={() => setIsModalOpen(true)}
@@ -164,47 +163,49 @@ const ServiceClientTable = () => {
           <input
             type="text"
             placeholder="Recherche ServC..."
-            className="bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-gray-200 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={handleSearch}
           />
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-2.5 text-gray-700" size={18} />
         </div>
       </div>
 
-      <div className="max-h-[350px] w-full  overflow-y-auto rounded-lg border border-gray-600">
-  <table className="min-w-full divide-y divide-gray-700">
-    <thead>
-      <tr>
-        <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-          Nom Complet
-        </th>
-        <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-          Email
-        </th>
-        <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-          Téléphone
-        </th>
-        <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-          Rôle
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      {filteredUsers.map((user, index) => (
-        <tr key={index} className="hover:bg-gray-700">
-          <td className="px-6 py-4 text-gray-200">{`${user.prenom} ${user.nom}`}</td>
-          <td className="px-6 py-4 text-gray-200">{user.email}</td>
-          <td className="px-6 py-4 text-gray-200">{user.telephone}</td>
-          <td className="px-6 py-4">
-          <span
-  className={`px-2 inline-flex leading-5 font-semibold rounded-full ${roleStyles[user.role]?.background} ${roleStyles[user.role]?.text}`}
-  style={{ fontSize: '11px' }} 
->
-  {user.role}
-</span>
-          </td>
-          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+      <div className="max-h-[350px] w-full  overflow-y-auto rounded-lg border border-gray-400">
+        <table className="min-w-full divide-y divide-gray-300">
+          <thead>
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Nom Complet
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Email
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Téléphone
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Rôle
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredUsers.map((user, index) => (
+              <tr key={index} className="hover:bg-gray-200">
+                <td className="px-6 py-4 text-gray-700">{`${user.prenom} ${user.nom}`}</td>
+                <td className="px-6 py-4 text-gray-700">{user.email}</td>
+                <td className="px-6 py-4 text-gray-700">{user.telephone}</td>
+                <td className="px-6 py-4">
+                  <span
+                    className={`px-2 inline-flex leading-5 font-semibold rounded-full ${
+                      roleStyles[user.role]?.background
+                    } ${roleStyles[user.role]?.text}`}
+                    style={{ fontSize: "11px" }}
+                  >
+                    {user.role}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                   <button className="text-indigo-400 hover:text-indigo-300 mr-2">
                     Edit
                   </button>
@@ -212,21 +213,23 @@ const ServiceClientTable = () => {
                     Delete
                   </button>
                 </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {isModalOpen && (
         <motion.div
-          className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
+          className="fixed inset-0 bg-white   flex justify-center items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div className="bg-white rounded-lg p-6 shadow-lg min-w-[90vh] h-[400px] overflow-auto           ">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Ajouter un Service Client</h3>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+              Ajouter un Service Client
+            </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -407,4 +410,3 @@ const ServiceClientTable = () => {
 };
 
 export default ServiceClientTable;
-
