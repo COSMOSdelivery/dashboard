@@ -168,7 +168,7 @@ const Livreur = () => {
         </div>
       </div>
 
-      <div className="max-h-[350px] w-[97vh] overflow-y-auto rounded-lg border border-gray-600">
+      <div className="max-h-[350px] w-full overflow-y-auto rounded-lg border border-gray-600">
   <table className="min-w-full divide-y divide-gray-700">
     <thead>
       <tr>
