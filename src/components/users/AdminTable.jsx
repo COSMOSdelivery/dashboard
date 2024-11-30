@@ -4,124 +4,66 @@ import { Search } from "lucide-react";
 
 const userData = [
   {
-    nom: "السعيدي",
-    prenom: "مريم",
-    nomShop: "متجر مريم",
-    email: "maryam@example.com",
-    gouvernerat: "تونس",
-    ville: "أريانة",
-    localité: "منوبة",
-    codePostal: "2002",
-    adresse: "321 شارع الأمل",
-    telephone: "22233444",
-    codeTVA: "TVA321",
-    cin: "CIN321",
-    role: "Client",
-    dateInscription: "2023-01-15",
-    derniereMiseAJour: "2023-01-16",
-  },
-  {
-    nom: "الجبالي",
-    prenom: "يوسف",
-    nomShop: "محل يوسف",
-    email: "youssef@example.com",
-    gouvernerat: "مدنين",
-    ville: "جرجيس",
-    localité: "سيدي مخلوف",
-    codePostal: "5000",
-    adresse: "654 شارع السعادة",
-    telephone: "34567890",
-    codeTVA: "TVA654",
-    cin: "CIN654",
-    role: "Client",
-    dateInscription: "2023-01-20",
-    derniereMiseAJour: "2023-01-21",
-  },
-  {
-    nom: "عبدالله",
-    prenom: "خالد",
-    nomShop: "سوق خالد",
-    email: "khalid@example.com",
-    gouvernerat: "تونس",
-    ville: "حلق الوادي",
-    localité: "الكرم",
-    codePostal: "2005",
-    adresse: "567 شارع البحيرة",
-    telephone: "56789012",
-    codeTVA: "TVA567",
-    cin: "CIN567",
-    role: "Client",
-    dateInscription: "2023-01-25",
-    derniereMiseAJour: "2023-01-26",
-  },
-  {
-    nom: "جمعة",
-    prenom: "هند",
-    nomShop: "هند للأزياء",
-    email: "hind@example.com",
-    gouvernerat: "سوسة",
-    ville: "سوسة",
-    localité: "بوحجر",
-    codePostal: "4000",
-    adresse: "123 شارع الحديقة",
-    telephone: "12345678",
-    codeTVA: "TVA123",
-    cin: "CIN123",
-    role: "Client",
-    dateInscription: "2023-01-05",
-    derniereMiseAJour: "2023-01-06",
-  },
-  {
-    nom: "حمدي",
-    prenom: "أحمد",
-    nomShop: "مخبز حمدي",
-    email: "ahmed@example.com",
+    nom: "الحربي",
+    prenom: "عبدالله",
+    email: "abdullah@example.com",
     gouvernerat: "صفاقس",
-    ville: "صفاقس",
-    localité: "المدينة العتيقة",
+    ville: "صفاقس المدينة",
+    localité: "الحي الجديد",
     codePostal: "3000",
-    adresse: "789 شارع الحرية",
-    telephone: "11122333",
-    codeTVA: "TVA789",
+    adresse: "123 شارع الزيتون",
+    telephone: "91234567",
+    cin: "CIN123",
+    role: "Admin",
+    dateInscription: "2023-03-15",
+    derniereMiseAJour: "2023-03-16"
+  },
+  {
+    nom: "الشهراني",
+    prenom: "سعيد",
+    email: "saeed@example.com",
+    gouvernerat: "أريانة",
+    ville: "سكرة",
+    localité: "الرياض",
+    codePostal: "2080",
+    adresse: "456 شارع الورد",
+    telephone: "93456789",
+    cin: "CIN456",
+    role: "Admin",
+    dateInscription: "2023-04-10",
+    derniereMiseAJour: "2023-04-11"
+  },
+  {
+    nom: "الغامدي",
+    prenom: "ماجد",
+    email: "majed@example.com",
+    gouvernerat: "بنزرت",
+    ville: "جرزونة",
+    localité: "حي الزيت",
+    codePostal: "7000",
+    adresse: "789 شارع البحر",
+    telephone: "98765431",
     cin: "CIN789",
-    role: "Client",
-    dateInscription: "2023-01-10",
-    derniereMiseAJour: "2023-01-11",
+    role: "Admin",
+    dateInscription: "2023-05-20",
+    derniereMiseAJour: "2023-05-21"
   },
   {
-    nom: "السعيدي",
-    prenom: "مريم",
-    nomShop: "متجر مريم",
-    email: "maryam@example.com",
-    gouvernerat: "تونس",
-    ville: "أريانة",
-    localité: "منوبة",
-    codePostal: "2002",
-    adresse: "321 شارع الأمل",
-    telephone: "22233444",
-    codeTVA: "TVA321",
-    cin: "CIN321",
-    role: "Client",
-    dateInscription: "2023-01-15",
-    derniereMiseAJour: "2023-01-16",
-  },
-  {
-    nom: "الجبالي",
-    prenom: "يوسف",
-    nomShop: "محل يوسف",
-    email: "youssef@example.com",
-    gouvernerat: "مدنين",
-    ville: "جرجيس",
-    localité: "سيدي مخلوف",
-    codePostal: "5000",
-    adresse: "654 شارع السعادة",
-    telephone: "34567890",
-    codeTVA: "TVA654",
+    nom: "العمري",
+    prenom: "فهد",
+    email: "fahad@example.com",
+    gouvernerat: "القيروان",
+    ville: "القيروان المدينة",
+    localité: "حي النصر",
+    codePostal: "3100",
+    adresse: "654 شارع الحرية",
+    telephone: "94567890",
     cin: "CIN654",
-    role: "Client",
-    dateInscription: "2023-01-20",
-    derniereMiseAJour: "2023-01-21",
-  },
+    role: "Admin",
+    dateInscription: "2023-06-25",
+    derniereMiseAJour: "2023-06-26"
+  }
+  
 ];
 
 const roleStyles = {
@@ -139,14 +81,13 @@ const roleStyles = {
   },
 };
 
-const UsersTable = () => {
+const AdminTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(userData);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newUser, setNewUser] = useState({
     nom: "",
     prenom: "",
-    nomShop: "",
     email: "",
     gouvernerat: "",
     ville: "",
@@ -154,7 +95,6 @@ const UsersTable = () => {
     codePostal: "",
     adresse: "",
     telephone: "",
-    codeTVA: "",
     cin: "",
     role: "",
   });
@@ -206,19 +146,18 @@ const UsersTable = () => {
   animate={{ opacity: 1, y: 0 }}
   transition={{ delay: 0.2 }}
 >
-
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-100">Clients</h2>
+        <h2 className="text-xl font-semibold text-gray-100">Admins</h2>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
           onClick={() => setIsModalOpen(true)}
         >
-          Ajouter Client
+          Ajouter Admin
         </button>
         <div className="relative">
           <input
             type="text"
-            placeholder="Recherche Client..."
+            placeholder="Recherche Admin..."
             className="bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={handleSearch}
@@ -272,7 +211,6 @@ const UsersTable = () => {
   </table>
 </div>
 
-
       {isModalOpen && (
         <motion.div
           className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
@@ -281,7 +219,7 @@ const UsersTable = () => {
           exit={{ opacity: 0 }}
         >
           <motion.div className="bg-white rounded-lg p-6 shadow-lg min-w-[90vh] h-[400px] overflow-auto           ">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Ajouter un Client</h3>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Ajouter un Admin</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -461,5 +399,5 @@ const UsersTable = () => {
   );
 };
 
-export default UsersTable;
+export default AdminTable;
 

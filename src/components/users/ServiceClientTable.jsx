@@ -4,124 +4,66 @@ import { Search } from "lucide-react";
 
 const userData = [
   {
-    nom: "السعيدي",
-    prenom: "مريم",
-    nomShop: "متجر مريم",
-    email: "maryam@example.com",
-    gouvernerat: "تونس",
-    ville: "أريانة",
-    localité: "منوبة",
-    codePostal: "2002",
-    adresse: "321 شارع الأمل",
-    telephone: "22233444",
-    codeTVA: "TVA321",
-    cin: "CIN321",
-    role: "Client",
-    dateInscription: "2023-01-15",
-    derniereMiseAJour: "2023-01-16",
-  },
-  {
-    nom: "الجبالي",
-    prenom: "يوسف",
-    nomShop: "محل يوسف",
-    email: "youssef@example.com",
-    gouvernerat: "مدنين",
-    ville: "جرجيس",
-    localité: "سيدي مخلوف",
-    codePostal: "5000",
-    adresse: "654 شارع السعادة",
-    telephone: "34567890",
-    codeTVA: "TVA654",
-    cin: "CIN654",
-    role: "Client",
-    dateInscription: "2023-01-20",
-    derniereMiseAJour: "2023-01-21",
-  },
-  {
-    nom: "عبدالله",
+    nom: "بن سعيد",
     prenom: "خالد",
-    nomShop: "سوق خالد",
-    email: "khalid@example.com",
+    email: "khaled@example.com",
     gouvernerat: "تونس",
-    ville: "حلق الوادي",
-    localité: "الكرم",
-    codePostal: "2005",
-    adresse: "567 شارع البحيرة",
-    telephone: "56789012",
-    codeTVA: "TVA567",
-    cin: "CIN567",
-    role: "Client",
-    dateInscription: "2023-01-25",
-    derniereMiseAJour: "2023-01-26",
+    ville: "المنار",
+    localité: "حي النصر",
+    codePostal: "1073",
+    adresse: "30 شارع الرياض",
+    telephone: "91234567",
+    cin: "CIN001",
+    role: "Service_Client",
+    dateInscription: "2023-09-10",
+    derniereMiseAJour: "2023-09-11"
   },
   {
-    nom: "جمعة",
-    prenom: "هند",
-    nomShop: "هند للأزياء",
-    email: "hind@example.com",
-    gouvernerat: "سوسة",
-    ville: "سوسة",
-    localité: "بوحجر",
-    codePostal: "4000",
-    adresse: "123 شارع الحديقة",
-    telephone: "12345678",
-    codeTVA: "TVA123",
-    cin: "CIN123",
-    role: "Client",
-    dateInscription: "2023-01-05",
-    derniereMiseAJour: "2023-01-06",
+    nom: "الطاهر",
+    prenom: "سامي",
+    email: "sami@example.com",
+    gouvernerat: "المنستير",
+    ville: "المنستير",
+    localité: "المدينة الجديدة",
+    codePostal: "5000",
+    adresse: "15 شارع النخيل",
+    telephone: "92345678",
+    cin: "CIN002",
+    role: "Service_Client",
+    dateInscription: "2023-09-15",
+    derniereMiseAJour: "2023-09-16"
   },
   {
-    nom: "حمدي",
-    prenom: "أحمد",
-    nomShop: "مخبز حمدي",
-    email: "ahmed@example.com",
+    nom: "الشابي",
+    prenom: "فاطمة",
+    email: "fatma@example.com",
     gouvernerat: "صفاقس",
     ville: "صفاقس",
-    localité: "المدينة العتيقة",
-    codePostal: "3000",
-    adresse: "789 شارع الحرية",
-    telephone: "11122333",
-    codeTVA: "TVA789",
-    cin: "CIN789",
-    role: "Client",
-    dateInscription: "2023-01-10",
-    derniereMiseAJour: "2023-01-11",
+    localité: "حي النصر",
+    codePostal: "3001",
+    adresse: "25 شارع تونس",
+    telephone: "93456789",
+    cin: "CIN003",
+    role: "Service_Client",
+    dateInscription: "2023-09-20",
+    derniereMiseAJour: "2023-09-21"
   },
   {
-    nom: "السعيدي",
-    prenom: "مريم",
-    nomShop: "متجر مريم",
-    email: "maryam@example.com",
-    gouvernerat: "تونس",
-    ville: "أريانة",
-    localité: "منوبة",
-    codePostal: "2002",
-    adresse: "321 شارع الأمل",
-    telephone: "22233444",
-    codeTVA: "TVA321",
-    cin: "CIN321",
-    role: "Client",
-    dateInscription: "2023-01-15",
-    derniereMiseAJour: "2023-01-16",
+    nom: "بوشناق",
+    prenom: "محمد",
+    email: "mohamed@example.com",
+    gouvernerat: "نابل",
+    ville: "قليبية",
+    localité: "المدينة القديمة",
+    codePostal: "8020",
+    adresse: "40 شارع السلام",
+    telephone: "94456789",
+    cin: "CIN004",
+    role: "Service_Client",
+    dateInscription: "2023-09-25",
+    derniereMiseAJour: "2023-09-26"
   },
-  {
-    nom: "الجبالي",
-    prenom: "يوسف",
-    nomShop: "محل يوسف",
-    email: "youssef@example.com",
-    gouvernerat: "مدنين",
-    ville: "جرجيس",
-    localité: "سيدي مخلوف",
-    codePostal: "5000",
-    adresse: "654 شارع السعادة",
-    telephone: "34567890",
-    codeTVA: "TVA654",
-    cin: "CIN654",
-    role: "Client",
-    dateInscription: "2023-01-20",
-    derniereMiseAJour: "2023-01-21",
-  },
+  
 ];
 
 const roleStyles = {
@@ -137,9 +79,13 @@ const roleStyles = {
     background: "bg-green-500",
     text: "text-white",
   },
+  Service_Client: {
+    background: "bg-ServiceColor",
+    text: "text-white",
+  }
 };
 
-const UsersTable = () => {
+const ServiceClientTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(userData);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -206,19 +152,18 @@ const UsersTable = () => {
   animate={{ opacity: 1, y: 0 }}
   transition={{ delay: 0.2 }}
 >
-
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-100">Clients</h2>
+        <h2 className="text-xl font-semibold text-gray-100">Service Client</h2>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
           onClick={() => setIsModalOpen(true)}
         >
-          Ajouter Client
+          Ajouter Service Client
         </button>
         <div className="relative">
           <input
             type="text"
-            placeholder="Recherche Client..."
+            placeholder="Recherche ServC..."
             className="bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={handleSearch}
@@ -227,7 +172,7 @@ const UsersTable = () => {
         </div>
       </div>
 
-      <div className="max-h-[350px] w-[97vh] overflow-y-auto rounded-lg border border-gray-600">
+      <div className="max-h-[350px] w-[97vh]  overflow-y-auto rounded-lg border border-gray-600">
   <table className="min-w-full divide-y divide-gray-700">
     <thead>
       <tr>
@@ -252,11 +197,12 @@ const UsersTable = () => {
           <td className="px-6 py-4 text-gray-200">{user.email}</td>
           <td className="px-6 py-4 text-gray-200">{user.telephone}</td>
           <td className="px-6 py-4">
-            <span
-              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${roleStyles[user.role]?.background} ${roleStyles[user.role]?.text}`}
-            >
-              {user.role}
-            </span>
+          <span
+  className={`px-2 inline-flex leading-5 font-semibold rounded-full ${roleStyles[user.role]?.background} ${roleStyles[user.role]?.text}`}
+  style={{ fontSize: '11px' }} 
+>
+  {user.role}
+</span>
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                   <button className="text-indigo-400 hover:text-indigo-300 mr-2">
@@ -272,7 +218,6 @@ const UsersTable = () => {
   </table>
 </div>
 
-
       {isModalOpen && (
         <motion.div
           className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
@@ -281,7 +226,7 @@ const UsersTable = () => {
           exit={{ opacity: 0 }}
         >
           <motion.div className="bg-white rounded-lg p-6 shadow-lg min-w-[90vh] h-[400px] overflow-auto           ">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Ajouter un Client</h3>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Ajouter un Service Client</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -461,5 +406,5 @@ const UsersTable = () => {
   );
 };
 
-export default UsersTable;
+export default ServiceClientTable;
 

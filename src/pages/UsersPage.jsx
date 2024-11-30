@@ -4,7 +4,9 @@ import { motion } from "framer-motion";
 import Header from "../components/common/Header";
 import StatCard from "../components/common/StatCard";
 import UsersTable from "../components/users/UsersTable";
-
+import AdminTable from "../components/users/AdminTable";
+import Livreur from "../components/users/Livreur";
+import ServiceClientTable from "../components/users/ServiceClientTable";
 const userStats = {
 	totalUsers: 152845,
 	newUsersToday: 243,
@@ -40,8 +42,24 @@ const UsersPage = () => {
 					/>
 					<StatCard name='Taux de désabonnement' icon={UserX} value={userStats.churnRate} color='#EF4444' />
 				</motion.div>
-
+				<div className="tables" 
+					style={{
+						display: "flex",
+						justifyContent: "center",
+						alignItems: "center",
+						alignContent: "center",
+						flexWrap: "nowrap",
+						flexDirection: "column",
+					  }}
+					>
+				<AdminTable />
+				<ServiceClientTable />
+				<Livreur />
 				<UsersTable />
+				
+				
+				
+				</div>
 
 				
 			</main>

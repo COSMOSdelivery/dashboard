@@ -1,5 +1,5 @@
-import { Route, Routes, useLocation } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { Route, Routes } from "react-router-dom";
+import { LogOut } from "lucide-react"; // Ensure you have this import
 import Sidebar from "./components/common/Sidebar";
 import OverviewPage from "./pages/OverviewPage";
 import UsersPage from "./pages/UsersPage";
