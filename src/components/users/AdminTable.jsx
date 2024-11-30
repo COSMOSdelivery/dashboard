@@ -4,72 +4,64 @@ import { Search } from "lucide-react";
 
 const userData = [
   {
-    nom: "العنزي",
-    prenom: "سلمان",
-    nomShop: "محل سلمان",
-    email: "salman@example.com",
-    gouvernerat: "تونس",
-    ville: "منوبة",
-    localité: "دوار هيشر",
-    codePostal: "2001",
-    adresse: "456 شارع النخيل",
-    telephone: "98765432",
-    codeTVA: "TVA456",
+    nom: "الحربي",
+    prenom: "عبدالله",
+    email: "abdullah@example.com",
+    gouvernerat: "صفاقس",
+    ville: "صفاقس المدينة",
+    localité: "الحي الجديد",
+    codePostal: "3000",
+    adresse: "123 شارع الزيتون",
+    telephone: "91234567",
+    cin: "CIN123",
+    role: "Admin",
+    dateInscription: "2023-03-15",
+    derniereMiseAJour: "2023-03-16",
+  },
+  {
+    nom: "الشهراني",
+    prenom: "سعيد",
+    email: "saeed@example.com",
+    gouvernerat: "أريانة",
+    ville: "سكرة",
+    localité: "الرياض",
+    codePostal: "2080",
+    adresse: "456 شارع الورد",
+    telephone: "93456789",
     cin: "CIN456",
     role: "Admin",
-    dateInscription: "2023-01-05",
-    derniereMiseAJour: "2023-01-06",
+    dateInscription: "2023-04-10",
+    derniereMiseAJour: "2023-04-11",
   },
   {
-    nom: "حمدي",
-    prenom: "أحمد",
-    nomShop: "مخبز حمدي",
-    email: "ahmed@example.com",
-    gouvernerat: "صفاقس",
-    ville: "صفاقس",
-    localité: "المدينة العتيقة",
-    codePostal: "3000",
-    adresse: "789 شارع الحرية",
-    telephone: "11122333",
-    codeTVA: "TVA789",
+    nom: "الغامدي",
+    prenom: "ماجد",
+    email: "majed@example.com",
+    gouvernerat: "بنزرت",
+    ville: "جرزونة",
+    localité: "حي الزيت",
+    codePostal: "7000",
+    adresse: "789 شارع البحر",
+    telephone: "98765431",
     cin: "CIN789",
-    role: "Livreur",
-    dateInscription: "2023-01-10",
-    derniereMiseAJour: "2023-01-11",
+    role: "Admin",
+    dateInscription: "2023-05-20",
+    derniereMiseAJour: "2023-05-21",
   },
   {
-    nom: "السعيدي",
-    prenom: "مريم",
-    nomShop: "متجر مريم",
-    email: "maryam@example.com",
-    gouvernerat: "تونس",
-    ville: "أريانة",
-    localité: "منوبة",
-    codePostal: "2002",
-    adresse: "321 شارع الأمل",
-    telephone: "22233444",
-    codeTVA: "TVA321",
-    cin: "CIN321",
-    role: "Client",
-    dateInscription: "2023-01-15",
-    derniereMiseAJour: "2023-01-16",
-  },
-  {
-    nom: "الجبالي",
-    prenom: "يوسف",
-    nomShop: "محل يوسف",
-    email: "youssef@example.com",
-    gouvernerat: "مدنين",
-    ville: "جرجيس",
-    localité: "سيدي مخلوف",
-    codePostal: "5000",
-    adresse: "654 شارع السعادة",
-    telephone: "34567890",
-    codeTVA: "TVA654",
+    nom: "العمري",
+    prenom: "فهد",
+    email: "fahad@example.com",
+    gouvernerat: "القيروان",
+    ville: "القيروان المدينة",
+    localité: "حي النصر",
+    codePostal: "3100",
+    adresse: "654 شارع الحرية",
+    telephone: "94567890",
     cin: "CIN654",
-    role: "Client",
-    dateInscription: "2023-01-20",
-    derniereMiseAJour: "2023-01-21",
+    role: "Admin",
+    dateInscription: "2023-06-25",
+    derniereMiseAJour: "2023-06-26",
   },
 ];
 
@@ -88,14 +80,13 @@ const roleStyles = {
   },
 };
 
-const UsersTable = () => {
+const AdminTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(userData);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newUser, setNewUser] = useState({
     nom: "",
     prenom: "",
-    nomShop: "",
     email: "",
     gouvernerat: "",
     ville: "",
@@ -103,7 +94,6 @@ const UsersTable = () => {
     codePostal: "",
     adresse: "",
     telephone: "",
-    codeTVA: "",
     cin: "",
     role: "",
   });
@@ -150,83 +140,65 @@ const UsersTable = () => {
 
   return (
     <motion.div
-      className="bg-gray-800 bg-opacity-50 backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-700"
+      className="bg-white   backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-200 mb-4"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-100">Utilisateurs</h2>
+        <h2 className="text-xl font-semibold text-gray-700">Admins</h2>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
           onClick={() => setIsModalOpen(true)}
         >
-          Ajouter Utilisateur
+          Ajouter Admin
         </button>
         <div className="relative">
           <input
             type="text"
-            placeholder="Recherche user..."
-            className="bg-gray-700 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Recherche Admin..."
+            className="bg-gray-200 text-white placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={handleSearch}
           />
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+          <Search className="absolute left-3 top-2.5 text-gray-700" size={18} />
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-700">
+      <div className="max-h-[350px] w-full overflow-y-auto rounded-lg border border-gray-400">
+        <table className="min-w-full divide-y divide-gray-300">
           <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Nom Complet
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                 Email
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Rôle
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Téléphone
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                Actions
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                Rôle
               </th>
             </tr>
           </thead>
-
-          <tbody className="divide-y divide-gray-700">
+          <tbody>
             {filteredUsers.map((user, index) => (
-              <motion.tr
-                key={index}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
-              >
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10">
-                      <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-400 to-blue-500 flex items-center justify-center text-white font-semibold">
-                        {user.prenom.charAt(0)}
-                      </div>
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-100">{`${user.prenom} ${user.nom}`}</div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-300">{user.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+              <tr key={index} className="hover:bg-gray-200">
+                <td className="px-6 py-4 text-gray-700">{`${user.prenom} ${user.nom}`}</td>
+                <td className="px-6 py-4 text-gray-700">{user.email}</td>
+                <td className="px-6 py-4 text-gray-700">{user.telephone}</td>
+                <td className="px-6 py-4">
                   <span
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      roleStyles[user.role]?.background || "bg-gray-500"
-                    } ${roleStyles[user.role]?.text || "text-gray-100"}`}
+                      roleStyles[user.role]?.background
+                    } ${roleStyles[user.role]?.text}`}
                   >
                     {user.role}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                   <button className="text-indigo-400 hover:text-indigo-300 mr-2">
                     Edit
                   </button>
@@ -234,7 +206,7 @@ const UsersTable = () => {
                     Delete
                   </button>
                 </td>
-              </motion.tr>
+              </tr>
             ))}
           </tbody>
         </table>
@@ -242,13 +214,15 @@ const UsersTable = () => {
 
       {isModalOpen && (
         <motion.div
-          className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center"
+          className="fixed inset-0 bg-white   flex justify-center items-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div className="bg-white rounded-lg p-6 shadow-lg min-w-[90vh] h-[400px] overflow-auto           ">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Ajouter un Utilisateur</h3>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+              Ajouter un Admin
+            </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -428,5 +402,4 @@ const UsersTable = () => {
   );
 };
 
-export default UsersTable;
-
+export default AdminTable;
