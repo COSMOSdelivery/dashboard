@@ -7,7 +7,19 @@ import SalesPage from "./pages/SalesPage";
 import OrdersPage from "./pages/OrdersPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
-import LoginPage from './pages/LoginPage';
+import LoginPage from "./pages/LoginPage";
+import NotFoundPage from "./pages/NotFoundPage";
+
+const routes = [
+    { path: "/", element: <OverviewPage />, requiresAuth: true },
+    { path: "/users", element: <UsersPage />, requiresAuth: true, roles: ["ADMIN"] },
+    { path: "/sales", element: <SalesPage />, requiresAuth: true },
+    { path: "/orders", element: <OrdersPage />, requiresAuth: true },
+    { path: "/analytics", element: <AnalyticsPage />, requiresAuth: true },
+    { path: "/settings", element: <SettingsPage />, requiresAuth: true },
+    { path: "/login", element: <LoginPage />, requiresAuth: false },
+    { path: "*", element: <NotFoundPage />, requiresAuth: false },
+];
 
 function App() {
   const handleLogoutClick = () => {
