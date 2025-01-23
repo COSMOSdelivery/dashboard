@@ -12,7 +12,7 @@ import NotFoundPage from "./pages/NotFoundPage";
 
 const routes = [
     { path: "/", element: <OverviewPage />, requiresAuth: true },
-    { path: "/users", element: <UsersPage />, requiresAuth: true, roles: ["ADMIN"] },
+    { path: "/users", element: <UsersPage />, requiresAuth: true},
     { path: "/sales", element: <SalesPage />, requiresAuth: true },
     { path: "/orders", element: <OrdersPage />, requiresAuth: true },
     { path: "/analytics", element: <AnalyticsPage />, requiresAuth: true },
@@ -45,9 +45,9 @@ function App() {
     const isLoginPage = location.pathname === "/login";
 
     return (
-        <div className="flex h-screen bg-gray-900 text-gray-100 overflow-hidden">
+        <div className="flex h-screen bg-white text-gray-100 overflow-hidden">
             <div className="fixed inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 opacity-80" />
+                <div className="absolute inset-0 bg-white" />
                 <div className="absolute inset-0 backdrop-blur-sm" />
             </div>
 
@@ -57,7 +57,7 @@ function App() {
                     <div className="fixed top-4 right-7 z-20 flex items-center space-x-4">
                         <button
                             onClick={handleLogoutClick}
-                            className="bg-gray-800 hover:bg-gray-700 text-gray-300 p-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="bg-white hover:bg-gray-200 text-gray-300 p-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                             title="Log Out"
                             aria-label="Log Out"
                         >

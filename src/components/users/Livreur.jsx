@@ -125,16 +125,14 @@ const Livreur = () => {
     setNewUser({
       nom: "",
       prenom: "",
-      nomShop: "",
       email: "",
-      gouvernerat: "",
-      ville: "",
-      localité: "",
-      codePostal: "",
-      adresse: "",
-      telephone: "",
+      password: "",
+      confirmePassword: "",
+      telephone1: "",
+      telephone2: "",
       codeTVA: "",
       cin: "",
+      gouvernorat: "",
       role: "",
     });
     setIsModalOpen(false);
@@ -221,182 +219,169 @@ const Livreur = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
-          <motion.div className="bg-white rounded-lg p-6 shadow-lg min-w-[90vh] h-[400px] overflow-auto           ">
+          <motion.div className="bg-white rounded-lg p-6 shadow-lg w-full h-full overflow-auto">
             <h3 className="text-2xl font-semibold text-gray-800 mb-4">
               Ajouter un Livreur
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-700">Nom</label>
-                  <input
-                    type="text"
-                    name="nom"
-                    value={newUser.nom}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700">Prénom</label>
-                  <input
-                    type="text"
-                    name="prenom"
-                    value={newUser.prenom}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
-                </div>
-              </div>
+  <div className="grid grid-cols-2 gap-4">
+    <div>
+      <label className="block text-gray-700">Nom</label>
+      <input
+        type="text"
+        name="nom"
+        value={newUser.nom}
+        onChange={handleInputChange}
+        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      />
+    </div>
+    <div>
+      <label className="block text-gray-700">Prénom</label>
+      <input
+        type="text"
+        name="prenom"
+        value={newUser.prenom}
+        onChange={handleInputChange}
+        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      />
+    </div>
+  </div>
 
-              <div>
-                <label className="block text-gray-700">Nom de Shop</label>
-                <input
-                  type="text"
-                  name="nomShop"
-                  value={newUser.nomShop}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+  <div>
+    <label className="block text-gray-700">Email</label>
+    <input
+      type="email"
+      name="email"
+      value={newUser.email}
+      onChange={handleInputChange}
+      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      required
+    />
+  </div>
 
-              <div>
-                <label className="block text-gray-700">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={newUser.email}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+  <div className="grid grid-cols-2 gap-4">
+    <div>
+      <label className="block text-gray-700">Mot de passe</label>
+      <input
+        type="password"
+        name="password"
+        value={newUser.password}
+        onChange={handleInputChange}
+        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      />
+    </div>
+    <div>
+      <label className="block text-gray-700">Confirmez le mot de passe</label>
+      <input
+        type="password"
+        name="confirmePassword"
+        value={newUser.confirmePassword}
+        onChange={handleInputChange}
+        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      />
+    </div>
+  </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-700">Gouvernerat</label>
-                  <input
-                    type="text"
-                    name="gouvernerat"
-                    value={newUser.gouvernerat}
-                    onChange={handleInputChange}
-                    className="mt-1 text-black block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700">Ville</label>
-                  <input
-                    type="text"
-                    name="ville"
-                    value={newUser.ville}
-                    onChange={handleInputChange}
-                    className="mt-1 text-black block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
+  <div className="grid grid-cols-2 gap-4">
+    <div>
+      <label className="block text-gray-700">Téléphone 1</label>
+      <input
+        type="text"
+        name="telephone1"
+        value={newUser.telephone1}
+        onChange={handleInputChange}
+        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      />
+    </div>
+    <div>
+      <label className="block text-gray-700">Téléphone 2 (optionnel)</label>
+      <input
+        type="text"
+        name="telephone2"
+        value={newUser.telephone2}
+        onChange={handleInputChange}
+        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+  </div>
 
-              <div>
-                <label className="block text-gray-700">Localité</label>
-                <input
-                  type="text"
-                  name="localité"
-                  value={newUser.localité}
-                  onChange={handleInputChange}
-                  className="mt-1 text-black block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+  <div className="grid grid-cols-2 gap-4">
+    <div>
+      <label className="block text-gray-700">Code TVA</label>
+      <input
+        type="text"
+        name="codeTVA"
+        value={newUser.codeTVA}
+        onChange={handleInputChange}
+        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      />
+    </div>
+    <div>
+      <label className="block text-gray-700">CIN</label>
+      <input
+        type="text"
+        name="cin"
+        value={newUser.cin}
+        onChange={handleInputChange}
+        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required
+      />
+    </div>
+  </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-700">Code Postal</label>
-                  <input
-                    type="text"
-                    name="codePostal"
-                    value={newUser.codePostal}
-                    onChange={handleInputChange}
-                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700">Adresse</label>
-                  <input
-                    type="text"
-                    name="adresse"
-                    value={newUser.adresse}
-                    onChange={handleInputChange}
-                    className="mt-1 text-black block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
+  <div>
+    <label className="block text-gray-700">Gouvernorat</label>
+    <input
+      type="text"
+      name="gouvernorat"
+      value={newUser.gouvernorat}
+      onChange={handleInputChange}
+      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      required
+    />
+  </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-700">Téléphone</label>
-                  <input
-                    type="text"
-                    name="telephone"
-                    value={newUser.telephone}
-                    onChange={handleInputChange}
-                    className="mt-1 block text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-gray-700">Code TVA</label>
-                  <input
-                    type="text"
-                    name="codeTVA"
-                    value={newUser.codeTVA}
-                    onChange={handleInputChange}
-                    className="mt-1 block text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-gray-700">CIN</label>
-                <input
-                  type="text"
-                  name="cin"
-                  value={newUser.cin}
-                  onChange={handleInputChange}
-                  className="mt-1 block text-black w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-gray-700">Rôle</label>
-                <select
-                  name="role"
-                  value={newUser.role}
-                  onChange={handleInputChange}
-                  className="mt-1 text-black block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Sélectionner un rôle</option>
-                  <option value="Admin">Admin</option>
-                  <option value="Livreur">Livreur</option>
-                  <option value="Client">Client</option>
-                </select>
-              </div>
+  <div>
+    <label className="block text-gray-700">Rôle</label>
+    <select
+      name="role"
+      value={newUser.role}
+      onChange={handleInputChange}
+      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      required
+    >
+      <option value="" disabled>
+        Sélectionnez un rôle
+      </option>
+      <option value="Admin">Admin</option>
+      <option value="Livreur">Livreur</option>
+      <option value="Client">Client</option>
+    </select>
+  </div>
 
               <div className="flex justify-end space-x-4 mt-4">
-                <button
+              <button
                   type="button"
                   className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
                   onClick={() => setIsModalOpen(false)}
                 >
                   Annuler
                 </button>
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-                >
-                  Ajouter
-                </button>
-              </div>
-            </form>
+    <button
+      type="submit"
+      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+    >
+      Enregistrer
+    </button>
+  </div>
+</form>
+
           </motion.div>
         </motion.div>
       )}

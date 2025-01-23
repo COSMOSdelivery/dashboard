@@ -36,7 +36,7 @@ const LoginPage = () => {
   
         const rolePaths = {
           CLIENT: '/client-dashboard',
-          ADMIN: '/admin-dashboard',
+          ADMIN: '',
           LIVREUR: '/livreur-dashboard',
           SERVICECLIENT: '/service-client-dashboard',
         };
