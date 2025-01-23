@@ -1,172 +1,63 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import axios from 'axios';
 import config from '../../config.json';
 const API_URL = config.API_URL;
-
-
-const userData = [
-  {
-    nom: "الحربي",
-    prenom: "عبدالله",
-    email: "abdullah@example.com",
-    gouvernerat: "صفاقس",
-    ville: "صفاقس المدينة",
-    localité: "الحي الجديد",
-    codePostal: "3000",
-    adresse: "123 شارع الزيتون",
-    telephone: "91234567",
-    telephone2: "",
-    cin: "CIN123",
-    role: "ADMIN",
-    dateInscription: "2023-03-15",
-    derniereMiseAJour: "2023-03-16",
-    password: "",
-    confirmPassword: "",
-  },
-  {
-    nom: "الشهراني",
-    prenom: "سعيد",
-    email: "saeed@example.com",
-    gouvernerat: "أريانة",
-    ville: "سكرة",
-    localité: "الرياض",
-    codePostal: "2080",
-    adresse: "456 شارع الورد",
-    telephone: "93456789",
-    telephone2: "",
-    cin: "CIN456",
-    role: "ADMIN",
-    dateInscription: "2023-04-10",
-    derniereMiseAJour: "2023-04-11",
-    password: "",
-    confirmPassword: "",
-  },
-  {
-    nom: "الغامدي",
-    prenom: "ماجد",
-    email: "majed@example.com",
-    gouvernerat: "بنزرت",
-    ville: "جرزونة",
-    localité: "حي الزيت",
-    codePostal: "7000",
-    adresse: "789 شارع البحر",
-    telephone: "98765431",
-    telephone2: "",
-    cin: "CIN789",
-    role: "ADMIN",
-    dateInscription: "2023-05-20",
-    derniereMiseAJour: "2023-05-21",
-    password: "",
-    confirmPassword: "",
-  },
-  {
-    nom: "العمري",
-    prenom: "فهد",
-    email: "fahad@example.com",
-    gouvernerat: "القيروان",
-    ville: "القيروان المدينة",
-    localité: "حي النصر",
-    codePostal: "3100",
-    adresse: "654 شارع الحرية",
-    telephone: "94567890",
-    telephone2: "",
-    cin: "CIN654",
-    role: "ADMIN",
-    dateInscription: "2023-06-25",
-    derniereMiseAJour: "2023-06-26",
-    password: "",
-    confirmPassword: "",
-  },
-  {
-    nom: "الزيدي",
-    prenom: "أحمد",
-    email: "ahmed@example.com",
-    gouvernerat: "تونس",
-    ville: "تونس المدينة",
-    localité: "حي الزهور",
-    codePostal: "1000",
-    adresse: "12 شارع النصر",
-    telephone: "91122334",
-    telephone2: "98765432",
-    cin: "CIN987",
-    role: "ADMIN",
-    dateInscription: "2023-07-15",
-    derniereMiseAJour: "2023-07-16",
-    password: "",
-    confirmPassword: "",
-  },
-  {
-    nom: "اليوسفي",
-    prenom: "علي",
-    email: "ali@example.com",
-    gouvernerat: "مدنين",
-    ville: "جرجيس",
-    localité: "حي البحيرة",
-    codePostal: "4100",
-    adresse: "98 شارع الزيتون",
-    telephone: "92234567",
-    telephone2: "",
-    cin: "CIN6547",
-    role: "ADMIN",
-    dateInscription: "2023-08-10",
-    derniereMiseAJour: "2023-08-11",
-    password: "",
-    confirmPassword: "",
-  },
-];
-
-const roleStyles = {
+const roleStyle = {
   ADMIN: {
     background: "bg-red-500",
-    text: "text-white",
-  },
-  Livreur: {
-    background: "bg-yellow-500",
-    text: "text-black",
-  },
-  Client: {
-    background: "bg-green-500",
     text: "text-white",
   },
 };
 
 const AdminTable = () => {
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState(userData);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [newUser, setNewUser] = useState({
-    nom: "",
-    prenom: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    telephone: "",
-    telephone2: "",
-    cin: "",
-    codeTVA:"",
-    role: "ADMIN",
-  });
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      const token = localStorage.getItem('authToken');
+      try {
+        const response = await axios.get(`${config.API_URL}/users/allAdmins`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setUsers(response.data);
+        setFilteredUsers(response.data);
+        setIsLoading(false);
+      } catch (err) {
+        setError(err.response?.data?.msg || "Erreur de chargement des admins");
+        setIsLoading(false);
+      }
+    };
+
+    fetchAdmins();
+  }, []);
+
 
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    const filtered = userData.filter(
+    const filtered = users.filter(
       (user) =>
         `${user.prenom} ${user.nom}`.toLowerCase().includes(term) ||
         user.email.toLowerCase().includes(term)
     );
     setFilteredUsers(filtered);
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    // Handle the telephone1 to telephone mapping
+    // Handle the telephone1 to telephone1 mapping
     const fieldMapping = {
-      'telephone1': 'telephone',  // you're already handling this
-      'telephone': 'telephone1'   // add this mapping
+      'telephone1': 'telephone1',  // you're already handling this
+      'telephone1': 'telephone1'   // add this mapping
     };
     
     const fieldName = fieldMapping[name] || name;
@@ -180,6 +71,9 @@ const AdminTable = () => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+    const token = localStorage.getItem('authToken');
+    console.log('Token:', token); // Check if token exists
+
   
     if (newUser.password !== newUser.confirmPassword) {
       setError("Les mots de passe ne correspondent pas.");
@@ -196,13 +90,14 @@ const AdminTable = () => {
         prenom: newUser.prenom,
         role: "ADMIN",
         codeTVA:newUser.codeTVA,// Hardcoded as ADMIN since this is the admin table
-        telephone1: newUser.telephone, // Make sure this matches the backend field name
+        telephone1: newUser.telephone1, // Make sure this matches the backend field name
         telephone2: newUser.telephone2 || ""
       };
       console.log('Sending data:', userToSubmit);
       const response = await axios.post(`${API_URL}/users/creatAccount`, userToSubmit, {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
 
@@ -214,7 +109,7 @@ const AdminTable = () => {
         email: "",
         password: "",
         confirmPassword: "",
-        telephone: "",
+        telephone1: "",
         telephone2: "",
         cin: "",
         codeTVA:"",// Hardcoded as ADMIN since this is the admin table
@@ -287,12 +182,12 @@ const AdminTable = () => {
               <tr key={index} className="hover:bg-gray-200">
                 <td className="px-6 py-4 text-gray-700">{`${user.prenom} ${user.nom}`}</td>
                 <td className="px-6 py-4 text-gray-700">{user.email}</td>
-                <td className="px-6 py-4 text-gray-700">{user.telephone}</td>
+                <td className="px-6 py-4 text-gray-700">{user.telephone1}</td>
                 <td className="px-6 py-4">
                   <span
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      roleStyles[user.role]?.background
-                    } ${roleStyles[user.role]?.text}`}
+                      roleStyle[user.role]?.background
+                    } ${roleStyle[user.role]?.text}`}
                   >
                     {user.role}
                   </span>
@@ -429,23 +324,6 @@ const AdminTable = () => {
                   required
                 />
               </div>
-
-              <div>
-                <label className="block text-gray-700">Rôle</label>
-                <select
-                  name="role"
-                  value={newUser.role}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Sélectionner un rôle</option>
-                  <option value="ADMIN">ADMIN</option>
-                  <option value="Livreur">Livreur</option>
-                  <option value="Client">Client</option>
-                </select>
-              </div>
-
               <div className="flex justify-end space-x-4 mt-4">
                 <button
                   type="button"
