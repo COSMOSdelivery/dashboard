@@ -1,58 +1,10 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import {Edit, Search, Trash2} from "lucide-react";
 import config from "../../config.json";
 import axios from "axios";
 const API_URL = config.API_URL;
-const userData = [
-  {
-    nom: "بن سعيد",
-    prenom: "خالد",
-    email: "khaled@example.com",
-    gouvernorat: "تونس",
-    ville: "المنار",
-    localité: "حي النصر",
-    codePostal: "1073",
-    adresse: "30 شارع الرياض",
-    telephone: "91234567",
-    cin: "CIN001",
-    role: "Service_Client",
-    dateInscription: "2023-09-10",
-    derniereMiseAJour: "2023-09-11",
-  },
-  {
-    nom: "الطاهر",
-    prenom: "سامي",
-    email: "sami@example.com",
-    gouvernorat: "المنستير",
-    ville: "المنستير",
-    localité: "المدينة الجديدة",
-    codePostal: "5000",
-    adresse: "15 شارع النخيل",
-    telephone: "92345678",
-    cin: "CIN002",
-    role: "Service_Client",
-    dateInscription: "2023-09-15",
-    derniereMiseAJour: "2023-09-16",
-  },
-  {
-    nom: "الشابي",
-    prenom: "فاطمة",
-    email: "fatma@example.com",
-    gouvernorat: "صفاقس",
-    ville: "صفاقس",
-    localité: "حي النصر",
-    codePostal: "3001",
-    adresse: "25 شارع تونس",
-    telephone: "93456789",
-    cin: "CIN003",
-    role: "Service_Client",
-    dateInscription: "2023-09-20",
-    derniereMiseAJour: "2023-09-21",
-  },
-];
 
-// Styles de rôle
 const roleStyles = {
   Service_Client: {
     background: "bg-blue-500",
@@ -62,10 +14,11 @@ const roleStyles = {
 
 const ServiceClientTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState(userData);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
     nom: "",
     prenom: "",
@@ -78,7 +31,60 @@ const ServiceClientTable = () => {
     codeTVA: "",
     role: "SERVICECLIENT",
   });
+  useEffect(() => {
+    const fetchservices = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(`${API_URL}/users/allServiceClients`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setFilteredUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching livreurs:", error);
+        setError("Failed to load livreurs");
+      }
+    };
 
+    fetchservices();
+  }, []);
+  const handleDeleteservice = async (serviceId) => {
+    const confirmDelete = window.confirm(
+        "Êtes-vous sûr de vouloir supprimer ce client ?"
+    );
+
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem("authToken");
+    setIsLoading(true);
+
+    try {
+      await axios.delete(`${API_URL}/users/deleteUser/${serviceId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Remove the deleted client from the state
+      setFilteredUsers((prevUsers) =>
+          prevUsers.filter((user) => user.id !== serviceId)
+      );
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== clientId));
+
+      alert("Client supprimé avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de la suppression du service client:", error);
+
+      const errorMessage =
+          error.response?.data?.msg ||
+          "Une erreur est survenue lors de la suppression du service client";
+
+      alert(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
@@ -121,12 +127,14 @@ const ServiceClientTable = () => {
         telephone2: newUser.telephone2 || "",
       };
       console.log("Sending data:", userToSubmit);
+      const token = localStorage.getItem("authToken");
       const response = await axios.post(
         `${API_URL}/users/creatAccount`,
         userToSubmit,
         {
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
           },
         }
       );
@@ -220,28 +228,34 @@ const ServiceClientTable = () => {
           </thead>
           <tbody>
             {filteredUsers.map((user, index) => (
-              <tr key={index} className="hover:bg-gray-200">
-                <td className="px-6 py-4 text-black-700">{`${user.prenom} ${user.nom}`}</td>
-                <td className="px-6 py-4 text-black-700">{user.email}</td>
-                <td className="px-6 py-4 text-black-700">{user.telephone}</td>
-                <td className="px-6 py-4">
+                <tr key={index} className="hover:bg-gray-200">
+                  <td className="px-6 py-4 text-black-700">{`${user.prenom} ${user.nom}`}</td>
+                  <td className="px-6 py-4 text-black-700">{user.email}</td>
+                  <td className="px-6 py-4 text-black-700">{user.telephone1}</td>
+                  <td className="px-6 py-4">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      roleStyles[user.role]?.background
-                    } ${roleStyles[user.role]?.text}`}
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          roleStyles[user.role]?.background
+                      } ${roleStyles[user.role]?.text}`}
                   >
                     {user.role}
                   </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
-                  <button className="text-indigo-400 hover:text-indigo-300 mr-2">
-                    Edit
-                  </button>
-                  <button className="text-red-400 hover:text-red-300">
-                    Delete
-                  </button>
-                </td>
-              </tr>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex space-x-3">
+                    <button
+                        className="text-green-500 hover:text-green-600 flex items-center"
+                    >
+                      <Edit className="mr-1" size={16}/> Modifier
+                    </button>
+                    <button
+                        className="text-red-400 hover:text-red-500 flex items-center"
+                        onClick={() => handleDeleteservice(user.id)}
+                        disabled={isLoading}
+                    >
+                      <Trash2 className="mr-1" size={16}/> Supprimer
+                    </button>
+                  </td>
+                </tr>
             ))}
           </tbody>
         </table>
@@ -249,18 +263,18 @@ const ServiceClientTable = () => {
 
       {/* Modal */}
       {isModalOpen && (
-        <motion.div
-          className="fixed inset-0 bg-white flex justify-center items-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div className="bg-white rounded-lg p-6 shadow-lg w-full h-full overflow-auto">
-            <h3 className="text-2xl font-semibold text-black-800 mb-4">
-              Ajouter un Service Client
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+          <motion.div
+              className="fixed inset-0 bg-white flex justify-center items-center"
+              initial={{opacity: 0}}
+              animate={{opacity: 1}}
+              exit={{opacity: 0}}
+          >
+            <motion.div className="bg-white rounded-lg p-6 shadow-lg w-full h-full overflow-auto">
+              <h3 className="text-2xl font-semibold text-black-800 mb-4">
+                Ajouter un Service Client
+              </h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-black-700">Nom</label>
                   <input

@@ -1,94 +1,23 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import {Edit, Search, Trash2} from "lucide-react";
 import axios from "axios";
 import config from "../../config.json";
 const API_URL = config.API_URL;
-
-const userData = [
-  {
-    nom: "العدوي",
-    prenom: "محمد",
-    email: "mohamed@example.com",
-    gouvernorat: "تونس",
-    ville: "المنار",
-    localité: "الحي الجامعي",
-    codePostal: "1002",
-    adresse: "789 شارع النخيل",
-    telephone: "91234567",
-    cin: "CIN101",
-    role: "Livreur",
-    dateInscription: "2023-05-20",
-    derniereMiseAJour: "2023-05-21",
-  },
-  {
-    nom: "السباعي",
-    prenom: "عادل",
-    email: "adel@example.com",
-    gouvernorat: "القصرين",
-    ville: "فريانة",
-    localité: "الطريق الرئيسية",
-    codePostal: "2120",
-    adresse: "102 شارع الفجر",
-    telephone: "92765432",
-    cin: "CIN202",
-    role: "Livreur",
-    dateInscription: "2023-06-10",
-    derniereMiseAJour: "2023-06-11",
-  },
-  {
-    nom: "الجلاصي",
-    prenom: "سليم",
-    email: "selim@example.com",
-    gouvernorat: "سوسة",
-    ville: "القصبة",
-    localité: "منطقة صناعية",
-    codePostal: "4000",
-    adresse: "555 شارع البحر",
-    telephone: "95647382",
-    cin: "CIN303",
-    role: "Livreur",
-    dateInscription: "2023-07-05",
-    derniereMiseAJour: "2023-07-06",
-  },
-  {
-    nom: "الهاشمي",
-    prenom: "رشيد",
-    email: "rachid@example.com",
-    gouvernorat: "قابس",
-    ville: "قابس المدينة",
-    localité: "المنطقة الصناعية",
-    codePostal: "6000",
-    adresse: "234 شارع النصر",
-    telephone: "93487521",
-    cin: "CIN404",
-    role: "Livreur",
-    dateInscription: "2023-08-15",
-    derniereMiseAJour: "2023-08-16",
-  },
-];
-
 const roleStyles = {
-  Admin: {
-    background: "bg-red-500",
-    text: "text-white",
-  },
   Livreur: {
     background: "bg-yellow-500",
     text: "text-black",
-  },
-  Client: {
-    background: "bg-green-500",
-    text: "text-white",
-  },
+  }
 };
 
 const Livreur = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState(userData);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({
     nom: "",
     prenom: "",
@@ -103,6 +32,60 @@ const Livreur = () => {
     cin: "",
   });
   const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const fetchLivreurs = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(`${API_URL}/users/allLivreurs`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setFilteredUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching livreurs:", error);
+        setError("Failed to load livreurs");
+      }
+    };
+
+    fetchLivreurs();
+  }, []);
+  const handleDeletelivreur = async (livreurId) => {
+    const confirmDelete = window.confirm(
+        "Êtes-vous sûr de vouloir supprimer ce livreur ?"
+    );
+
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem("authToken");
+    setIsLoading(true);
+
+    try {
+      await axios.delete(`${API_URL}/users/deleteUser/${livreurId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Remove the deleted client from the state
+      setFilteredUsers((prevUsers) =>
+          prevUsers.filter((user) => user.id !== livreurId)
+      );
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== clientId));
+
+      alert("livreur supprimé avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de la suppression du livreur:", error);
+
+      const errorMessage =
+          error.response?.data?.msg ||
+          "Une erreur est survenue lors de la suppression du livreur";
+
+      alert(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
@@ -236,63 +219,72 @@ const Livreur = () => {
       <div className="max-h-[350px] w-full overflow-y-auto rounded-lg border border-gray-400">
         <table className="min-w-full divide-y divide-gray-300">
           <thead>
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
-                Nom Complet
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
-                Téléphone
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
-                Rôle
-              </th>
-            </tr>
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
+              Nom Complet
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
+              Email
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
+              Téléphone
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
+              Rôle
+            </th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              Action
+            </th>
+          </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user, index) => (
+          {filteredUsers.map((user, index) => (
               <tr key={index} className="hover:bg-gray-200">
                 <td className="px-6 py-4 text-black-700">{`${user.prenom} ${user.nom}`}</td>
                 <td className="px-6 py-4 text-black-700">{user.email}</td>
-                <td className="px-6 py-4 text-black-700">{user.telephone}</td>
+                <td className="px-6 py-4 text-black-700">{user.telephone1}</td>
                 <td className="px-6 py-4">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      roleStyles[user.role]?.background
-                    } ${roleStyles[user.role]?.text}`}
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          roleStyles[user.role]?.background
+                      } ${roleStyles[user.role]?.text}`}
                   >
                     {user.role}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
-                  <button className="text-indigo-400 hover:text-indigo-300 mr-2">
-                    Edit
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex space-x-3">
+                  <button
+                      className="text-green-500 hover:text-green-600 flex items-center"
+                  >
+                    <Edit className="mr-1" size={16}/> Modifier
                   </button>
-                  <button className="text-red-400 hover:text-red-300">
-                    Delete
+                  <button
+                      className="text-red-400 hover:text-red-500 flex items-center"
+                      onClick={() => handleDeletelivreur(user.id)}
+                      disabled={isLoading}
+                  >
+                    <Trash2 className="mr-1" size={16}/> Supprimer
                   </button>
                 </td>
               </tr>
-            ))}
+          ))}
           </tbody>
         </table>
       </div>
 
       {isModalOpen && (
-        <motion.div
-          className="fixed inset-0 bg-white   flex justify-center items-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div className="bg-white rounded-lg p-6 shadow-lg w-full h-full overflow-auto">
-            <h3 className="text-2xl font-semibold text-black-800 mb-4">
-              Ajouter un Livreur
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+          <motion.div
+              className="fixed inset-0 bg-white   flex justify-center items-center"
+              initial={{opacity: 0}}
+              animate={{opacity: 1}}
+              exit={{opacity: 0}}
+          >
+            <motion.div className="bg-white rounded-lg p-6 shadow-lg w-full h-full overflow-auto">
+              <h3 className="text-2xl font-semibold text-black-800 mb-4">
+                Ajouter un Livreur
+              </h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-black-700">Nom</label>
                   <input
