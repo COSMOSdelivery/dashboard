@@ -34,8 +34,8 @@ const [newUser, setNewUser] = useState({
   localite: "",
   codePostal: "",
   adresse: "",
-  fraisRetour: "",
-  fraisLivraison: "",
+  fraisRetour: null,
+  fraisLivraison: null,
   role: "CLIENT",
 });
   useEffect(() => {
@@ -111,8 +111,8 @@ const [newUser, setNewUser] = useState({
         localite: newUser.localite,
         codePostal: newUser.codePostal,
         adresse: newUser.adresse,
-        fraisRetour:newUser.fraisRetour,
-        fraisLivraison:newUser.fraisLivraison,
+        fraisRetour:parseFloat(newUser.fraisRetour),
+        fraisLivraison:parseFloat(newUser.fraisLivraison),
         role: "CLIENT",
       };
       console.log('Sending data:', userToSubmit);
@@ -140,8 +140,8 @@ const [newUser, setNewUser] = useState({
         localite: "",
         codePostal: "",
         adresse: "",
-        fraisRetour: "",
-        fraisLivraison: "",
+        fraisRetour: null,
+        fraisLivraison: null,
         role: "CLIENT",
       });
       alert('client ajouté avec succès!');

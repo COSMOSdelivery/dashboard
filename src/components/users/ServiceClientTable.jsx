@@ -101,6 +101,7 @@ const ServiceClientTable = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    const token = localStorage.getItem('authToken');
     setIsLoading(true);
     if (newUser.password !== newUser.confirmPassword) {
       setError("Les mots de passe ne correspondent pas.");
@@ -123,8 +124,9 @@ const ServiceClientTable = () => {
       console.log('Sending data:', userToSubmit);
       const response = await axios.post(`${API_URL}/users/creatAccount`, userToSubmit, {
         headers: {
-          'Content-Type': 'application/json',
-        }
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`
+        },
       });
 
       setFilteredUsers(prev => [...prev, response.data]);
