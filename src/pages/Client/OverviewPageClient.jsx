@@ -28,7 +28,7 @@ const OverviewPageClient = () => {
   const fetchCount = async () => {
     try {
       const token = localStorage.getItem("authToken"); // Récupérer le token depuis le localStorage
-      const response = await axios.get(`${API_URL}/client/command/stat`, {
+      const response = await axios.get(`${API_URL}/stat/client/command`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
