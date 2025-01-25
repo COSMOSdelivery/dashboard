@@ -126,7 +126,7 @@ const Livreur = () => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
     // Validation des champs obligatoires
     if (
       !newUser.nom ||
@@ -163,7 +163,7 @@ const Livreur = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            'Authorization': `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -211,7 +211,7 @@ const Livreur = () => {
       transition={{ delay: 0.2 }}
     >
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-700">Livreurs</h2>
+        <h2 className="text-xl font-semibold text-black-700">Livreurs</h2>
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
           onClick={() => setIsModalOpen(true)}
@@ -226,7 +226,10 @@ const Livreur = () => {
             value={searchTerm}
             onChange={handleSearch}
           />
-          <Search className="absolute left-3 top-2.5 text-gray-700" size={18} />
+          <Search
+            className="absolute left-3 top-2.5 text-black-700"
+            size={18}
+          />
         </div>
       </div>
 
@@ -234,16 +237,16 @@ const Livreur = () => {
         <table className="min-w-full divide-y divide-gray-300">
           <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
                 Nom Complet
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
                 Email
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
                 Téléphone
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
                 Rôle
               </th>
             </tr>
@@ -251,9 +254,9 @@ const Livreur = () => {
           <tbody>
             {filteredUsers.map((user, index) => (
               <tr key={index} className="hover:bg-gray-200">
-                <td className="px-6 py-4 text-gray-700">{`${user.prenom} ${user.nom}`}</td>
-                <td className="px-6 py-4 text-gray-700">{user.email}</td>
-                <td className="px-6 py-4 text-gray-700">{user.telephone}</td>
+                <td className="px-6 py-4 text-black-700">{`${user.prenom} ${user.nom}`}</td>
+                <td className="px-6 py-4 text-black-700">{user.email}</td>
+                <td className="px-6 py-4 text-black-700">{user.telephone}</td>
                 <td className="px-6 py-4">
                   <span
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -263,7 +266,7 @@ const Livreur = () => {
                     {user.role}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
                   <button className="text-indigo-400 hover:text-indigo-300 mr-2">
                     Edit
                   </button>
@@ -285,13 +288,13 @@ const Livreur = () => {
           exit={{ opacity: 0 }}
         >
           <motion.div className="bg-white rounded-lg p-6 shadow-lg w-full h-full overflow-auto">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+            <h3 className="text-2xl font-semibold text-black-800 mb-4">
               Ajouter un Livreur
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-700">Nom</label>
+                  <label className="block text-black-700">Nom</label>
                   <input
                     type="text"
                     name="nom"
@@ -302,7 +305,7 @@ const Livreur = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700">Prénom</label>
+                  <label className="block text-black-700">Prénom</label>
                   <input
                     type="text"
                     name="prenom"
@@ -315,7 +318,7 @@ const Livreur = () => {
               </div>
 
               <div>
-                <label className="block text-gray-700">Email</label>
+                <label className="block text-black-700">Email</label>
                 <input
                   type="email"
                   name="email"
@@ -328,7 +331,7 @@ const Livreur = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-700">Mot de passe</label>
+                  <label className="block text-black-700">Mot de passe</label>
                   <input
                     type="password"
                     name="password"
@@ -339,7 +342,7 @@ const Livreur = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700">
+                  <label className="block text-black-700">
                     Confirmez le mot de passe
                   </label>
                   <input
@@ -355,7 +358,7 @@ const Livreur = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-700">Téléphone 1</label>
+                  <label className="block text-black-700">Téléphone 1</label>
                   <input
                     type="text"
                     name="telephone1"
@@ -366,7 +369,7 @@ const Livreur = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700">
+                  <label className="block text-black-700">
                     Téléphone 2 (optionnel)
                   </label>
                   <input
@@ -381,7 +384,7 @@ const Livreur = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-700">Code TVA</label>
+                  <label className="block text-black-700">Code TVA</label>
                   <input
                     type="text"
                     name="codeTVA"
@@ -392,7 +395,7 @@ const Livreur = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-700">CIN</label>
+                  <label className="block text-black-700">CIN</label>
                   <input
                     type="text"
                     name="cin"
@@ -405,7 +408,7 @@ const Livreur = () => {
               </div>
 
               <div>
-                <label className="block text-gray-700">Gouvernorat</label>
+                <label className="block text-black-700">Gouvernorat</label>
                 <input
                   type="text"
                   name="gouvernorat"

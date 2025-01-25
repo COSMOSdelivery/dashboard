@@ -32,7 +32,7 @@ const SalesOverviewChart = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <h2 className="text-lg font-medium mb-4 text-gray-700">
+      <h2 className="text-lg font-medium mb-4 text-black-700">
         Aperçu des ventes
       </h2>
 

@@ -30,8 +30,10 @@ const OverviewCards = () => {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-medium text-gray-700">{item.name}</h3>
-              <p className="mt-1 text-xl font-semibold text-gray-700">
+              <h3 className="text-sm font-medium text-black-700">
+                {item.name}
+              </h3>
+              <p className="mt-1 text-xl font-semibold text-black-700">
                 {item.value}
               </p>
             </div>
@@ -65,7 +67,7 @@ const OverviewCards = () => {
             <span className="ml-1 text-sm font-medium">
               {Math.abs(item.change)}%
             </span>
-            <span className="ml-2 text-sm text-gray-700">
+            <span className="ml-2 text-sm text-black-700">
               par rapport à la période précédente
             </span>
           </div>

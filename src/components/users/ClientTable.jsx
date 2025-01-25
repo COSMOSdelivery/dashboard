@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
-import config from '../../config.json';
-import axios from 'axios';
+import { Search, Trash2, Edit  } from "lucide-react";
+import config from "../../config.json";
+import axios from "axios";
 const API_URL = config.API_URL;
 const roleStyles = {
   Client: {
@@ -12,40 +12,40 @@ const roleStyles = {
 };
 const ClientTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
-const [filteredUsers, setFilteredUsers] = useState([]);
-const [isModalOpen, setIsModalOpen] = useState(false);
-const [isLoading, setIsLoading] = useState(false);
-const [error, setError] = useState("");
-const [users, setUsers] = useState([])
-// Add this new state
-const [newUser, setNewUser] = useState({
-  nom: "",
-  prenom: "",
-  nomShop: "",
-  email: "",
-  password: "",
-  confirmPassword: "",
-  telephone1: "",
-  telephone2: "",
-  codeTVA: "",
-  cin: "",
-  gouvernorat: "",
-  ville: "",
-  localite: "",
-  codePostal: "",
-  adresse: "",
-  fraisRetour: null,
-  fraisLivraison: null,
-  role: "CLIENT",
-});
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [users, setUsers] = useState([]);
+  // Add this new state
+  const [newUser, setNewUser] = useState({
+    nom: "",
+    prenom: "",
+    nomShop: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    telephone1: "",
+    telephone2: "",
+    codeTVA: "",
+    cin: "",
+    gouvernorat: "",
+    ville: "",
+    localite: "",
+    codePostal: "",
+    adresse: "",
+    fraisRetour: "",
+    fraisLivraison: "",
+    role: "CLIENT",
+  });
   useEffect(() => {
     const fetchAdmins = async () => {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       try {
         const response = await axios.get(`${config.API_URL}/users/allClients`, {
           headers: {
-            'Authorization': `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
         setUsers(response.data);
         setFilteredUsers(response.data);
@@ -81,10 +81,15 @@ const [newUser, setNewUser] = useState({
     e.preventDefault();
     setIsLoading(true);
     setError("");
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem("authToken");
 
     // Validation des champs obligatoires
-    if (!newUser.nom || !newUser.prenom || !newUser.email || !newUser.password) {
+    if (
+      !newUser.nom ||
+      !newUser.prenom ||
+      !newUser.email ||
+      !newUser.password
+    ) {
       alert("Tous les champs sont obligatoires !");
       setIsLoading(false);
       return;
@@ -98,31 +103,35 @@ const [newUser, setNewUser] = useState({
     try {
       const userToSubmit = {
         cin: newUser.cin,
-        nomShop:newUser.nomShop,
+        nomShop: newUser.nomShop,
         email: newUser.email,
         nom: newUser.nom,
         password: newUser.password,
         prenom: newUser.prenom,
-        codeTVA: newUser.codeTVA, 
-        telephone1: newUser.telephone1, 
+        codeTVA: newUser.codeTVA,
+        telephone1: newUser.telephone1,
         telephone2: newUser.telephone2 || "",
         gouvernorat: newUser.gouvernorat,
         ville: newUser.ville,
         localite: newUser.localite,
         codePostal: newUser.codePostal,
         adresse: newUser.adresse,
-        fraisRetour:parseFloat(newUser.fraisRetour),
-        fraisLivraison:parseFloat(newUser.fraisLivraison),
+        fraisRetour: newUser.fraisRetour,
+        fraisLivraison: newUser.fraisLivraison,
         role: "CLIENT",
       };
-      console.log('Sending data:', userToSubmit);
-      const response = await axios.post(`${API_URL}/users/creatAccount`, userToSubmit, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+      console.log("Sending data:", userToSubmit);
+      const response = await axios.post(
+        `${API_URL}/users/creatAccount`,
+        userToSubmit,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-      });
-      setFilteredUsers(prev => [...prev, response.data]);
+      );
+      setFilteredUsers((prev) => [...prev, response.data]);
       setIsModalOpen(false);
       setNewUser({
         nom: "",
@@ -140,20 +149,24 @@ const [newUser, setNewUser] = useState({
         localite: "",
         codePostal: "",
         adresse: "",
-        fraisRetour: null,
-        fraisLivraison: null,
+        fraisRetour: "",
+        fraisLivraison: "",
         role: "CLIENT",
       });
-      alert('client ajouté avec succès!');
-    }catch (error) {
+      alert("client ajouté avec succès!");
+    } catch (error) {
       console.error("Full error response:", error.response);
-      console.error("Error details:", JSON.stringify(error.response?.data, null, 2));
-    
+      console.error(
+        "Error details:",
+        JSON.stringify(error.response?.data, null, 2)
+      );
+
       if (error.response) {
         // Log specific error messages from the backend
-        const errorMessage = error.response.data.message || 
-                             error.response.data.msg || 
-                             'Une erreur est survenue lors de la création du compte';
+        const errorMessage =
+          error.response.data.message ||
+          error.response.data.msg ||
+          "Une erreur est survenue lors de la création du compte";
         setError(errorMessage);
         alert(errorMessage);
       } else if (error.request) {
@@ -166,18 +179,46 @@ const [newUser, setNewUser] = useState({
     }
   };
 
-  
-    
-
   const handleEdit = (user) => {
     // Ouvrir le formulaire avec les informations du client pour modification
     setNewUser(user);
     setIsModalOpen(true);
   };
+  const handleDeleteClient = async (clientId) => {
+    const confirmDelete = window.confirm(
+      "Êtes-vous sûr de vouloir supprimer ce client ?"
+    );
 
-  const handleDelete = (email) => {
-    // Supprimer l'utilisateur en filtrant par son email
-    setFilteredUsers(filteredUsers.filter(user => user.email !== email));
+    if (!confirmDelete) return;
+
+    const token = localStorage.getItem("authToken");
+    setIsLoading(true);
+
+    try {
+      await axios.delete(`${API_URL}/users/deleteUser/${clientId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Remove the deleted client from the state
+      setFilteredUsers((prevUsers) =>
+        prevUsers.filter((user) => user.id !== clientId)
+      );
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== clientId));
+
+      alert("Client supprimé avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de la suppression du client:", error);
+
+      const errorMessage =
+        error.response?.data?.msg ||
+        "Une erreur est survenue lors de la suppression du client";
+
+      alert(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -230,222 +271,303 @@ const [newUser, setNewUser] = useState({
           </thead>
           <tbody>
             {filteredUsers.map((user, index) => (
-                            <tr key={index} className="hover:bg-gray-200">
-                            <td className="px-6 py-4 text-gray-700">{`${user.prenom} ${user.nom}`}</td>
-                            <td className="px-6 py-4 text-gray-700">{user.email}</td>
-                            <td className="px-6 py-4 text-gray-700">{user.telephone}</td>
-                            <td className="px-6 py-4">
-                              <span
-                                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                  roleStyles[user.role]?.background
-                                } ${roleStyles[user.role]?.text}`}
-                              >
-                                {user.role}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                              <button className="text-indigo-400 hover:text-indigo-300 mr-2">
-                                Edit
-                              </button>
-                              <button className="text-red-400 hover:text-red-300">
-                                Delete
-                              </button>
-                            </td>
-                          </tr>
+              <tr key={index} className="hover:bg-gray-200">
+                <td className="px-6 py-4 text-gray-700">{`${user.prenom} ${user.nom}`}</td>
+                <td className="px-6 py-4 text-gray-700">{user.email}</td>
+                <td className="px-6 py-4 text-gray-700">{user.telephone1}</td>
+                <td className="px-6 py-4">
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      roleStyles[user.role]?.background
+                    } ${roleStyles[user.role]?.text}`}
+                  >
+                    {user.role}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex space-x-3">
+                  <button
+                    className="text-green-500 hover:text-green-600 flex items-center"
+                  >
+                    <Edit className="mr-1" size={16} /> Modifier
+                  </button>
+                  <button
+                    className="text-red-400 hover:text-red-500 flex items-center"
+                    onClick={() => handleDeleteClient(user.id)}
+                    disabled={isLoading}
+                  >
+                    <Trash2 className="mr-1" size={16} /> Supprimer
+                  </button>
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>
       </div>
       {isModalOpen && (
         <motion.div
-        className="fixed inset-0 bg-white flex justify-center items-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      >
-        <motion.div className="bg-white rounded-lg p-6 shadow-lg w-full h-full overflow-auto">
-          <h3 className="text-2xl font-semibold text-gray-800 mb-4">
-            Ajouter un Service Client
-          </h3>
+          className="fixed inset-0 bg-white flex justify-center items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div className="bg-white rounded-lg p-6 shadow-lg w-full h-full overflow-auto">
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+              Ajouter un Service Client
+            </h3>
             <form onSubmit={handleSubmit}>
-            <div className="mb-4">
-              <label htmlFor="nomShop" className="block text-sm font-medium text-gray-700">Nom du magasin</label>
-              <input
-                id="nomShop"
-                type="text"
-                name="nomShop"
-                value={newUser.nomShop}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="nom" className="block text-sm font-medium text-gray-700">Nom</label>
-              <input
-                id="nom"
-                type="text"
-                name="nom"
-                value={newUser.nom}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="prenom" className="block text-sm font-medium text-gray-700">Prénom</label>
-              <input
-                id="prenom"
-                type="text"
-                name="prenom"
-                value={newUser.prenom}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                id="email"
-                type="email"
-                name="email"
-                value={newUser.email}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">Mot de passe</label>
-              <input
-                id="password"
-                type="password"
-                name="password"
-                value={newUser.password}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                name="confirmPassword"
-                value={newUser.confirmPassword}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="telephone1" className="block text-sm font-medium text-gray-700">Téléphone 1</label>
-              <input
-                id="telephone1"
-                type="text"
-                name="telephone1"
-                value={newUser.telephone1}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="telephone2" className="block text-sm font-medium text-gray-700">Téléphone 2</label>
-              <input
-                id="telephone2"
-                type="text"
-                name="telephone2"
-                value={newUser.telephone2}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="codeTVA" className="block text-sm font-medium text-gray-700">Code TVA</label>
-              <input
-                id="codeTVA"
-                type="text"
-                name="codeTVA"
-                value={newUser.codeTVA}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="cin" className="block text-sm font-medium text-gray-700">CIN</label>
-              <input
-                id="cin"
-                type="text"
-                name="cin"
-                value={newUser.cin}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="gouvernorat" className="block text-sm font-medium text-gray-700">Gouvernorat</label>
-              <input
-                id="gouvernorat"
-                type="text"
-                name="gouvernorat"
-                value={newUser.gouvernorat}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="ville" className="block text-sm font-medium text-gray-700">Ville</label>
-              <input
-                id="ville"
-                type="text"
-                name="ville"
-                value={newUser.ville}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="localite" className="block text-sm font-medium text-gray-700">Localité</label>
-              <input
-                id="localite"
-                type="text"
-                name="localite"
-                value={newUser.localite}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="codePostal" className="block text-sm font-medium text-gray-700">Code Postal</label>
-              <input
-                id="codePostal"
-                type="text"
-                name="codePostal"
-                value={newUser.codePostal}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label htmlFor="adresse" className="block text-sm font-medium text-gray-700">Adresse</label>
-              <input
-                id="adresse"
-                type="text"
-                name="adresse"
-                value={newUser.adresse}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                required
-              />
+              <div className="mb-4">
+                <label
+                  htmlFor="nomShop"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Nom du magasin
+                </label>
+                <input
+                  id="nomShop"
+                  type="text"
+                  name="nomShop"
+                  value={newUser.nomShop}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="nom"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Nom
+                </label>
+                <input
+                  id="nom"
+                  type="text"
+                  name="nom"
+                  value={newUser.nom}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="prenom"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Prénom
+                </label>
+                <input
+                  id="prenom"
+                  type="text"
+                  name="prenom"
+                  value={newUser.prenom}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  value={newUser.email}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Mot de passe
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  name="password"
+                  value={newUser.password}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Confirmer le mot de passe
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  name="confirmPassword"
+                  value={newUser.confirmPassword}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="telephone1"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Téléphone 1
+                </label>
+                <input
+                  id="telephone1"
+                  type="text"
+                  name="telephone1"
+                  value={newUser.telephone1}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="telephone2"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Téléphone 2
+                </label>
+                <input
+                  id="telephone2"
+                  type="text"
+                  name="telephone2"
+                  value={newUser.telephone2}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="codeTVA"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Code TVA
+                </label>
+                <input
+                  id="codeTVA"
+                  type="text"
+                  name="codeTVA"
+                  value={newUser.codeTVA}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="cin"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  CIN
+                </label>
+                <input
+                  id="cin"
+                  type="text"
+                  name="cin"
+                  value={newUser.cin}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="gouvernorat"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Gouvernorat
+                </label>
+                <input
+                  id="gouvernorat"
+                  type="text"
+                  name="gouvernorat"
+                  value={newUser.gouvernorat}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="ville"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Ville
+                </label>
+                <input
+                  id="ville"
+                  type="text"
+                  name="ville"
+                  value={newUser.ville}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="localite"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Localité
+                </label>
+                <input
+                  id="localite"
+                  type="text"
+                  name="localite"
+                  value={newUser.localite}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="codePostal"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Code Postal
+                </label>
+                <input
+                  id="codePostal"
+                  type="text"
+                  name="codePostal"
+                  value={newUser.codePostal}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label
+                  htmlFor="adresse"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Adresse
+                </label>
+                <input
+                  id="adresse"
+                  type="text"
+                  name="adresse"
+                  value={newUser.adresse}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                  required
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -471,32 +593,29 @@ const [newUser, setNewUser] = useState({
                   />
                 </div>
               </div>
-<br/>
-            <div className="flex justify-end space-x-2">
-            <button
+              <br />
+              <div className="flex justify-end space-x-2">
+                <button
                   type="button"
                   className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
                   onClick={() => setIsModalOpen(false)}
                 >
                   Annuler
                 </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-              >
-                {loading ? "Ajout en cours..." : "Ajouter"}
-              </button>
-            </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+                >
+                  {loading ? "Ajout en cours..." : "Ajouter"}
+                </button>
+              </div>
             </form>
-            
-            </motion.div>
-            </motion.div>
-        
+          </motion.div>
+        </motion.div>
       )}
-      
-      </motion.div>
+    </motion.div>
   );
-}
+};
 
 export default ClientTable;

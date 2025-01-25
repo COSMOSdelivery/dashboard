@@ -27,7 +27,7 @@ const CustomerSegmentation = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.6 }}
     >
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">
+      <h2 className="text-xl font-semibold text-black-700 mb-4">
         Segmentation des Clients
       </h2>
       <div style={{ width: "100%", height: 300 }}>

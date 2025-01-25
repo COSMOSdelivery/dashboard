@@ -11,9 +11,9 @@ const DangerZone = () => {
     >
       <div className="flex items-center mb-4">
         <Trash2 className="text-red-400 mr-3" size={24} />
-        <h2 className="text-xl font-semibold text-gray-700">Danger Zone</h2>
+        <h2 className="text-xl font-semibold text-black-700">Danger Zone</h2>
       </div>
-      <p className="text-gray-800 mb-4">
+      <p className="text-black-800 mb-4">
         Supprimer définitivement votre compte et tout votre contenu.
       </p>
       <button

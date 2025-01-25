@@ -35,8 +35,7 @@ import {
 		  case "CLIENT":
         return [
           { name: "Tableau de bord", icon: BarChart2, color: "#F59E0B", href: "/client-dashboard" },
-          { name: "Rechercher colis", icon: ShoppingCart, color: "#F59E0B", href: "/search-parcels" },
-          { name: "Ajouter Colis", icon: ShoppingCart, color: "#F59E0B", href: "/add-parcel" },
+          { name: "Gestion des colis", icon: ShoppingCart, color: "#F59E0B", href: "/search-parcels" },
           { name: "Importer fichier", icon: DollarSign, color: "#10B981", href: "/import-file" },
           { name: "Créer Manifeste", icon: DollarSign, color: "#10B981", href: "/create-manifest" },
           { name: "Imprimer Manifeste", icon: DollarSign, color: "#10B981", href: "/print-manifest" },

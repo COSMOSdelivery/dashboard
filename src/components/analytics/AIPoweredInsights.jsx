@@ -36,7 +36,7 @@ const APoweredInsights = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.0 }}
     >
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">
+      <h2 className="text-xl font-semibold text-black-700 mb-4">
         Aperçus Alimentés par l'IA
       </h2>
       <div className="space-y-4">
@@ -45,7 +45,7 @@ const APoweredInsights = () => {
             <div className={`p-2 rounded-full ${item.color} bg-opacity-20`}>
               <item.icon className={`size-6 ${item.color}`} />
             </div>
-            <p className="text-gray-800">{item.insight}</p>
+            <p className="text-black-800">{item.insight}</p>
           </div>
         ))}
       </div>
