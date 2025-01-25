@@ -25,7 +25,7 @@ const SalesByCategoryChart = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
     >
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">
+      <h2 className="text-xl font-semibold text-black-700 mb-4">
         Sales by Category
       </h2>
 

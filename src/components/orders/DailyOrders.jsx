@@ -28,7 +28,7 @@ const DailyOrders = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">
+      <h2 className="text-xl font-semibold text-black-700 mb-4">
         Commandes par jour
       </h2>
 

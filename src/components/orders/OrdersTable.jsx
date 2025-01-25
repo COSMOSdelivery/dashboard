@@ -77,7 +77,7 @@ const OrdersTable = () => {
       transition={{ delay: 0.4 }}
     >
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-700">
+        <h2 className="text-xl font-semibold text-black-700">
           Liste des Commandes
         </h2>
         <div className="relative">
@@ -88,7 +88,10 @@ const OrdersTable = () => {
             value={searchTerm}
             onChange={handleSearch}
           />
-          <Search className="absolute left-3 top-2.5 text-gray-700" size={18} />
+          <Search
+            className="absolute left-3 top-2.5 text-black-700"
+            size={18}
+          />
         </div>
       </div>
 
@@ -96,22 +99,22 @@ const OrdersTable = () => {
         <table className="min-w-full divide-y divide-gray-300">
           <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
                 ID Commande
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
                 Client
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
                 Total
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
                 Date
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -125,16 +128,16 @@ const OrdersTable = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
               >
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700">
                   {order.id}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700">
                   {order.customer}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700">
                   {order.total.toFixed(2)} TND
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
                   <span
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                       order.status === "Expédié"
@@ -149,10 +152,10 @@ const OrdersTable = () => {
                     {order.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
                   {order.date}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
                   <button className="text-indigo-400 hover:text-indigo-300 mr-2">
                     <Eye size={18} />
                   </button>

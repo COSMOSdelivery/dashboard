@@ -25,7 +25,7 @@ const LoginPage = () => {
 
       if (response.status === 200) {
         const { token, nom, prenom, email: userEmail, role } = response.data;
-
+      
         localStorage.setItem("authToken", token);
         localStorage.setItem(
           "userInfo",
@@ -36,14 +36,18 @@ const LoginPage = () => {
             role,
           })
         );
-
+      
+        // Dispatch custom events to trigger state update
+        window.dispatchEvent(new Event('storage'));
+        window.dispatchEvent(new Event('authChange'));
+      
         const rolePaths = {
           CLIENT: "/client-dashboard",
           ADMIN: "",
           LIVREUR: "/livreur-dashboard",
           SERVICECLIENT: "/service-client-dashboard",
         };
-
+      
         navigate(rolePaths[role] || "/");
       }
     } catch (error) {
@@ -75,7 +79,7 @@ const LoginPage = () => {
         >
           <div className="flex flex-col items-center">
             <img src="/logo.jpg" alt="Logo" className="w-44 h-auto" />
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-black-900">
               Connexion
             </h2>
           </div>
@@ -91,13 +95,13 @@ const LoginPage = () => {
                 <label htmlFor="email" className="sr-only">
                   Adresse email
                 </label>
-                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Mail className="absolute left-3 top-3 h-5 w-5 text-black-400" />
                 <input
                   id="email"
                   name="email"
                   type="email"
                   required
-                  className="appearance-none rounded-lg relative block w-full pl-12 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-lg relative block w-full pl-12 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-black-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Adresse email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -109,13 +113,13 @@ const LoginPage = () => {
                 <label htmlFor="password" className="sr-only">
                   Mot de passe
                 </label>
-                <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <Lock className="absolute left-3 top-3 h-5 w-5 text-black-400" />
                 <input
                   id="password"
                   name="password"
                   type="password"
                   required
-                  className="appearance-none rounded-lg relative block w-full pl-12 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="appearance-none rounded-lg relative block w-full pl-12 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-black-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                   placeholder="Mot de passe"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -146,7 +150,7 @@ const LoginPage = () => {
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-900"
+                  className="ml-2 block text-sm text-black-900"
                 >
                   Se souvenir de moi
                 </label>
@@ -168,7 +172,7 @@ const LoginPage = () => {
                 disabled={isLoading}
               >
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  <Lock className="h-5 w-5 text-gray-300 group-hover:text-gray-200" />
+                  <Lock className="h-5 w-5 text-black-300 group-hover:text-black-200" />
                 </span>
                 {isLoading ? "Connexion..." : "Se connecter"}
                 <ArrowRight className="ml-2 h-5 w-5" />

@@ -27,7 +27,7 @@ const DailySalesTrend = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
     >
-      <h2 className="text-xl font-semibold text-gray-700 mb-4">
+      <h2 className="text-xl font-semibold text-black-700 mb-4">
         Daily Sales Trend
       </h2>
 

@@ -12,10 +12,10 @@ const Profile = () => {
         />
 
         <div>
-          <h3 className="text-lg font-semibold text-gray-700">
+          <h3 className="text-lg font-semibold text-black-700">
             Ferjani Moemen
           </h3>
-          <p className="text-gray-700">moemen.ferjeni@example.com</p>
+          <p className="text-black-700">moemen.ferjeni@example.com</p>
         </div>
       </div>
 

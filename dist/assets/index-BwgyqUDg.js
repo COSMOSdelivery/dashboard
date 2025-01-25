@@ -16769,7 +16769,7 @@ const X3 = ({
       children: S.jsx("div", {
         className: "max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8",
         children: S.jsx("h1", {
-          className: "text-2xl font-semibold text-gray-700",
+          className: "text-2xl font-semibold text-black-700",
           children: e,
         }),
       }),
@@ -16783,14 +16783,14 @@ const X3 = ({
         className: "px-4 py-5 sm:p-6",
         children: [
           S.jsxs("span", {
-            className: "flex items-center text-sm font-medium text-gray-700",
+            className: "flex items-center text-sm font-medium text-black-700",
             children: [
               S.jsx(t, { size: 20, className: "mr-2", style: { color: r } }),
               e,
             ],
           }),
           S.jsx("p", {
-            className: "mt-1 text-3xl font-semibold text-gray-700",
+            className: "mt-1 text-3xl font-semibold text-black-700",
             children: n,
           }),
         ],
@@ -44259,7 +44259,7 @@ const Joe = [
       transition: { delay: 0.2 },
       children: [
         S.jsx("h2", {
-          className: "text-lg font-medium mb-4 text-gray-700",
+          className: "text-lg font-medium mb-4 text-black-700",
           children: "Aperçu des ventes",
         }),
         S.jsx("div", {
@@ -44311,7 +44311,7 @@ const Joe = [
       transition: { delay: 0.3 },
       children: [
         S.jsx("h2", {
-          className: "text-lg font-medium mb-4 text-gray-700",
+          className: "text-lg font-medium mb-4 text-black-700",
           children: "Répartition des catégories",
         }),
         S.jsx("div", {
@@ -44537,7 +44537,7 @@ const Joe = [
           className: "flex justify-between items-center mb-6",
           children: [
             S.jsx("h2", {
-              className: "text-xl font-semibold text-gray-700",
+              className: "text-xl font-semibold text-black-700",
               children: "Utilisateurs",
             }),
             S.jsx("button", {
@@ -44558,7 +44558,7 @@ const Joe = [
                   onChange: l,
                 }),
                 S.jsx(yE, {
-                  className: "absolute left-3 top-2.5 text-gray-700",
+                  className: "absolute left-3 top-2.5 text-black-700",
                   size: 18,
                 }),
               ],
@@ -44575,22 +44575,22 @@ const Joe = [
                   children: [
                     S.jsx("th", {
                       className:
-                        "px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider",
+                        "px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider",
                       children: "Nom Complet",
                     }),
                     S.jsx("th", {
                       className:
-                        "px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider",
+                        "px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider",
                       children: "Email",
                     }),
                     S.jsx("th", {
                       className:
-                        "px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider",
+                        "px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider",
                       children: "Rôle",
                     }),
                     S.jsx("th", {
                       className:
-                        "px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider",
+                        "px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider",
                       children: "Actions",
                     }),
                   ],
@@ -44624,7 +44624,7 @@ const Joe = [
                                 className: "ml-4",
                                 children: S.jsx("div", {
                                   className:
-                                    "text-sm font-medium text-gray-700",
+                                    "text-sm font-medium text-black-700",
                                   children: `${c.prenom} ${c.nom}`,
                                 }),
                               }),
@@ -44634,7 +44634,7 @@ const Joe = [
                         S.jsx("td", {
                           className: "px-6 py-4 whitespace-nowrap",
                           children: S.jsx("div", {
-                            className: "text-sm text-gray-800",
+                            className: "text-sm text-black-800",
                             children: c.email,
                           }),
                         }),
@@ -44647,14 +44647,14 @@ const Joe = [
                                 : h.background) || "bg-gray-500"
                             } ${
                               ((m = RA[c.role]) == null ? void 0 : m.text) ||
-                              "text-gray-700"
+                              "text-black-700"
                             }`,
                             children: c.role,
                           }),
                         }),
                         S.jsxs("td", {
                           className:
-                            "px-6 py-4 whitespace-nowrap text-sm text-gray-800",
+                            "px-6 py-4 whitespace-nowrap text-sm text-black-800",
                           children: [
                             S.jsx("button", {
                               className:
@@ -44688,7 +44688,7 @@ const Joe = [
                 "bg-white rounded-lg p-6 shadow-lg min-w-[90vh] h-[400px] overflow-auto           ",
               children: [
                 S.jsx("h3", {
-                  className: "text-2xl font-semibold text-gray-800 mb-4",
+                  className: "text-2xl font-semibold text-black-800 mb-4",
                   children: "Ajouter un Utilisateur",
                 }),
                 S.jsxs("form", {
@@ -44701,7 +44701,7 @@ const Joe = [
                         S.jsxs("div", {
                           children: [
                             S.jsx("label", {
-                              className: "block text-gray-700",
+                              className: "block text-black-700",
                               children: "Nom",
                             }),
                             S.jsx("input", {
@@ -44718,7 +44718,7 @@ const Joe = [
                         S.jsxs("div", {
                           children: [
                             S.jsx("label", {
-                              className: "block text-gray-700",
+                              className: "block text-black-700",
                               children: "Prénom",
                             }),
                             S.jsx("input", {
@@ -44737,7 +44737,7 @@ const Joe = [
                     S.jsxs("div", {
                       children: [
                         S.jsx("label", {
-                          className: "block text-gray-700",
+                          className: "block text-black-700",
                           children: "Nom de Shop",
                         }),
                         S.jsx("input", {
@@ -44753,7 +44753,7 @@ const Joe = [
                     S.jsxs("div", {
                       children: [
                         S.jsx("label", {
-                          className: "block text-gray-700",
+                          className: "block text-black-700",
                           children: "Email",
                         }),
                         S.jsx("input", {
@@ -44773,7 +44773,7 @@ const Joe = [
                         S.jsxs("div", {
                           children: [
                             S.jsx("label", {
-                              className: "block text-gray-700",
+                              className: "block text-black-700",
                               children: "Gouvernerat",
                             }),
                             S.jsx("input", {
@@ -44789,7 +44789,7 @@ const Joe = [
                         S.jsxs("div", {
                           children: [
                             S.jsx("label", {
-                              className: "block text-gray-700",
+                              className: "block text-black-700",
                               children: "Ville",
                             }),
                             S.jsx("input", {
@@ -44807,7 +44807,7 @@ const Joe = [
                     S.jsxs("div", {
                       children: [
                         S.jsx("label", {
-                          className: "block text-gray-700",
+                          className: "block text-black-700",
                           children: "Localité",
                         }),
                         S.jsx("input", {
@@ -44826,7 +44826,7 @@ const Joe = [
                         S.jsxs("div", {
                           children: [
                             S.jsx("label", {
-                              className: "block text-gray-700",
+                              className: "block text-black-700",
                               children: "Code Postal",
                             }),
                             S.jsx("input", {
@@ -44842,7 +44842,7 @@ const Joe = [
                         S.jsxs("div", {
                           children: [
                             S.jsx("label", {
-                              className: "block text-gray-700",
+                              className: "block text-black-700",
                               children: "Adresse",
                             }),
                             S.jsx("input", {
@@ -44863,7 +44863,7 @@ const Joe = [
                         S.jsxs("div", {
                           children: [
                             S.jsx("label", {
-                              className: "block text-gray-700",
+                              className: "block text-black-700",
                               children: "Téléphone",
                             }),
                             S.jsx("input", {
@@ -44879,7 +44879,7 @@ const Joe = [
                         S.jsxs("div", {
                           children: [
                             S.jsx("label", {
-                              className: "block text-gray-700",
+                              className: "block text-black-700",
                               children: "Code TVA",
                             }),
                             S.jsx("input", {
@@ -44897,7 +44897,7 @@ const Joe = [
                     S.jsxs("div", {
                       children: [
                         S.jsx("label", {
-                          className: "block text-gray-700",
+                          className: "block text-black-700",
                           children: "CIN",
                         }),
                         S.jsx("input", {
@@ -44913,7 +44913,7 @@ const Joe = [
                     S.jsxs("div", {
                       children: [
                         S.jsx("label", {
-                          className: "block text-gray-700",
+                          className: "block text-black-700",
                           children: "Rôle",
                         }),
                         S.jsxs("select", {
@@ -45044,7 +45044,7 @@ const Joe = [
           className: "flex items-center justify-between mb-6",
           children: [
             S.jsx("h2", {
-              className: "text-xl font-semibold text-gray-700",
+              className: "text-xl font-semibold text-black-700",
               children: "Sales Overview",
             }),
             S.jsxs("select", {
@@ -45109,7 +45109,7 @@ const Joe = [
       transition: { delay: 0.3 },
       children: [
         S.jsx("h2", {
-          className: "text-xl font-semibold text-gray-700 mb-4",
+          className: "text-xl font-semibold text-black-700 mb-4",
           children: "Sales by Category",
         }),
         S.jsx("div", {
@@ -45162,7 +45162,7 @@ const Joe = [
       transition: { delay: 0.4 },
       children: [
         S.jsx("h2", {
-          className: "text-xl font-semibold text-gray-700 mb-4",
+          className: "text-xl font-semibold text-black-700 mb-4",
           children: "Daily Sales Trend",
         }),
         S.jsx("div", {
@@ -45262,7 +45262,7 @@ const Joe = [
       transition: { delay: 0.2 },
       children: [
         S.jsx("h2", {
-          className: "text-xl font-semibold text-gray-700 mb-4",
+          className: "text-xl font-semibold text-black-700 mb-4",
           children: "Commandes par jour",
         }),
         S.jsx("div", {
@@ -45310,7 +45310,7 @@ const Joe = [
       transition: { delay: 0.3 },
       children: [
         S.jsx("h2", {
-          className: "text-xl font-semibold text-gray-700 mb-4",
+          className: "text-xl font-semibold text-black-700 mb-4",
           children: "Répartition des statuts de commande",
         }),
         S.jsx("div", {
@@ -45420,7 +45420,7 @@ const Joe = [
           className: "flex justify-between items-center mb-6",
           children: [
             S.jsx("h2", {
-              className: "text-xl font-semibold text-gray-700",
+              className: "text-xl font-semibold text-black-700",
               children: "Liste des Commandes",
             }),
             S.jsxs("div", {
@@ -45435,7 +45435,7 @@ const Joe = [
                   onChange: i,
                 }),
                 S.jsx(yE, {
-                  className: "absolute left-3 top-2.5 text-gray-700",
+                  className: "absolute left-3 top-2.5 text-black-700",
                   size: 18,
                 }),
               ],
@@ -45452,32 +45452,32 @@ const Joe = [
                   children: [
                     S.jsx("th", {
                       className:
-                        "px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider",
+                        "px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider",
                       children: "ID Commande",
                     }),
                     S.jsx("th", {
                       className:
-                        "px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider",
+                        "px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider",
                       children: "Client",
                     }),
                     S.jsx("th", {
                       className:
-                        "px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider",
+                        "px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider",
                       children: "Total",
                     }),
                     S.jsx("th", {
                       className:
-                        "px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider",
+                        "px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider",
                       children: "Status",
                     }),
                     S.jsx("th", {
                       className:
-                        "px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider",
+                        "px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider",
                       children: "Date",
                     }),
                     S.jsx("th", {
                       className:
-                        "px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider",
+                        "px-6 py-3 text-left text-xs font-medium text-black-700 uppercase tracking-wider",
                       children: "Actions",
                     }),
                   ],
@@ -45495,22 +45495,22 @@ const Joe = [
                       children: [
                         S.jsx("td", {
                           className:
-                            "px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700",
+                            "px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700",
                           children: a.id,
                         }),
                         S.jsx("td", {
                           className:
-                            "px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700",
+                            "px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700",
                           children: a.customer,
                         }),
                         S.jsxs("td", {
                           className:
-                            "px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700",
+                            "px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700",
                           children: [a.total.toFixed(2), " TND"],
                         }),
                         S.jsx("td", {
                           className:
-                            "px-6 py-4 whitespace-nowrap text-sm text-gray-800",
+                            "px-6 py-4 whitespace-nowrap text-sm text-black-800",
                           children: S.jsx("span", {
                             className: `px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                               a.status === "Expédié"
@@ -45526,12 +45526,12 @@ const Joe = [
                         }),
                         S.jsx("td", {
                           className:
-                            "px-6 py-4 whitespace-nowrap text-sm text-gray-800",
+                            "px-6 py-4 whitespace-nowrap text-sm text-black-800",
                           children: a.date,
                         }),
                         S.jsx("td", {
                           className:
-                            "px-6 py-4 whitespace-nowrap text-sm text-gray-800",
+                            "px-6 py-4 whitespace-nowrap text-sm text-black-800",
                           children: S.jsx("button", {
                             className:
                               "text-indigo-400 hover:text-indigo-300 mr-2",
@@ -45632,11 +45632,11 @@ const Joe = [
                   S.jsxs("div", {
                     children: [
                       S.jsx("h3", {
-                        className: "text-sm font-medium text-gray-700",
+                        className: "text-sm font-medium text-black-700",
                         children: e.name,
                       }),
                       S.jsx("p", {
-                        className: "mt-1 text-xl font-semibold text-gray-700",
+                        className: "mt-1 text-xl font-semibold text-black-700",
                         children: e.value,
                       }),
                     ],
@@ -45670,7 +45670,7 @@ const Joe = [
                     children: [Math.abs(e.change), "%"],
                   }),
                   S.jsx("span", {
-                    className: "ml-2 text-sm text-gray-700",
+                    className: "ml-2 text-sm text-black-700",
                     children: "par rapport à la période précédente",
                   }),
                 ],
@@ -45703,7 +45703,7 @@ const Joe = [
           className: "flex justify-between items-center mb-6",
           children: [
             S.jsx("h2", {
-              className: "text-xl font-semibold text-gray-700",
+              className: "text-xl font-semibold text-black-700",
               children: "Revenu vs Objectif",
             }),
             S.jsxs("select", {
@@ -45776,7 +45776,7 @@ const Joe = [
       transition: { delay: 0.3 },
       children: [
         S.jsx("h2", {
-          className: "text-xl font-semibold text-gray-700 mb-4",
+          className: "text-xl font-semibold text-black-700 mb-4",
           children: "Performance des Canaux",
         }),
         S.jsx("div", {
@@ -45828,7 +45828,7 @@ const Joe = [
       transition: { delay: 0.6 },
       children: [
         S.jsx("h2", {
-          className: "text-xl font-semibold text-gray-700 mb-4",
+          className: "text-xl font-semibold text-black-700 mb-4",
           children: "Segmentation des Clients",
         }),
         S.jsx("div", {
@@ -45906,7 +45906,7 @@ const Joe = [
       transition: { delay: 1 },
       children: [
         S.jsx("h2", {
-          className: "text-xl font-semibold text-gray-700 mb-4",
+          className: "text-xl font-semibold text-black-700 mb-4",
           children: "Aperçus Alimentés par l'IA",
         }),
         S.jsx("div", {
@@ -45922,7 +45922,7 @@ const Joe = [
                     children: S.jsx(e.icon, { className: `size-6 ${e.color}` }),
                   }),
                   S.jsx("p", {
-                    className: "text-gray-800",
+                    className: "text-black-800",
                     children: e.insight,
                   }),
                 ],
@@ -45965,7 +45965,7 @@ const Joe = [
           children: [
             S.jsx(e, { className: "text-indigo-400 mr-4", size: "24" }),
             S.jsx("h2", {
-              className: "text-xl font-semibold text-gray-700",
+              className: "text-xl font-semibold text-black-700",
               children: t,
             }),
           ],
@@ -45998,7 +45998,7 @@ const Joe = [
                       className: "size-6 object-cover rounded-full mr-2",
                     }),
                     S.jsx("span", {
-                      className: "text-gray-800",
+                      className: "text-black-800",
                       children: n.name,
                     }),
                   ],
@@ -46047,13 +46047,13 @@ const Joe = [
           children: [
             S.jsx(bD, { className: "text-red-400 mr-3", size: 24 }),
             S.jsx("h2", {
-              className: "text-xl font-semibold text-gray-700",
+              className: "text-xl font-semibold text-black-700",
               children: "Danger Zone",
             }),
           ],
         }),
         S.jsx("p", {
-          className: "text-gray-800 mb-4",
+          className: "text-black-800 mb-4",
           children:
             "Supprimer définitivement votre compte et tout votre contenu.",
         }),
@@ -46068,7 +46068,7 @@ const Joe = [
     S.jsxs("div", {
       className: "flex items-center justify-between py-3",
       children: [
-        S.jsx("span", { className: "text-gray-800", children: e }),
+        S.jsx("span", { className: "text-black-800", children: e }),
         S.jsx("button", {
           className: `
         relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none
@@ -46123,11 +46123,11 @@ const Joe = [
             S.jsxs("div", {
               children: [
                 S.jsx("h3", {
-                  className: "text-lg font-semibold text-gray-700",
+                  className: "text-lg font-semibold text-black-700",
                   children: "Ferjani Moemen",
                 }),
                 S.jsx("p", {
-                  className: "text-gray-700",
+                  className: "text-black-700",
                   children: "moemen.ferjeni@example.com",
                 }),
               ],
@@ -46186,7 +46186,7 @@ function $se() {
     console.log("Logout button clicked");
   };
   return S.jsxs("div", {
-    className: "flex h-screen bg-white text-gray-700 overflow-hidden",
+    className: "flex h-screen bg-white text-black-700 overflow-hidden",
     children: [
       S.jsxs("div", {
         className: "fixed inset-0 z-0",
@@ -46204,7 +46204,7 @@ function $se() {
         children: S.jsx("button", {
           onClick: e,
           className:
-            "bg-white hover:bg-gray-200 text-gray-800 p-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
+            "bg-white hover:bg-gray-200 text-black-800 p-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500",
           title: "Log Out",
           children: S.jsx(mD, { size: 24 }),
         }),
