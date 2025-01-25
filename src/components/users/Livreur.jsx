@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
+import axios from "axios";
+import config from "../../config.json";
+const API_URL = config.API_URL;
 
 const userData = [
   {
     nom: "العدوي",
     prenom: "محمد",
     email: "mohamed@example.com",
-    gouvernerat: "تونس",
+    gouvernorat: "تونس",
     ville: "المنار",
     localité: "الحي الجامعي",
     codePostal: "1002",
@@ -22,7 +25,7 @@ const userData = [
     nom: "السباعي",
     prenom: "عادل",
     email: "adel@example.com",
-    gouvernerat: "القصرين",
+    gouvernorat: "القصرين",
     ville: "فريانة",
     localité: "الطريق الرئيسية",
     codePostal: "2120",
@@ -37,7 +40,7 @@ const userData = [
     nom: "الجلاصي",
     prenom: "سليم",
     email: "selim@example.com",
-    gouvernerat: "سوسة",
+    gouvernorat: "سوسة",
     ville: "القصبة",
     localité: "منطقة صناعية",
     codePostal: "4000",
@@ -52,7 +55,7 @@ const userData = [
     nom: "الهاشمي",
     prenom: "رشيد",
     email: "rachid@example.com",
-    gouvernerat: "قابس",
+    gouvernorat: "قابس",
     ville: "قابس المدينة",
     localité: "المنطقة الصناعية",
     codePostal: "6000",
@@ -84,22 +87,22 @@ const Livreur = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(userData);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [newUser, setNewUser] = useState({
     nom: "",
     prenom: "",
-    nomShop: "",
     email: "",
-    gouvernerat: "",
-    ville: "",
-    localité: "",
-    codePostal: "",
+    gouvernorat: "",
+    confirmPassword: "",
+    password: "",
     adresse: "",
-    telephone: "",
+    telephone1: "",
+    telephone2: "",
     codeTVA: "",
     cin: "",
-    role: "",
   });
-
+  const [loading, setLoading] = useState(false);
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
@@ -119,23 +122,85 @@ const Livreur = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setFilteredUsers((prevUsers) => [...prevUsers, newUser]);
-    setNewUser({
-      nom: "",
-      prenom: "",
-      email: "",
-      password: "",
-      confirmePassword: "",
-      telephone1: "",
-      telephone2: "",
-      codeTVA: "",
-      cin: "",
-      gouvernorat: "",
-      role: "",
-    });
-    setIsModalOpen(false);
+    setIsLoading(true);
+    setError("");
+    const token = localStorage.getItem('authToken');
+    // Validation des champs obligatoires
+    if (
+      !newUser.nom ||
+      !newUser.prenom ||
+      !newUser.email ||
+      !newUser.password
+    ) {
+      alert("Tous les champs sont obligatoires !");
+      setIsLoading(false);
+      return;
+    }
+
+    if (newUser.password !== newUser.confirmPassword) {
+      alert("Les mots de passe ne correspondent pas !");
+      return;
+    }
+    try {
+      const userToSubmit = {
+        cin: newUser.cin,
+        email: newUser.email,
+        nom: newUser.nom,
+        password: newUser.password,
+        prenom: newUser.prenom,
+        codeTVA: newUser.codeTVA, // Hardcoded as ADMIN since this is the admin table
+        telephone1: newUser.telephone1, // Make sure this matches the backend field name
+        telephone2: newUser.telephone2 || "",
+        gouvernorat: newUser.gouvernorat,
+        role: "LIVREUR",
+      };
+      console.log("Sending data:", userToSubmit);
+      const response = await axios.post(
+        `${API_URL}/users/creatAccount`,
+        userToSubmit,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${token}`
+          },
+        }
+      );
+      setFilteredUsers((prev) => [...prev, response.data]);
+      setIsModalOpen(false);
+      setNewUser({
+        nom: "",
+        prenom: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        telephone1: "",
+        telephone2: "",
+        codeTVA: "",
+        cin: "",
+        gouvernorat: "",
+        role: "LIVREUR",
+      });
+      alert("livreur ajouté avec succès!");
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de livreur:", error);
+
+      if (error.response) {
+        setError(
+          error.response.data.message ||
+            "Une erreur est survenue lors de la création du compte"
+        );
+      } else if (error.request) {
+        setError(
+          "Erreur de connexion au serveur. Veuillez vérifier votre connexion internet."
+        );
+      } else {
+        setError("Une erreur inattendue s'est produite.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -224,164 +289,149 @@ const Livreur = () => {
               Ajouter un Livreur
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-  <div className="grid grid-cols-2 gap-4">
-    <div>
-      <label className="block text-gray-700">Nom</label>
-      <input
-        type="text"
-        name="nom"
-        value={newUser.nom}
-        onChange={handleInputChange}
-        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required
-      />
-    </div>
-    <div>
-      <label className="block text-gray-700">Prénom</label>
-      <input
-        type="text"
-        name="prenom"
-        value={newUser.prenom}
-        onChange={handleInputChange}
-        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required
-      />
-    </div>
-  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-700">Nom</label>
+                  <input
+                    type="text"
+                    name="nom"
+                    value={newUser.nom}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Prénom</label>
+                  <input
+                    type="text"
+                    name="prenom"
+                    value={newUser.prenom}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
 
-  <div>
-    <label className="block text-gray-700">Email</label>
-    <input
-      type="email"
-      name="email"
-      value={newUser.email}
-      onChange={handleInputChange}
-      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      required
-    />
-  </div>
+              <div>
+                <label className="block text-gray-700">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={newUser.email}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
 
-  <div className="grid grid-cols-2 gap-4">
-    <div>
-      <label className="block text-gray-700">Mot de passe</label>
-      <input
-        type="password"
-        name="password"
-        value={newUser.password}
-        onChange={handleInputChange}
-        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required
-      />
-    </div>
-    <div>
-      <label className="block text-gray-700">Confirmez le mot de passe</label>
-      <input
-        type="password"
-        name="confirmePassword"
-        value={newUser.confirmePassword}
-        onChange={handleInputChange}
-        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required
-      />
-    </div>
-  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-700">Mot de passe</label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={newUser.password}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">
+                    Confirmez le mot de passe
+                  </label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={newUser.confirmPassword}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
 
-  <div className="grid grid-cols-2 gap-4">
-    <div>
-      <label className="block text-gray-700">Téléphone 1</label>
-      <input
-        type="text"
-        name="telephone1"
-        value={newUser.telephone1}
-        onChange={handleInputChange}
-        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required
-      />
-    </div>
-    <div>
-      <label className="block text-gray-700">Téléphone 2 (optionnel)</label>
-      <input
-        type="text"
-        name="telephone2"
-        value={newUser.telephone2}
-        onChange={handleInputChange}
-        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-    </div>
-  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-700">Téléphone 1</label>
+                  <input
+                    type="text"
+                    name="telephone1"
+                    value={newUser.telephone1}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">
+                    Téléphone 2 (optionnel)
+                  </label>
+                  <input
+                    type="text"
+                    name="telephone2"
+                    value={newUser.telephone2}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
 
-  <div className="grid grid-cols-2 gap-4">
-    <div>
-      <label className="block text-gray-700">Code TVA</label>
-      <input
-        type="text"
-        name="codeTVA"
-        value={newUser.codeTVA}
-        onChange={handleInputChange}
-        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required
-      />
-    </div>
-    <div>
-      <label className="block text-gray-700">CIN</label>
-      <input
-        type="text"
-        name="cin"
-        value={newUser.cin}
-        onChange={handleInputChange}
-        className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required
-      />
-    </div>
-  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-700">Code TVA</label>
+                  <input
+                    type="text"
+                    name="codeTVA"
+                    value={newUser.codeTVA}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">CIN</label>
+                  <input
+                    type="text"
+                    name="cin"
+                    value={newUser.cin}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
 
-  <div>
-    <label className="block text-gray-700">Gouvernorat</label>
-    <input
-      type="text"
-      name="gouvernorat"
-      value={newUser.gouvernorat}
-      onChange={handleInputChange}
-      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      required
-    />
-  </div>
-
-  <div>
-    <label className="block text-gray-700">Rôle</label>
-    <select
-      name="role"
-      value={newUser.role}
-      onChange={handleInputChange}
-      className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-      required
-    >
-      <option value="" disabled>
-        Sélectionnez un rôle
-      </option>
-      <option value="Admin">Admin</option>
-      <option value="Livreur">Livreur</option>
-      <option value="Client">Client</option>
-    </select>
-  </div>
+              <div>
+                <label className="block text-gray-700">Gouvernorat</label>
+                <input
+                  type="text"
+                  name="gouvernorat"
+                  value={newUser.gouvernorat}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
+              </div>
 
               <div className="flex justify-end space-x-4 mt-4">
-              <button
+                <button
                   type="button"
                   className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
                   onClick={() => setIsModalOpen(false)}
                 >
                   Annuler
                 </button>
-    <button
-      type="submit"
-      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-    >
-      Enregistrer
-    </button>
-  </div>
-</form>
-
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+                >
+                  Enregistrer
+                </button>
+              </div>
+            </form>
           </motion.div>
         </motion.div>
       )}

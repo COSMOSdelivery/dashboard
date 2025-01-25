@@ -1,87 +1,135 @@
-import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import React from "react";
+import { Route, Routes, Navigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import Sidebar from "./components/common/Sidebar";
-import OverviewPage from "./pages/OverviewPage";
-import UsersPage from "./pages/UsersPage";
-import SalesPage from "./pages/SalesPage";
-import OrdersPage from "./pages/OrdersPage";
-import AnalyticsPage from "./pages/AnalyticsPage";
-import SettingsPage from "./pages/SettingsPage";
-import LoginPage from "./pages/LoginPage";
-import NotFoundPage from "./pages/NotFoundPage";
+import OverviewPage from "./pages/Admin/OverviewPage";
+import OverviewPageClient from "./pages/Client/OverviewPageClient";
+import UsersPage from "./pages/Admin/UsersPage";
+import SalesPage from "./pages/Admin/SalesPage";
+import OrdersPage from "./pages/Admin/OrdersPage";
+import AnalyticsPage from "./pages/Admin/AnalyticsPage";
+import SettingsPage from "./pages/Admin/SettingsPage";
+import LoginPage from "./pages/Admin/LoginPage";
+import NotFoundPage from "./pages/Admin/NotFoundPage";
+import Searchcolis from "./pages/Client/Searchcolis";
 
-const routes = [
-    { path: "/", element: <OverviewPage />, requiresAuth: true },
-    { path: "/users", element: <UsersPage />, requiresAuth: true},
-    { path: "/sales", element: <SalesPage />, requiresAuth: true },
-    { path: "/orders", element: <OrdersPage />, requiresAuth: true },
-    { path: "/analytics", element: <AnalyticsPage />, requiresAuth: true },
-    { path: "/settings", element: <SettingsPage />, requiresAuth: true },
-    { path: "/login", element: <LoginPage />, requiresAuth: false },
-    { path: "*", element: <NotFoundPage />, requiresAuth: false },
-];
+const ProtectedRoute = ({ children }) => {
+  const isAuthenticated = Boolean(localStorage.getItem("authToken"));
+  const userRole =
+    JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (userRole !== "ADMIN") return <Navigate to="/" replace />;
+
+  return children;
+};
+const ProtectedRouteClient = ({ children }) => {
+    const isAuthenticated = Boolean(localStorage.getItem("authToken"));
+    const userRole =
+      JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
+  
+    if (!isAuthenticated) return <Navigate to="/login" replace />;
+    if (userRole !== "CLIENT") return <Navigate to="/" replace />;
+  
+    return children;
+};
+  
 
 function App() {
-    const location = useLocation();
-    const navigate = useNavigate();
-    const isAuthenticated = Boolean(localStorage.getItem("authToken")); // Replace with actual auth logic
-    const userRole = localStorage.getItem("userRole") || "GUEST"; // Replace with actual role logic
+  const handleLogoutClick = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userInfo");
+    window.location.href = "/login";
+  };
 
-    const handleLogoutClick = () => {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("userRole");
-        navigate("/login");
-    };
+  const isAuthenticated = Boolean(localStorage.getItem("authToken"));
+  const userRole =
+    JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
 
-    // Helper function to check if route is accessible
-    const isRouteAccessible = (route) => {
-        if (!route.requiresAuth) return true; // Public routes are accessible
-        if (!isAuthenticated) return false; // Block unauthenticated users
-        if (route.roles && !route.roles.includes(userRole)) return false; // Block unauthorized roles
-        return true;
-    };
+  return (
+    <div className="flex h-screen bg-white text-gray-100 overflow-hidden">
+      {isAuthenticated && (
+        <>
+          <Sidebar role={userRole} />
+          <button
+            onClick={handleLogoutClick}
+            className="fixed top-4 right-7 z-20 bg-white hover:bg-gray-200 p-2 rounded-full"
+          >
+            <LogOut size={24} />
+          </button>
+        </>
+      )}
 
-    // Conditionally show the sidebar and logout button
-    const isLoginPage = location.pathname === "/login";
-
-    return (
-        <div className="flex h-screen bg-white text-gray-100 overflow-hidden">
-            <div className="fixed inset-0 z-0">
-                <div className="absolute inset-0 bg-white" />
-                <div className="absolute inset-0 backdrop-blur-sm" />
-            </div>
-
-            {!isLoginPage && isAuthenticated && (
-                <>
-                    <Sidebar currentPath={location.pathname} />
-                    <div className="fixed top-4 right-7 z-20 flex items-center space-x-4">
-                        <button
-                            onClick={handleLogoutClick}
-                            className="bg-white hover:bg-gray-200 text-gray-300 p-2 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            title="Log Out"
-                            aria-label="Log Out"
-                        >
-                            <LogOut size={24} />
-                        </button>
-                    </div>
-                </>
-            )}
-
-            <Routes>
-                {routes.map((route, index) => (
-                    isRouteAccessible(route) ? (
-                        <Route key={index} path={route.path} element={route.element} />
-                    ) : (
-                        <Route
-                            key={index}
-                            path={route.path}
-                            element={<LoginPage />}
-                        />
-                    )
-                ))}
-            </Routes>
-        </div>
-    );
+          <Routes>
+        <Route
+          path="/client-dashboard"
+          element={
+            <ProtectedRouteClient>
+              <OverviewPageClient/>
+            </ProtectedRouteClient>
+          }
+              />
+                      <Route
+          path="/search-parcels"
+          element={
+            <ProtectedRouteClient>
+              <Searchcolis/>
+            </ProtectedRouteClient>
+          }
+        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <OverviewPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute>
+              <UsersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sales"
+          element={
+            <ProtectedRoute>
+              <SalesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <OrdersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </div>
+  );
 }
 
 export default App;

@@ -1,65 +1,68 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Lock, Mail, ArrowRight } from 'lucide-react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import config from '../config.json';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Lock, Mail, ArrowRight } from "lucide-react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import config from "../../config.json";
 const API_URL = config.API_URL;
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     try {
       const response = await axios.post(`${API_URL}/users/login`, {
         email,
         password,
       });
-  
+
       if (response.status === 200) {
         const { token, nom, prenom, email: userEmail, role } = response.data;
-        
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userInfo', JSON.stringify({ 
-          nom, 
-          prenom, 
-          email: userEmail, 
-          role 
-        }));
-  
+
+        localStorage.setItem("authToken", token);
+        localStorage.setItem(
+          "userInfo",
+          JSON.stringify({
+            nom,
+            prenom,
+            email: userEmail,
+            role,
+          })
+        );
+
         const rolePaths = {
-          CLIENT: '/client-dashboard',
-          ADMIN: '',
-          LIVREUR: '/livreur-dashboard',
-          SERVICECLIENT: '/service-client-dashboard',
+          CLIENT: "/client-dashboard",
+          ADMIN: "",
+          LIVREUR: "/livreur-dashboard",
+          SERVICECLIENT: "/service-client-dashboard",
         };
-        
-        navigate(rolePaths[role] || '/');
+
+        navigate(rolePaths[role] || "/");
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.msg || 'Erreur de connexion';
+      const errorMsg = error.response?.data?.msg || "Erreur de connexion";
       setErrorMessage(errorMsg);
-  
-      setTimeout(() => setErrorMessage(''), 3000);
+
+      setTimeout(() => setErrorMessage(""), 3000);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div 
+    <div
       className="flex-1 overflow-auto relative z-10 bg-cover bg-center min-h-screen"
-      style={{ 
+      style={{
         backgroundImage: "url('/login.jpg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
       <div className="min-h-screen flex items-center justify-end py-12 px-4 sm:px-6 lg:px-8">
@@ -68,14 +71,10 @@ const LoginPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          style={{ maxWidth: '450px' }}
+          style={{ maxWidth: "450px" }}
         >
           <div className="flex flex-col items-center">
-            <img 
-              src="/logo.jpg" 
-              alt="Logo" 
-              className="w-44 h-auto"
-            />
+            <img src="/logo.jpg" alt="Logo" className="w-44 h-auto" />
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
               Connexion
             </h2>
@@ -145,13 +144,16 @@ const LoginPage = () => {
                   className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                   disabled={isLoading}
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                <label
+                  htmlFor="remember-me"
+                  className="ml-2 block text-sm text-gray-900"
+                >
                   Se souvenir de moi
                 </label>
               </div>
               <div className="text-sm">
-                <a 
-                  href="/forgot-password" 
+                <a
+                  href="/forgot-password"
                   className="font-medium text-indigo-600 hover:text-indigo-500"
                 >
                   Mot de passe oublié?
@@ -159,10 +161,7 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <motion.div
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-            >
+            <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
               <button
                 type="submit"
                 className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-[#202434] hover:bg-[#181c2c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#15192a] disabled:opacity-50 disabled:cursor-not-allowed"
@@ -171,7 +170,7 @@ const LoginPage = () => {
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                   <Lock className="h-5 w-5 text-gray-300 group-hover:text-gray-200" />
                 </span>
-                {isLoading ? 'Connexion...' : 'Se connecter'}
+                {isLoading ? "Connexion..." : "Se connecter"}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </button>
             </motion.div>

@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
-
-// Données utilisateurs (exemple)
+import config from '../../config.json';
+import axios from 'axios';
+const API_URL = config.API_URL;
 const userData = [
   {
     nom: "بن سعيد",
     prenom: "خالد",
     email: "khaled@example.com",
-    gouvernerat: "تونس",
+    gouvernorat: "تونس",
     ville: "المنار",
     localité: "حي النصر",
     codePostal: "1073",
@@ -23,7 +24,7 @@ const userData = [
     nom: "الطاهر",
     prenom: "سامي",
     email: "sami@example.com",
-    gouvernerat: "المنستير",
+    gouvernorat: "المنستير",
     ville: "المنستير",
     localité: "المدينة الجديدة",
     codePostal: "5000",
@@ -38,7 +39,7 @@ const userData = [
     nom: "الشابي",
     prenom: "فاطمة",
     email: "fatma@example.com",
-    gouvernerat: "صفاقس",
+    gouvernorat: "صفاقس",
     ville: "صفاقس",
     localité: "حي النصر",
     codePostal: "3001",
@@ -62,22 +63,22 @@ const roleStyles = {
 const ServiceClientTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState(userData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newUser, setNewUser] = useState({
     nom: "",
     prenom: "",
     email: "",
-    gouvernerat: "",
-    ville: "",
-    localité: "",
-    codePostal: "",
-    adresse: "",
-    telephone: "",
+    password: "",
+    confirmPassword: "",
+    telephone1: "",
+    telephone2: "",
     cin: "",
-    role: "Service_Client",
+    codeTVA:"",
+    role: "SERVICECLIENT",
   });
 
-  // Gestion de la recherche
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
@@ -89,7 +90,6 @@ const ServiceClientTable = () => {
     setFilteredUsers(filtered);
   };
 
-  // Gestion des modifications des champs du formulaire
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewUser((prevUser) => ({
@@ -98,25 +98,66 @@ const ServiceClientTable = () => {
     }));
   };
 
-  // Soumission du formulaire
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setFilteredUsers((prevUsers) => [...prevUsers, newUser]);
-    setNewUser({
-      nom: "",
-      prenom: "",
-      email: "",
-      gouvernerat: "",
-      ville: "",
-      localité: "",
-      codePostal: "",
-      adresse: "",
-      telephone: "",
-      cin: "",
-      role: "Service_Client",
-    });
-    setIsModalOpen(false);
+    setError("");
+    setIsLoading(true);
+    if (newUser.password !== newUser.confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.");
+      setIsLoading(false);
+      return;
+    }
+  
+    try {
+      const userToSubmit = {
+        cin: newUser.cin,
+        email: newUser.email,
+        nom: newUser.nom,
+        password: newUser.password,
+        prenom: newUser.prenom,
+        role: "SERVICECLIENT",
+        codeTVA:newUser.codeTVA,// Hardcoded as ADMIN since this is the admin table
+        telephone1: newUser.telephone1, // Make sure this matches the backend field name
+        telephone2: newUser.telephone2 || ""
+      };
+      console.log('Sending data:', userToSubmit);
+      const response = await axios.post(`${API_URL}/users/creatAccount`, userToSubmit, {
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      setFilteredUsers(prev => [...prev, response.data]);
+      setIsModalOpen(false);
+      setNewUser({
+        nom: "",
+        prenom: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        telephone: "",
+        telephone2: "",
+        cin: "",
+        codeTVA:"",// Hardcoded as ADMIN since this is the admin table
+        role: "SERVICECLIENT",
+      });
+      
+      alert('SERVICE client ajouté avec succès!');
+    } catch (error) {
+      console.error("Erreur lors de l'ajout du service client:", error);
+      
+      if (error.response) {
+        setError(error.response.data.message || 'Une erreur est survenue lors de la création du compte');
+      } else if (error.request) {
+        setError("Erreur de connexion au serveur. Veuillez vérifier votre connexion internet.");
+      } else {
+        setError("Une erreur inattendue s'est produite.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
+  ;
 
   return (
     <motion.div
@@ -293,7 +334,17 @@ const ServiceClientTable = () => {
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-
+              <div>
+                  <label className="block text-gray-700">code tva</label>
+                  <input
+                    type="text"
+                    name="codeTVA"
+                    value={newUser.codeTVA}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
               <div>
                 <label className="block text-gray-700">CIN</label>
                 <input
@@ -304,22 +355,6 @@ const ServiceClientTable = () => {
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
-              </div>
-
-              <div>
-                <label className="block text-gray-700">Rôle</label>
-                <select
-                  name="role"
-                  value={newUser.role}
-                  onChange={handleInputChange}
-                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Sélectionner un rôle</option>
-                  <option value="Admin">Admin</option>
-                  <option value="Livreur">Livreur</option>
-                  <option value="Client">Client</option>
-                </select>
               </div>
 
               <div className="flex justify-end space-x-4 mt-4">

@@ -17,11 +17,24 @@ const AdminTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [newUser, setNewUser] = useState({
+    nom: "",
+    prenom: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    telephone1: "",
+    telephone2: "",
+    cin: "",
+    codeTVA: "",
+    role: "ADMIN",
+  });
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchAdmins = async () => {
       const token = localStorage.getItem('authToken');
+      console.log('authToken', token);
       try {
         const response = await axios.get(`${config.API_URL}/users/allAdmins`, {
           headers: {
