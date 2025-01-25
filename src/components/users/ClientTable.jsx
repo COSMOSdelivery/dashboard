@@ -1,141 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import config from '../../config.json';
 import axios from 'axios';
 const API_URL = config.API_URL;
-
-const userData = [
-  {
-    nom: "السعيدي",
-    prenom: "مريم",
-    nomShop: "متجر مريم",
-    email: "maryam@example.com",
-    gouvernerat: "تونس",
-    ville: "أريانة",
-    localité: "منوبة",
-    codePostal: "2002",
-    adresse: "321 شارع الأمل",
-    telephone: "22233444",
-    codeTVA: "TVA321",
-    cin: "CIN321",
-    role: "Client",
-    dateInscription: "2023-01-15",
-    derniereMiseAJour: "2023-01-16",
-  },
-  {
-    nom: "الجبالي",
-    prenom: "يوسف",
-    nomShop: "محل يوسف",
-    email: "youssef@example.com",
-    gouvernerat: "مدنين",
-    ville: "جرجيس",
-    localité: "سيدي مخلوف",
-    codePostal: "5000",
-    adresse: "654 شارع السعادة",
-    telephone: "34567890",
-    codeTVA: "TVA654",
-    cin: "CIN654",
-    role: "Client",
-    dateInscription: "2023-01-20",
-    derniereMiseAJour: "2023-01-21",
-  },
-  {
-    nom: "عبدالله",
-    prenom: "خالد",
-    nomShop: "سوق خالد",
-    email: "khalid@example.com",
-    gouvernerat: "تونس",
-    ville: "حلق الوادي",
-    localité: "الكرم",
-    codePostal: "2005",
-    adresse: "567 شارع البحيرة",
-    telephone: "56789012",
-    codeTVA: "TVA567",
-    cin: "CIN567",
-    role: "Client",
-    dateInscription: "2023-01-25",
-    derniereMiseAJour: "2023-01-26",
-  },
-  {
-    nom: "جمعة",
-    prenom: "هند",
-    nomShop: "هند للأزياء",
-    email: "hind@example.com",
-    gouvernerat: "سوسة",
-    ville: "سوسة",
-    localité: "بوحجر",
-    codePostal: "4000",
-    adresse: "123 شارع الحديقة",
-    telephone: "12345678",
-    codeTVA: "TVA123",
-    cin: "CIN123",
-    role: "Client",
-    dateInscription: "2023-01-05",
-    derniereMiseAJour: "2023-01-06",
-  },
-  {
-    nom: "حمدي",
-    prenom: "أحمد",
-    nomShop: "مخبز حمدي",
-    email: "ahmed@example.com",
-    gouvernerat: "صفاقس",
-    ville: "صفاقس",
-    localité: "المدينة العتيقة",
-    codePostal: "3000",
-    adresse: "789 شارع الحرية",
-    telephone: "11122333",
-    codeTVA: "TVA789",
-    cin: "CIN789",
-    role: "Client",
-    dateInscription: "2023-01-10",
-    derniereMiseAJour: "2023-01-11",
-  },
-  {
-    nom: "السعيدي",
-    prenom: "مريم",
-    nomShop: "متجر مريم",
-    email: "maryam@example.com",
-    gouvernerat: "تونس",
-    ville: "أريانة",
-    localité: "منوبة",
-    codePostal: "2002",
-    adresse: "321 شارع الأمل",
-    telephone: "22233444",
-    codeTVA: "TVA321",
-    cin: "CIN321",
-    role: "Client",
-    dateInscription: "2023-01-15",
-    derniereMiseAJour: "2023-01-16",
-  },
-  {
-    nom: "الجبالي",
-    prenom: "يوسف",
-    nomShop: "محل يوسف",
-    email: "youssef@example.com",
-    gouvernerat: "مدنين",
-    ville: "جرجيس",
-    localité: "سيدي مخلوف",
-    codePostal: "5000",
-    adresse: "654 شارع السعادة",
-    telephone: "34567890",
-    codeTVA: "TVA654",
-    cin: "CIN654",
-    role: "Client",
-    dateInscription: "2023-01-20",
-    derniereMiseAJour: "2023-01-21",
-  },
-];
-
 const roleStyles = {
-  Admin: {
-    background: "bg-red-500",
-    text: "text-white",
-  },
-  Livreur: {
-    background: "bg-yellow-500",
-    text: "text-black",
-  },
   Client: {
     background: "bg-green-500",
     text: "text-white",
@@ -143,33 +12,58 @@ const roleStyles = {
 };
 const ClientTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState(userData);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [newUser, setNewUser] = useState({
-    nom: "",
-    prenom: "",
-    nomShop: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    telephone1: "",
-    telephone2: "",
-    codeTVA: "",
-    cin: "",
-    gouvernorat: "",
-    ville: "",
-    localite: "",
-    codePostal: "",
-    adresse: "",
-    role: "Client",
-  });
+const [filteredUsers, setFilteredUsers] = useState([]);
+const [isModalOpen, setIsModalOpen] = useState(false);
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState("");
+const [users, setUsers] = useState([])
+// Add this new state
+const [newUser, setNewUser] = useState({
+  nom: "",
+  prenom: "",
+  nomShop: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  telephone1: "",
+  telephone2: "",
+  codeTVA: "",
+  cin: "",
+  gouvernorat: "",
+  ville: "",
+  localite: "",
+  codePostal: "",
+  adresse: "",
+  fraisRetour: "",
+  fraisLivraison: "",
+  role: "CLIENT",
+});
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      const token = localStorage.getItem('authToken');
+      try {
+        const response = await axios.get(`${config.API_URL}/users/allClients`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setUsers(response.data);
+        setFilteredUsers(response.data);
+        setIsLoading(false);
+      } catch (err) {
+        setError(err.response?.data?.msg || "Erreur de chargement des clients");
+        setIsLoading(false);
+      }
+    };
+
+    fetchAdmins();
+  }, []);
   const [loading, setLoading] = useState(false);
+
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    const filtered = userData.filter(
+    const filtered = users.filter(
       (user) =>
         `${user.prenom} ${user.nom}`.toLowerCase().includes(term) ||
         user.email.toLowerCase().includes(term)
@@ -187,6 +81,7 @@ const ClientTable = () => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    const token = localStorage.getItem('authToken');
 
     // Validation des champs obligatoires
     if (!newUser.nom || !newUser.prenom || !newUser.email || !newUser.password) {
@@ -203,24 +98,28 @@ const ClientTable = () => {
     try {
       const userToSubmit = {
         cin: newUser.cin,
+        nomShop:newUser.nomShop,
         email: newUser.email,
         nom: newUser.nom,
         password: newUser.password,
         prenom: newUser.prenom,
-        codeTVA: newUser.codeTVA, // Hardcoded as ADMIN since this is the admin table
-        telephone1: newUser.telephone1, // Make sure this matches the backend field name
+        codeTVA: newUser.codeTVA, 
+        telephone1: newUser.telephone1, 
         telephone2: newUser.telephone2 || "",
         gouvernorat: newUser.gouvernorat,
         ville: newUser.ville,
         localite: newUser.localite,
         codePostal: newUser.codePostal,
         adresse: newUser.adresse,
+        fraisRetour:newUser.fraisRetour,
+        fraisLivraison:newUser.fraisLivraison,
         role: "CLIENT",
       };
       console.log('Sending data:', userToSubmit);
       const response = await axios.post(`${API_URL}/users/creatAccount`, userToSubmit, {
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
       });
       setFilteredUsers(prev => [...prev, response.data]);
@@ -241,18 +140,26 @@ const ClientTable = () => {
         localite: "",
         codePostal: "",
         adresse: "",
-        role: "Client",
+        fraisRetour: "",
+        fraisLivraison: "",
+        role: "CLIENT",
       });
       alert('client ajouté avec succès!');
-    } catch (error) {
-      console.error("Erreur lors de l'ajout de l'ADMIN:", error);
-
+    }catch (error) {
+      console.error("Full error response:", error.response);
+      console.error("Error details:", JSON.stringify(error.response?.data, null, 2));
+    
       if (error.response) {
-        setError(error.response.data.message || 'Une erreur est survenue lors de la création du compte');
+        // Log specific error messages from the backend
+        const errorMessage = error.response.data.message || 
+                             error.response.data.msg || 
+                             'Une erreur est survenue lors de la création du compte';
+        setError(errorMessage);
+        alert(errorMessage);
       } else if (error.request) {
-        setError("Erreur de connexion au serveur. Veuillez vérifier votre connexion internet.");
+        setError("Erreur de connexion au serveur");
       } else {
-        setError("Une erreur inattendue s'est produite.");
+        setError("Une erreur inattendue s'est produite");
       }
     } finally {
       setIsLoading(false);
@@ -539,8 +446,32 @@ const ClientTable = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 required
               />
-            </div>
-
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-700">Frais Livraison</label>
+                  <input
+                    type="text"
+                    name="fraisLivraison"
+                    value={newUser.fraisLivraison}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-700">Frais Retour</label>
+                  <input
+                    type="text"
+                    name="fraisRetour"
+                    value={newUser.fraisRetour}
+                    onChange={handleInputChange}
+                    className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+<br/>
             <div className="flex justify-end space-x-2">
             <button
                   type="button"
