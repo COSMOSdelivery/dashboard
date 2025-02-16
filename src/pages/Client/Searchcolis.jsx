@@ -2,18 +2,29 @@ import React, { useState, useEffect } from "react";
 import Header from "../../components/common/Header";
 import axios from "axios";
 import config from "../../config.json";
+import {
+  User,
+  Mail,
+  Phone,
+  MapPin,
+  Home,
+  CreditCard,
+  Package,
+  Check,
+  X,
+  Info,
+} from "lucide-react"; // Importez les icônes nécessaires
+
 const API_URL = config.API_URL;
+
 const Searchcolis = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [isEchangePossible, setIsEchangePossible] = useState(false);
-  const handleEchangeChange = (e) => {
-    setIsEchangePossible(e.target.checked); // Met à jour l'état en fonction de la case à cocher
-  };
-  const [commandes, setCommandes] = useState([]); // Start with an empty array
-
+  const [commandes, setCommandes] = useState([]);
   const [error, setError] = useState(null);
+
   useEffect(() => {
     const fetchCommands = async () => {
       const token = localStorage.getItem("authToken");
@@ -23,7 +34,7 @@ const Searchcolis = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setCommandes(response.data); // Dynamically set the fetched commandes
+        setCommandes(response.data);
       } catch (err) {
         setError(err.response?.data?.msg || "Erreur de chargement des commandes");
       }
@@ -31,6 +42,7 @@ const Searchcolis = () => {
 
     fetchCommands();
   }, []);
+
   const handleSearch = (e) => {
     e.preventDefault();
     console.log("Recherche effectuée :", searchTerm);
@@ -39,8 +51,7 @@ const Searchcolis = () => {
   const handleAddCommande = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("authToken");
-  
-    // Collect form data
+
     const formData = {
       nom_prioritaire: e.target.elements.nomPrioritaire.value,
       prenom_prioritaire: e.target.elements.prenomPrioritaire.value,
@@ -59,32 +70,34 @@ const Searchcolis = () => {
       possible_echange: e.target.elements.possibleEchange.checked,
       remarque: e.target.elements.remarque.value || null,
       code_a_barre_echange: isEchangePossible ? e.target.elements.codeBarreEchange?.value : null,
-      nb_article_echange: isEchangePossible ? parseInt(e.target.elements.nbArticlesEchange?.value) : null
+      nb_article_echange: isEchangePossible ? parseInt(e.target.elements.nbArticlesEchange?.value) : null,
     };
-  
+
     try {
       const response = await axios.post(`${API_URL}/command`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          "Content-Type": "application/json",
+        },
       });
       setShowForm(false);
-      
-      // Optionally, refresh the commands list
+
       const updatedResponse = await axios.get(`${API_URL}/command/clientAllCommands`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setCommandes(updatedResponse.data);
-  
-      // Show success message (you might want to use a toast or alert component)
-      alert('Commande ajoutée avec succès !');
+
+      alert("Commande ajoutée avec succès !");
     } catch (error) {
-      console.error('Erreur lors de l\'ajout de la commande:', error.response?.data);
-      alert(error.response?.data?.msg || 'Erreur lors de l\'ajout de la commande');
+      console.error("Erreur lors de l'ajout de la commande:", error.response?.data);
+      alert(error.response?.data?.msg || "Erreur lors de l'ajout de la commande");
     }
+  };
+
+  const handleEchangeChange = (e) => {
+    setIsEchangePossible(e.target.checked);
   };
 
   const filteredCommandes = commandes.filter((commande) => {
@@ -97,8 +110,8 @@ const Searchcolis = () => {
   });
 
   return (
-<div className="flex flex-col w-full min-h-screen">
-<Header title="Gestion des colis" />
+    <div className="flex flex-col w-full min-h-screen">
+      <Header title="Gestion des colis" />
       <br />
 
       <div className="flex items-center border-b">
@@ -141,7 +154,7 @@ const Searchcolis = () => {
         </div>
       )}
 
-<main className="flex-1 p-6 overflow-auto">
+      <main className="flex-1 p-6 overflow-auto">
         {!showForm && (
           <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg mb-4">
             <div className="flex items-center space-x-4">
@@ -175,173 +188,231 @@ const Searchcolis = () => {
 
         {showForm ? (
           <form onSubmit={handleAddCommande} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <input
-              type="text"
-              name="nomPrioritaire"
-              placeholder="Nom Prioritaire"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="text"
-              name="prenomPrioritaire"
-              placeholder="Prénom Prioritaire"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="text"
-              name="gouvernorat"
-              placeholder="Gouvernorat"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="text"
-              name="ville"
-              placeholder="Ville"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="text"
-              name="localite"
-              placeholder="Localité"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="text"
-              name="codePostal"
-              placeholder="Code Postal"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="text"
-              name="adresse"
-              placeholder="Adresse"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="tel"
-              name="telephone1"
-              placeholder="Téléphone 1"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="tel"
-              name="telephone2"
-              placeholder="Téléphone 2 (Optionnel)"
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="text"
-              name="designation"
-              placeholder="Désignation"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="number"
-              name="prix"
-              placeholder="Prix"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-            <input
-              type="number"
-              name="nbArticles"
-              placeholder="Nombre d'Articles"
-              required
-              className="border p-2 rounded-md w-full"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <select
-              name="etatCommande"
-              required
-              className="border p-2 rounded-md w-full text-gray-500"
-            >
-              <option value="">État de la Commande</option>
-              <option value="EN_COURS">En Cours</option>
-              <option value="LIVREE">Livrée</option>
-            </select>
-            <select
-              name="modePaiement"
-              required
-              className="border p-2 rounded-md w-full text-gray-500"
-            >
-              <option value="">Mode de Paiement</option>
-              <option value="ESPECE">Espèces</option>
-              <option value="CHEQUE">Cheque</option>
-            </select>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="possibleOuvrir"
-                name="possibleOuvrir"
-                className="h-4 w-4"
-              />
-              <label htmlFor="possibleOuvrir" className="ml-2">
-                Possible d'Ouvrir
-              </label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="possibleEchange"
-                name="possibleEchange"
-                className="h-4 w-4"
-                onChange={handleEchangeChange}
-              />
-              <label htmlFor="possibleEchange" className="ml-2">
-                Possible d'Échange
-              </label>
-            </div>
-        
-            {isEchangePossible && (
-              <>
+            <div className="grid grid-cols-2 gap-4">
+              {/* Nom Prioritaire */}
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <input
                   type="text"
-                  name="codeBarreEchange"
-                  placeholder="Code à Barre Échange (Optionnel)"
-                  className="border p-2 rounded-md w-full"
+                  name="nomPrioritaire"
+                  placeholder="Nom Prioritaire"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
                 />
+              </div>
+
+              {/* Prénom Prioritaire */}
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  name="prenomPrioritaire"
+                  placeholder="Prénom Prioritaire"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
+                />
+              </div>
+
+              {/* Gouvernorat */}
+              <div className="relative">
+                <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  name="gouvernorat"
+                  placeholder="Gouvernorat"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
+                />
+              </div>
+
+              {/* Ville */}
+              <div className="relative">
+                <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  name="ville"
+                  placeholder="Ville"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
+                />
+              </div>
+
+              {/* Localité */}
+              <div className="relative">
+                <Home className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  name="localite"
+                  placeholder="Localité"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
+                />
+              </div>
+
+              {/* Code Postal */}
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  name="codePostal"
+                  placeholder="Code Postal"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
+                />
+              </div>
+
+              {/* Adresse */}
+              <div className="relative">
+                <Home className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  name="adresse"
+                  placeholder="Adresse"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
+                />
+              </div>
+
+              {/* Téléphone 1 */}
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="tel"
+                  name="telephone1"
+                  placeholder="Téléphone 1"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
+                />
+              </div>
+
+              {/* Téléphone 2 */}
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="tel"
+                  name="telephone2"
+                  placeholder="Téléphone 2 (Optionnel)"
+                  className="border p-2 rounded-md w-full pl-10"
+                />
+              </div>
+
+              {/* Désignation */}
+              <div className="relative">
+                <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  name="designation"
+                  placeholder="Désignation"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
+                />
+              </div>
+
+              {/* Prix */}
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <input
                   type="number"
-                  name="nbArticlesEchange"
-                  placeholder="Nombre d'Articles Échange (Optionnel)"
-                  className="border p-2 rounded-md w-full"
+                  name="prix"
+                  placeholder="Prix"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
                 />
-              </>
-            )}
-          </div>
-          <textarea
-            name="remarque"
-            placeholder="Remarque (Optionnel)"
-            className="border p-2 rounded-md w-full"
-            rows="4"
-          />
-          <div className="flex space-x-4">
-            <button
-              type="submit"
-              className="bg-blue-400 text-white px-4 py-2 rounded-md hover:bg-blue-500"
-            >
-              Enregistrer
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowForm(false)}
-              className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400"
-            >
-              Annuler
-            </button>
-          </div>
-        </form>
+              </div>
+
+              {/* Nombre d'Articles */}
+              <div className="relative">
+                <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="number"
+                  name="nbArticles"
+                  placeholder="Nombre d'Articles"
+                  required
+                  className="border p-2 rounded-md w-full pl-10"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="possibleOuvrir"
+                  name="possibleOuvrir"
+                  className="h-4 w-4"
+                />
+                <label htmlFor="possibleOuvrir" className="ml-2">
+                  Possible d'Ouvrir
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="possibleEchange"
+                  name="possibleEchange"
+                  className="h-4 w-4"
+                  onChange={handleEchangeChange}
+                />
+                <label htmlFor="possibleEchange" className="ml-2">
+                  Possible d'Échange
+                </label>
+              </div>
+
+              {isEchangePossible && (
+                <>
+                  {/* Code à Barre Échange */}
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      name="codeBarreEchange"
+                      placeholder="Code à Barre Échange (Optionnel)"
+                      className="border p-2 rounded-md w-full pl-10"
+                    />
+                  </div>
+
+                  {/* Nombre d'Articles Échange */}
+                  <div className="relative">
+                    <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <input
+                      type="number"
+                      name="nbArticlesEchange"
+                      placeholder="Nombre d'Articles Échange (Optionnel)"
+                      className="border p-2 rounded-md w-full pl-10"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Remarque */}
+            <div className="relative">
+              <Info className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+              <textarea
+                name="remarque"
+                placeholder="Remarque (Optionnel)"
+                className="border p-2 rounded-md w-full pl-10"
+                rows="4"
+              />
+            </div>
+
+            {/* Boutons Enregistrer et Annuler */}
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                className="bg-blue-400 text-white px-4 py-2 rounded-md hover:bg-blue-500"
+              >
+                Enregistrer
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
         ) : activeTab === "commandes" ? (
           <table className="w-full border-collapse border border-gray-200">
             <thead>

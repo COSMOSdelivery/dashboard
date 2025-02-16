@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import Sidebar from "./components/common/Sidebar";
@@ -12,25 +12,38 @@ import SettingsPage from "./pages/Admin/SettingsPage";
 import LoginPage from "./pages/Admin/LoginPage";
 import NotFoundPage from "./pages/Admin/NotFoundPage";
 import Searchcolis from "./pages/Client/Searchcolis";
-const ProtectedRoute = ({ children }) => {
+import EditAdminPage from "./pages/Admin/EditAdminPage";
+import EditClientPage from "./pages/Admin/EditClientPage";
+import EditLivreurPage from "./pages/Admin/EditLivreurPage";
+
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const isAuthenticated = Boolean(localStorage.getItem("authToken"));
-  const userRole = 
+  const userRole =
     JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
-  
+
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (userRole !== "ADMIN") return <Navigate to="/" replace />;
-  
+  if (!allowedRoles.includes(userRole)) return <Navigate to="*" replace />;
+
   return children;
 };
-
 const ProtectedRouteClient = ({ children }) => {
   const isAuthenticated = Boolean(localStorage.getItem("authToken"));
-  const userRole = 
+  const userRole =
     JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
-  
+
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (userRole !== "CLIENT") return <Navigate to="/" replace />;
-  
+  if (userRole !== "CLIENT") return <Navigate to="*" replace />;
+
+  return children;
+};
+const ProtectedRouteService = ({ children }) => {
+  const isAuthenticated = Boolean(localStorage.getItem("authToken"));
+  const userRole =
+    JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (userRole !== "SERVICECLIENT") return <Navigate to="*" replace />;
+
   return children;
 };
 
@@ -43,17 +56,14 @@ function App() {
     const checkAuthStatus = () => {
       const token = localStorage.getItem("authToken");
       const userInfo = localStorage.getItem("userInfo");
-      
-      console.log("Checking auth status:", { token, userInfo });
 
       if (token && userInfo) {
         const parsedUserInfo = JSON.parse(userInfo);
         console.log("Parsed user info:", parsedUserInfo);
-        
+
         setIsAuthenticated(true);
         setUserRole(parsedUserInfo.role);
       } else {
-        console.log("Not authenticated");
         setIsAuthenticated(false);
         setUserRole("GUEST");
       }
@@ -66,23 +76,23 @@ function App() {
       checkAuthStatus();
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('authChange', checkAuthStatus);
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("authChange", checkAuthStatus);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('authChange', checkAuthStatus);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("authChange", checkAuthStatus);
     };
   }, []);
 
   const handleLogoutClick = () => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userInfo");
-    
+
     // Dispatch custom events to ensure state update
-    window.dispatchEvent(new Event('storage'));
-    window.dispatchEvent(new Event('authChange'));
-    
+    window.dispatchEvent(new Event("storage"));
+    window.dispatchEvent(new Event("authChange"));
+
     setIsAuthenticated(false);
     setUserRole("GUEST");
     navigate("/login");
@@ -104,70 +114,74 @@ function App() {
         </>
       )}
       <Routes>
-        <Route 
-          path="/client-dashboard" 
+        <Route
+          path="/client-dashboard"
           element={
             <ProtectedRouteClient>
               <OverviewPageClient />
             </ProtectedRouteClient>
-          } 
+          }
         />
-        <Route 
-          path="/search-parcels" 
+        <Route path="/edit-admin/:userId" element={<EditAdminPage />} />
+        <Route path="/edit-client/:userId" element={<EditClientPage />} />
+        <Route path="/edit-livreur/:userId" element={<EditLivreurPage />} />
+
+        <Route
+          path="/search-parcels"
           element={
             <ProtectedRouteClient>
               <Searchcolis />
             </ProtectedRouteClient>
-          } 
+          }
         />
         <Route path="/login" element={<LoginPage />} />
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
               <OverviewPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/users" 
+        <Route
+          path="/users"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
               <UsersPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/sales" 
+        <Route
+          path="/sales"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
               <SalesPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/orders" 
+        <Route
+          path="/orders"
           element={
-            <ProtectedRoute>
+            <ProtectedRouteService>
               <OrdersPage />
-            </ProtectedRoute>
-          } 
+            </ProtectedRouteService>
+          }
         />
-        <Route 
-          path="/analytics" 
+        <Route
+          path="/analytics"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
               <AnalyticsPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/settings" 
+        <Route
+          path="/settings"
           element={
-            <ProtectedRoute>
-              <SettingsPage />
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <SettingsPage/>
             </ProtectedRoute>
-          } 
+          }
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

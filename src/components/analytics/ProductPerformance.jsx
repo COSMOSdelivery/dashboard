@@ -32,7 +32,7 @@ const ProductPerformance = () => {
       <div style={{ width: "100%", height: 300 }}>
         <ResponsiveContainer>
           <BarChart data={productPerformanceData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#FFB74D" />
             <XAxis dataKey="name" stroke="#9CA3AF" />
             <YAxis stroke="#9CA3AF" />
             <Tooltip
@@ -43,9 +43,9 @@ const ProductPerformance = () => {
               itemStyle={{ color: "#E5E7EB" }}
             />
             <Legend />
-            <Bar dataKey="sales" fill="#8B5CF6" />
+            <Bar dataKey="sales" fill="#039BE5" />
             <Bar dataKey="revenue" fill="#10B981" />
-            <Bar dataKey="profit" fill="#F59E0B" />
+            <Bar dataKey="profit" fill="#81D4FA" />
           </BarChart>
         </ResponsiveContainer>
       </div>

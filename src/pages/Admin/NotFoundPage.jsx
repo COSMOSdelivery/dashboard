@@ -4,7 +4,7 @@ import { Frown } from "lucide-react";
 const NotFoundPage = () => {
   return (
     <div className="flex-1 relative z-10 overflow-auto">
-      <header className="bg-gray-800 text-white py-4 px-6 shadow-md">
+      <header className="bg-white text-white py-4 px-6 shadow-md">
         <h1 className="text-2xl font-semibold">Page Introuvable</h1>
       </header>
 
@@ -25,7 +25,7 @@ const NotFoundPage = () => {
           </p>
           <a
             href="/"
-            className="mt-6 inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md shadow-lg transition duration-300"
+            className="mt-6 inline-block px-6 py-3 bg-blue-400 hover:bg-blue-700 text-white font-medium rounded-md shadow-lg transition duration-300"
           >
             Retourner à la Page d'Accueil
           </a>

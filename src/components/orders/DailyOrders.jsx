@@ -49,7 +49,7 @@ const DailyOrders = () => {
             <Line
               type="monotone"
               dataKey="Commandes"
-              stroke="#8B5CF6"
+              stroke="#29B6F6"
               strokeWidth={2}
             />
           </LineChart>

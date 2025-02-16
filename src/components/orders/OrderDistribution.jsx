@@ -14,7 +14,7 @@ const orderStatusData = [
   { name: "Expédié", value: 60 },
   { name: "Livré", value: 120 },
 ];
-const COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FED766", "#2AB7CA"];
+const COLORS = ["#FFB74D", "#4FC3F7", "#039BE5", "#FFB74D", "#81D4FA"];
 
 const OrderDistribution = () => {
   return (
@@ -42,10 +42,7 @@ const OrderDistribution = () => {
               }
             >
               {orderStatusData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
+                <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
             <Tooltip

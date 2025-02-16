@@ -1,3 +1,6 @@
+
+import PropTypes from "prop-types";
+
 const Header = ({ title }) => {
   return (
     <header className="bg-white   backdrop-blur-md shadow-lg border-b border-gray-200">
@@ -6,5 +9,8 @@ const Header = ({ title }) => {
       </div>
     </header>
   );
+};
+Header.propTypes = {
+  title: PropTypes.string.isRequired,
 };
 export default Header;

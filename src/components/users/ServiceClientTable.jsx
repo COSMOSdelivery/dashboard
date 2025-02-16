@@ -1,18 +1,19 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import {Edit, Search, Trash2} from "lucide-react";
+import { Edit, Search, Trash2, Eye } from "lucide-react";
+
 import config from "../../config.json";
 import axios from "axios";
 const API_URL = config.API_URL;
 
 const roleStyles = {
-  Service_Client: {
+  SERVICECLIENT: {
     background: "bg-blue-500",
     text: "text-black",
   },
 };
 
-const ServiceClientTable = () => {
+const ServiceClientTable = (incrementServiceCount) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,26 +33,35 @@ const ServiceClientTable = () => {
     role: "SERVICECLIENT",
   });
   useEffect(() => {
-    const fetchservices = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        const response = await axios.get(`${API_URL}/users/allServiceClients`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setFilteredUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching livreurs:", error);
-        setError("Failed to load livreurs");
-      }
-    };
-
     fetchservices();
   }, []);
+  const fetchservices = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(`${API_URL}/users/allServiceClients`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setFilteredUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching livreurs:", error);
+      setError("Failed to load livreurs");
+    }
+  };
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // Nombre d'éléments par page
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+const currentItems = filteredUsers.slice(
+  (currentPage - 1) * itemsPerPage,
+  currentPage * itemsPerPage
+  );
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
   const handleDeleteservice = async (serviceId) => {
     const confirmDelete = window.confirm(
-        "Êtes-vous sûr de vouloir supprimer ce client ?"
+      "Êtes-vous sûr de vouloir supprimer ce client ?"
     );
 
     if (!confirmDelete) return;
@@ -68,17 +78,16 @@ const ServiceClientTable = () => {
 
       // Remove the deleted client from the state
       setFilteredUsers((prevUsers) =>
-          prevUsers.filter((user) => user.id !== serviceId)
+        prevUsers.filter((user) => user.id !== serviceId)
       );
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== clientId));
-
+      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== serviceId));
       alert("Client supprimé avec succès !");
     } catch (error) {
       console.error("Erreur lors de la suppression du service client:", error);
 
       const errorMessage =
-          error.response?.data?.msg ||
-          "Une erreur est survenue lors de la suppression du service client";
+        error.response?.data?.msg ||
+        "Une erreur est survenue lors de la suppression du service client";
 
       alert(errorMessage);
     } finally {
@@ -88,12 +97,13 @@ const ServiceClientTable = () => {
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    const filtered = userData.filter(
+    const filtered = users.filter(
       (user) =>
         `${user.prenom} ${user.nom}`.toLowerCase().includes(term) ||
         user.email.toLowerCase().includes(term)
     );
     setFilteredUsers(filtered);
+    setCurrentPage(1); // Reset à la première page après une recherche
   };
 
   const handleInputChange = (e) => {
@@ -134,7 +144,7 @@ const ServiceClientTable = () => {
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -153,8 +163,11 @@ const ServiceClientTable = () => {
         codeTVA: "", // Hardcoded as ADMIN since this is the admin table
         role: "SERVICECLIENT",
       });
-
+      if (incrementClientCount) {
+        incrementClientCount();
+      }
       alert("SERVICE client ajouté avec succès!");
+      fetchservices();
     } catch (error) {
       console.error("Erreur lors de l'ajout du service client:", error);
 
@@ -182,27 +195,29 @@ const ServiceClientTable = () => {
       transition={{ delay: 0.2 }}
     >
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-black-700">Service Client</h2>
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-          onClick={() => setIsModalOpen(true)}
-        >
-          Ajouter Service Client
-        </button>
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Recherche..."
-            className="bg-gray-200 text-black placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchTerm}
-            onChange={handleSearch}
-          />
-          <Search
-            className="absolute left-3 top-2.5 text-black-700"
-            size={18}
-          />
-        </div>
-      </div>
+  <h2 className="text-xl font-semibold text-black-700">Services Client</h2>
+  <div className="flex items-center space-x-4">
+    <div className="relative">
+      <input
+        type="text"
+        placeholder="Recherche..."
+        className="bg-gray-200 text-black placeholder-gray-500 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        value={searchTerm}
+        onChange={handleSearch}
+      />
+      <Search
+        className="absolute left-3 top-2.5 text-black-700"
+        size={18}
+      />
+    </div>
+    <button
+      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+      onClick={() => setIsModalOpen(true)}
+    >
+      Ajouter un Service Client
+    </button>
+  </div>
+</div>
 
       {/* Tableau */}
       <div className="max-h-[350px] w-full overflow-y-auto rounded-lg border border-gray-400">
@@ -228,53 +243,103 @@ const ServiceClientTable = () => {
           </thead>
           <tbody>
             {filteredUsers.map((user, index) => (
-                <tr key={index} className="hover:bg-gray-200">
-                  <td className="px-6 py-4 text-black-700">{`${user.prenom} ${user.nom}`}</td>
-                  <td className="px-6 py-4 text-black-700">{user.email}</td>
-                  <td className="px-6 py-4 text-black-700">{user.telephone1}</td>
-                  <td className="px-6 py-4">
+              <tr key={index} className="hover:bg-gray-200">
+                <td className="px-6 py-4 text-black-700">{`${user.prenom} ${user.nom}`}</td>
+                <td className="px-6 py-4 text-black-700">{user.email}</td>
+                <td className="px-6 py-4 text-black-700">{user.telephone1}</td>
+                <td className="px-6 py-4">
                   <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          roleStyles[user.role]?.background
-                      } ${roleStyles[user.role]?.text}`}
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      roleStyles[user.role]?.background
+                    } ${roleStyles[user.role]?.text}`}
                   >
                     {user.role}
                   </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex space-x-3">
-                    <button
-                        className="text-green-500 hover:text-green-600 flex items-center"
-                    >
-                      <Edit className="mr-1" size={16}/> Modifier
-                    </button>
-                    <button
-                        className="text-red-400 hover:text-red-500 flex items-center"
-                        onClick={() => handleDeleteservice(user.id)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex space-x-3">
+                  <button className="text-green-500 hover:text-green-600 flex items-center">
+                    <Edit className="mr-1" size={16} /> Modifier
+                  </button>
+                  <button
+                        className="text-blue-400 hover:text-blue-500 flex items-center"
+                        onClick={() => handleViewUser(user)}
                         disabled={isLoading}
-                    >
-                      <Trash2 className="mr-1" size={16}/> Supprimer
-                    </button>
-                  </td>
-                </tr>
+                      >
+                        <Eye className="mr-1" size={16} /> Voir
+                      </button>
+                  <button
+                    className="text-red-400 hover:text-red-500 flex items-center"
+                    onClick={() => handleDeleteservice(user.id)}
+                    disabled={isLoading}
+                  >
+                    <Trash2 className="mr-1" size={16} /> Supprimer
+                  </button>
+                </td>
+              </tr>
             ))}
           </tbody>
         </table>
+        <div className="flex justify-center items-center mt-6 space-x-4">
+  <button
+    onClick={() => handlePageChange(currentPage - 1)}
+    disabled={currentPage === 1 || isLoading}
+    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition duration-200"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 19l-7-7 7-7"
+      />
+    </svg>
+  </button>
+  <span className="text-gray-700 font-medium">
+    Page {currentPage} sur {totalPages}
+  </span>
+  <button
+    onClick={() => handlePageChange(currentPage + 1)}
+    disabled={currentPage === totalPages || isLoading}
+    className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition duration-200"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9 5l7 7-7 7"
+      />
+    </svg>
+  </button>
+</div>
       </div>
 
       {/* Modal */}
       {isModalOpen && (
-          <motion.div
-              className="fixed inset-0 bg-white flex justify-center items-center"
-              initial={{opacity: 0}}
-              animate={{opacity: 1}}
-              exit={{opacity: 0}}
-          >
-            <motion.div className="bg-white rounded-lg p-6 shadow-lg w-full h-full overflow-auto">
-              <h3 className="text-2xl font-semibold text-black-800 mb-4">
-                Ajouter un Service Client
-              </h3>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+        <motion.div
+          className="fixed inset-0 bg-white flex justify-center items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div className="bg-white rounded-lg p-6 shadow-lg w-full h-full overflow-auto">
+            <h3 className="text-2xl font-semibold text-black-800 mb-4">
+              Ajouter un Service Client
+            </h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-black-700">Nom</label>
                   <input

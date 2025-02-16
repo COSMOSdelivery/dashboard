@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import PropTypes from "prop-types";
+
 
 const StatCard = ({ name, icon: Icon, value, color }) => {
   return (
@@ -16,4 +18,11 @@ const StatCard = ({ name, icon: Icon, value, color }) => {
     </motion.div>
   );
 };
+StatCard.propTypes = {
+  name: PropTypes.string.isRequired,
+  icon: PropTypes.elementType.isRequired,
+  value: PropTypes.string.isRequired,
+  color: PropTypes.string,
+};
+
 export default StatCard;
