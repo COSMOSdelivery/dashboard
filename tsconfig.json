@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "es2016", // Set the JavaScript language version for emitted JavaScript.
+
+    /* Modules */
+    "module": "commonjs", // Specify what module code is generated.
+    "moduleResolution": "node", // Specify how TypeScript looks up files from module specifiers.
+    "baseUrl": ".", // Base directory to resolve non-relative module names.
+    "paths": {
+      "@/*": ["./src/*"] // Map imports starting with "@/" to the "./src" directory.
+    },
+
+    /* Interop Constraints */
+    "esModuleInterop": true, // Enable easier support for importing CommonJS modules.
+    "forceConsistentCasingInFileNames": true, // Ensure consistent casing in file names.
+
+    /* Type Checking */
+    "strict": true, // Enable all strict type-checking options.
+    "skipLibCheck": true // Skip type checking all .d.ts files.
+
+    /* Other Options (Commented Out) */
+    // "lib": [], // Specify bundled library declaration files.
+    // "jsx": "preserve", // Specify JSX code generation.
+    // "declaration": true, // Generate .d.ts files.
+    // "sourceMap": true, // Create source map files.
+    // "outDir": "./dist", // Specify an output folder for emitted files.
+    // "rootDir": "./src", // Specify the root folder for source files.
+    // ... (other options remain commented out unless needed)
+  }
+}

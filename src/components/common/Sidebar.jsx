@@ -1,26 +1,25 @@
 import {
   BarChart2,
-  DollarSign,
   Menu,
   Settings,
   ShoppingCart,
   TrendingUp,
   Users,
-  Printer,
-  Package,
   ScrollText,
-  File,
+  ClipboardList,
+  Truck,
+  MessageSquare,
+  CreditCard,
+
+  RefreshCw,
 } from "lucide-react";
 import PropTypes from "prop-types";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
- 
 
 const Sidebar = ({ role }) => {
-  console.log("Current Role:", role);
-
-  // Rest of the component remains the same
+  
   const getSidebarItems = () => {
     switch (role) {
       case "ADMIN":
@@ -33,16 +32,34 @@ const Sidebar = ({ role }) => {
             href: "/users",
           },
           {
-            name: "Ventes",
-            icon: DollarSign,
-            color: "#10B981",
-            href: "/sales",
+            name: "Commandes",
+            icon: ShoppingCart,
+            color: "#F59E0B",
+            href: "/orders",
           },
           {
-            name: "Analytique",
-            icon: TrendingUp,
+            name: "Feedbacks",
+            icon: MessageSquare,
             color: "#3B82F6",
-            href: "/analytics",
+            href: "/feedbacks",
+          },
+          {
+            name: "Manifestes",
+            icon: ClipboardList,
+            color: "#10B981",
+            href: "/manifests",
+          },
+          {
+            name: "Paiements",
+            icon: CreditCard,
+            color: "#8B5CF6",
+            href: "/payments",
+          },
+          {
+            name: "Statistiques",
+            icon: TrendingUp,
+            color: "#EF4444",
+            href: "/statistics",
           },
           {
             name: "Paramètres",
@@ -53,13 +70,6 @@ const Sidebar = ({ role }) => {
         ];
       case "SERVICECLIENT":
         return [
-          { name: "Aperçu", icon: BarChart2, color: "#042351", href: "/" },
-          {
-            name: "Utilisateurs",
-            icon: Users,
-            color: "#EC4899",
-            href: "/users",
-          },
           {
             name: "Commandes",
             icon: ShoppingCart,
@@ -67,10 +77,22 @@ const Sidebar = ({ role }) => {
             href: "/orders",
           },
           {
-            name: "Analytique",
-            icon: TrendingUp,
+            name: "Utilisateurs",
+            icon: Users,
+            color: "#EC4899",
+            href: "/users",
+          },
+          {
+            name: "Feedbacks",
+            icon: MessageSquare,
             color: "#3B82F6",
-            href: "/analytics",
+            href: "/feedbacks",
+          },
+          {
+            name: "Manifestes",
+            icon: ClipboardList,
+            color: "#10B981",
+            href: "/manifests",
           },
           {
             name: "Paramètres",
@@ -82,16 +104,16 @@ const Sidebar = ({ role }) => {
       case "LIVREUR":
         return [
           {
-            name: "Commandes",
-            icon: ShoppingCart,
+            name: "Commandes à Livrer",
+            icon: Truck,
             color: "#F59E0B",
-            href: "/orders",
+            href: "/deliveries",
           },
           {
-            name: "Itinéraire",
+            name: "Statistiques",
             icon: TrendingUp,
             color: "#3B82F6",
-            href: "/routes",
+            href: "/statistics",
           },
           {
             name: "Paramètres",
@@ -107,43 +129,49 @@ const Sidebar = ({ role }) => {
             icon: BarChart2,
             color: "#1D4ED8",
             href: "/client-dashboard",
-          }, // Bleu foncé
+          },
           {
-            name: "Gestion des colis",
+            name: "Mes Commandes",
             icon: ShoppingCart,
             color: "#F97316",
             href: "/search-parcels",
-          }, // Orange vif
-          {
-            name: "Importer fichier",
-            icon: File,
-            color: "#3B82F6",
-            href: "/import-file",
-          }, // Bleu moyen
+          },
           {
             name: "Créer Manifeste",
             icon: ScrollText,
             color: "#2563EB",
             href: "/create-manifest",
-          }, // Bleu légèrement plus foncé
+          },
           {
-            name: "Imprimer Manifeste",
-            icon: Printer,
-            color: "#F59E0B",
-            href: "/print-manifest",
-          }, // Orange doré
+            name: "Mes Manifestes",
+            icon: ClipboardList,
+            color: "#10B981",
+            href: "/my-manifests",
+          },
           {
-            name: "Colis en attente",
-            icon: Package,
+            name: "Mes Retours",
+            icon: RefreshCw,
             color: "#0284C7",
-            href: "/pending-parcels",
-          }, // Bleu cyan
+            href: "/my-returns",
+          },
           {
-            name: "Mes paiements",
-            icon: DollarSign,
-            color: "#FB923C",
-            href: "/payments",
-          }, // Orange pastel
+            name: "Mes Paiements",
+            icon: CreditCard,
+            color: "#8B5CF6",
+            href: "/my-payments",
+          },
+          {
+            name: "Mes Feedbacks",
+            icon: MessageSquare,
+            color: "#3B82F6",
+            href: "/my-feedbacks",
+          },
+          {
+            name: "Paramètres",
+            icon: Settings,
+            color: "#6EE7B7",
+            href: "/settings",
+          },
         ];
       default:
         return [];
@@ -152,7 +180,7 @@ const Sidebar = ({ role }) => {
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const SIDEBAR_ITEMS = getSidebarItems();
-  console.log("Sidebar Items:", SIDEBAR_ITEMS);
+
   return (
     <motion.div
       className={`relative z-10 transition-all duration-300 ease-in-out flex-shrink-0 bg-white text-[#042351]`}
@@ -251,7 +279,9 @@ const Sidebar = ({ role }) => {
     </motion.div>
   );
 };
+
 Sidebar.propTypes = {
-	role: PropTypes.string.isRequired,
-  }; 
+  role: PropTypes.string.isRequired,
+};
+
 export default Sidebar;

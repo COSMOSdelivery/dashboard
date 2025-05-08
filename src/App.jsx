@@ -15,34 +15,34 @@ import Searchcolis from "./pages/Client/Searchcolis";
 import EditAdminPage from "./pages/Admin/EditAdminPage";
 import EditClientPage from "./pages/Admin/EditClientPage";
 import EditLivreurPage from "./pages/Admin/EditLivreurPage";
+import EditServicePage from "./pages/Admin/EditServicePage";
+import ForgotPassword from "./pages/Admin/ForgotPassword";
+import VerifyOtp from "./pages/Admin/verify-OTP";
+import ResetPassword from "./pages/Admin/resetPassword";
+import CreateManifeste from "./pages/Client/CreateManifestePage";
+import MesPaiements from "./pages/Client/MesPaiements";
+import Manifeste from "./pages/Client/ManifestesPage";
+import Retours from "./pages/Client/Retourspage";
+import Orders from "./pages/Livreur/deliverypage";
+import StatisticLivreur from "./pages/Livreur/StatisticsDashboard";
+import ManifesteService from "./pages/Service Client/Manifests";
+
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const isAuthenticated = Boolean(localStorage.getItem("authToken"));
-  const userRole =
-    JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
+  let userRole = "GUEST";
+  
+  try {
+    userRole = JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
+    console.log("isAuthenticated:", isAuthenticated);
+console.log("userRole:", userRole);
+console.log("userInfo:", localStorage.getItem("userInfo"));
+  } catch (error) {
+    console.error("Error parsing userInfo:", error);
+  }
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (!allowedRoles.includes(userRole)) return <Navigate to="*" replace />;
-
-  return children;
-};
-const ProtectedRouteClient = ({ children }) => {
-  const isAuthenticated = Boolean(localStorage.getItem("authToken"));
-  const userRole =
-    JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
-
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (userRole !== "CLIENT") return <Navigate to="*" replace />;
-
-  return children;
-};
-const ProtectedRouteService = ({ children }) => {
-  const isAuthenticated = Boolean(localStorage.getItem("authToken"));
-  const userRole =
-    JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
-
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (userRole !== "SERVICECLIENT") return <Navigate to="*" replace />;
 
   return children;
 };
@@ -58,11 +58,13 @@ function App() {
       const userInfo = localStorage.getItem("userInfo");
 
       if (token && userInfo) {
-        const parsedUserInfo = JSON.parse(userInfo);
-        console.log("Parsed user info:", parsedUserInfo);
-
-        setIsAuthenticated(true);
-        setUserRole(parsedUserInfo.role);
+        try {
+          const parsedUserInfo = JSON.parse(userInfo);
+          setIsAuthenticated(true);
+          setUserRole(parsedUserInfo.role);
+        } catch (error) {
+          console.error("Error parsing userInfo:", error);
+        }
       } else {
         setIsAuthenticated(false);
         setUserRole("GUEST");
@@ -72,16 +74,15 @@ function App() {
     checkAuthStatus();
 
     const handleStorageChange = () => {
-      console.log("Storage change detected");
       checkAuthStatus();
     };
 
     window.addEventListener("storage", handleStorageChange);
-    window.addEventListener("authChange", checkAuthStatus);
+    window.addEventListener("authStateChange", checkAuthStatus);
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener("authChange", checkAuthStatus);
+      window.removeEventListener("authStateChange", checkAuthStatus);
     };
   }, []);
 
@@ -89,16 +90,13 @@ function App() {
     localStorage.removeItem("authToken");
     localStorage.removeItem("userInfo");
 
-    // Dispatch custom events to ensure state update
     window.dispatchEvent(new Event("storage"));
-    window.dispatchEvent(new Event("authChange"));
+    window.dispatchEvent(new Event("authStateChange"));
 
     setIsAuthenticated(false);
     setUserRole("GUEST");
     navigate("/login");
   };
-
-  console.log("Render state:", { isAuthenticated, userRole });
 
   return (
     <div className="flex h-screen bg-white text-black-100 overflow-hidden">
@@ -117,24 +115,40 @@ function App() {
         <Route
           path="/client-dashboard"
           element={
-            <ProtectedRouteClient>
+            <ProtectedRoute allowedRoles={["CLIENT"]}>
               <OverviewPageClient />
-            </ProtectedRouteClient>
+            </ProtectedRoute>
           }
         />
         <Route path="/edit-admin/:userId" element={<EditAdminPage />} />
         <Route path="/edit-client/:userId" element={<EditClientPage />} />
         <Route path="/edit-livreur/:userId" element={<EditLivreurPage />} />
+        <Route path="/edit-service-client/:userId" element={<EditServicePage />} />
+        <Route path="/my-manifests" element={<Manifeste/>} />
+        <Route path="/deliveries" element={<Orders/>} />
+        <Route path="/statistics" element={<StatisticLivreur />} />
+        <Route path="/my-payments" element={<MesPaiements/>} />
+
+
 
         <Route
           path="/search-parcels"
           element={
-            <ProtectedRouteClient>
+            <ProtectedRoute allowedRoles={["CLIENT"]}>
               <Searchcolis />
-            </ProtectedRouteClient>
+            </ProtectedRoute>
           }
         />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-OTP" element={<VerifyOtp />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/create-manifest" element={<CreateManifeste/>} />
+        <Route path="/my-returns" element={<Retours />} />
+        <Route path="/manifests" element={<ManifesteService/>} />
+
+
+      
         <Route
           path="/"
           element={
@@ -162,9 +176,9 @@ function App() {
         <Route
           path="/orders"
           element={
-            <ProtectedRouteService>
+            <ProtectedRoute allowedRoles={["SERVICECLIENT"]}>
               <OrdersPage />
-            </ProtectedRouteService>
+            </ProtectedRoute>
           }
         />
         <Route
@@ -178,9 +192,7 @@ function App() {
         <Route
           path="/settings"
           element={
-            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
-              <SettingsPage/>
-            </ProtectedRoute>
+              <SettingsPage />
           }
         />
         <Route path="*" element={<NotFoundPage />} />

@@ -1,76 +1,42 @@
-import { useEffect,useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Lock, Mail, ArrowRight } from "lucide-react";
+import { KeyRound, Mail, ArrowRight } from "lucide-react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import config from "../../config.json";
 const API_URL = config.API_URL;
 
-const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+const VerifyOtp = () => {
+  const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const location = useLocation();
   const navigate = useNavigate();
-
+  const email = location.state?.email || "";
+  
   useEffect(() => {
-    if (localStorage.getItem("authToken")) {
-      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      console.log("User ID from localStorage:", userInfo?.id);
-      navigate("/");
+    if (!email) {
+      // Redirect to forgot password page if no email is provided
+      navigate("/reset-password", {
+        state: { email: email, otp: otp },
+      });
     }
-  }, [navigate]);
+  }, [email, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
+    
     try {
-      const response = await axios.post(`${API_URL}/users/login`, {
-        email,
-        password,
+      await axios.post(`${API_URL}/users/verify-otp`, { 
+        email, 
+        otp 
       });
-
-      if (response.status === 200) {
-        const { token, nom, prenom, email: userEmail, role, id } = response.data;
-        
-        console.log("User ID from API response:", id);
-      
-        localStorage.setItem("authToken", token);
-        localStorage.setItem(
-          "userInfo",
-          JSON.stringify({
-            id,
-            nom,
-            prenom,
-            email: userEmail,
-            role,
-          })
-        );
-
-        // Log userInfo after storing in localStorage
-        const storedUserInfo = JSON.parse(localStorage.getItem("userInfo"));
-        console.log("Stored user info:", storedUserInfo);
-        console.log("Stored user ID:", storedUserInfo.id);
-      
-        // Dispatch custom events to trigger state update
-        window.dispatchEvent(new Event('storage'));
-        window.dispatchEvent(new Event('authChange'));
-      
-        const rolePaths = {
-          CLIENT: "/client-dashboard",
-          ADMIN: "",
-          LIVREUR: "/deliveries",
-          SERVICECLIENT: "/orders",
-        };
-      
-        navigate(rolePaths[role] || "/");
-      }
+      navigate("/reset-password", { state: { email } });
     } catch (error) {
-      console.error("Login error:", error);
-      const errorMsg = error.response?.data?.msg || "Erreur de connexion";
+      const errorMsg = error.response?.data?.msg || "Code OTP invalide";
       setErrorMessage(errorMsg);
-
+      
       setTimeout(() => setErrorMessage(""), 3000);
     } finally {
       setIsLoading(false);
@@ -97,8 +63,11 @@ const LoginPage = () => {
           <div className="flex flex-col items-center">
             <img src="/logo.jpg" alt="Logo" className="w-44 h-auto" />
             <h2 className="mt-6 text-center text-3xl font-extrabold text-black-900">
-              Connexion
+              Vérification OTP
             </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              Veuillez entrer le code reçu par email
+            </p>
           </div>
 
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -115,31 +84,27 @@ const LoginPage = () => {
                 <Mail className="absolute left-3 top-3 h-5 w-5 text-black-400" />
                 <input
                   id="email"
-                  name="email"
                   type="email"
-                  required
-                  className="appearance-none rounded-lg relative block w-full pl-12 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-black-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Adresse email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
+                  className="appearance-none rounded-lg relative block w-full pl-12 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-black-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm bg-gray-100"
+                  disabled
                 />
               </div>
 
               <div className="relative">
-                <label htmlFor="password" className="sr-only">
-                  Mot de passe
+                <label htmlFor="otp" className="sr-only">
+                  Code OTP
                 </label>
-                <Lock className="absolute left-3 top-3 h-5 w-5 text-black-400" />
+                <KeyRound className="absolute left-3 top-3 h-5 w-5 text-black-400" />
                 <input
-                  id="password"
-                  name="password"
-                  type="password"
+                  id="otp"
+                  name="otp"
+                  type="text"
                   required
                   className="appearance-none rounded-lg relative block w-full pl-12 pr-3 py-3 border border-gray-300 placeholder-gray-500 text-black-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                  placeholder="Mot de passe"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Code de vérification"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
                   disabled={isLoading}
                 />
               </div>
@@ -157,28 +122,13 @@ const LoginPage = () => {
             )}
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                  disabled={isLoading}
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-black-900"
-                >
-                  Se souvenir de moi
-                </label>
-              </div>
               <div className="text-sm">
                 <button
                   type="button"
                   onClick={() => navigate("/forgot-password")}
                   className="font-medium text-indigo-600 hover:text-indigo-500"
                 >
-                  Mot de passe oublié?
+                  Retour
                 </button>
               </div>
             </div>
@@ -190,9 +140,9 @@ const LoginPage = () => {
                 disabled={isLoading}
               >
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  <Lock className="h-5 w-5 text-black-300 group-hover:text-black-200" />
+                  <KeyRound className="h-5 w-5 text-black-300 group-hover:text-black-200" />
                 </span>
-                {isLoading ? "Connexion..." : "Se connecter"}
+                {isLoading ? "Vérification..." : "Vérifier le code"}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </button>
             </motion.div>
@@ -203,4 +153,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default VerifyOtp;

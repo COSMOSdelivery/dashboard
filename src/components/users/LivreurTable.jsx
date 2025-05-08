@@ -24,7 +24,7 @@ const Livreur = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [setError] = useState("");
+  const [error,setError] = useState("");
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [newUser, setNewUser] = useState({
@@ -120,7 +120,6 @@ const Livreur = ({
                   setUsers((prevUsers) =>
                     prevUsers.filter((user) => user.id !== livreurId)
                   );
-                  notifySuccess("Administrateur supprimé avec succès!");
                 } catch (error) {
                   console.error(
                     "Erreur lors de la suppression du livreur:",

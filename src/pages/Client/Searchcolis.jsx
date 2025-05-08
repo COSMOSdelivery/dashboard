@@ -1,459 +1,788 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Header from "../../components/common/Header";
-import axios from "axios";
-import config from "../../config.json";
+
 import {
+  ShoppingCart,
+  Eye,
   User,
-  Mail,
   Phone,
   MapPin,
   Home,
   CreditCard,
   Package,
-  Check,
-  X,
   Info,
-} from "lucide-react"; // Importez les icônes nécessaires
+  Search,
+  Plus,
+  ChevronDown,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+
+import axios from "axios";
+import config from "../../config.json";
 
 const API_URL = config.API_URL;
 
-const Searchcolis = () => {
+// Composant OrderForm
+const OrderForm = ({
+  onSubmit,
+  onCancel,
+  isEchangePossible,
+  setIsEchangePossible,
+}) => {
+  const [formErrors, setFormErrors] = useState({});
+
+  const validateForm = (formData) => {
+    const errors = {};
+    const requiredFields = [
+      "nomPrioritaire",
+      "prenomPrioritaire",
+      "telephone1",
+      "adresse",
+      "gouvernorat",
+      "ville",
+      "localite",
+      "codePostal",
+      "designation",
+      "prix",
+      "nbArticles",
+    ];
+
+    requiredFields.forEach((field) => {
+      if (!formData.get(field)) {
+        errors[field] = "Ce champ est obligatoire";
+      }
+    });
+
+    if (isEchangePossible) {
+      if (!formData.get("codeBarreEchange")) {
+        errors.codeBarreEchange = "Code à barre d'échange requis";
+      }
+      if (!formData.get("nbArticlesEchange")) {
+        errors.nbArticlesEchange = "Nombre d'articles d'échange requis";
+      }
+    }
+
+    return errors;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const errors = validateForm(formData);
+
+    if (Object.keys(errors).length === 0) {
+      onSubmit(e);
+    } else {
+      setFormErrors(errors);
+      const firstErrorField = Object.keys(errors)[0];
+      document.getElementById(firstErrorField)?.focus();
+    }
+  };
+
+  return (
+    <Card className="p-6 bg-white rounded-lg shadow-sm">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Informations personnelles */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Informations personnelles
+            </h2>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nomPrioritaire">Nom</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="nomPrioritaire"
+                      name="nomPrioritaire"
+                      required
+                      className={`pl-10 ${
+                        formErrors.nomPrioritaire ? "border-red-500" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="prenomPrioritaire">Prénom</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="prenomPrioritaire"
+                      name="prenomPrioritaire"
+                      required
+                      className={`pl-10 ${
+                        formErrors.prenom_prioritaire ? "border-red-500" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="telephone1">Téléphone 1</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="telephone1"
+                      name="telephone1"
+                      type="tel"
+                      required
+                      className={`pl-10 ${
+                        formErrors.telephone1 ? "border-red-500" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="telephone2">Téléphone 2 (Optionnel)</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="telephone2"
+                      name="telephone2"
+                      type="tel"
+                      className={`pl-10 ${
+                        formErrors.telephone2 ? "border-red-500" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="adresse">Adresse</Label>
+                <div className="relative">
+                  <Home className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <Input
+                    id="adresse"
+                    name="adresse"
+                    required
+                    className={`pl-10 ${
+                      formErrors.adresse ? "border-red-500" : ""
+                    }`}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="gouvernorat">Gouvernorat</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="gouvernorat"
+                      name="gouvernorat"
+                      required
+                      className={`pl-10 ${
+                        formErrors.gouvernorat ? "border-red-500" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ville">Ville</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="ville"
+                      name="ville"
+                      required
+                      className={`pl-10 ${
+                        formErrors.ville ? "border-red-500" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="localite">Localité</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="localite"
+                      name="localite"
+                      required
+                      className={`pl-10 ${
+                        formErrors.localite ? "border-red-500" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="codePostal">Code Postal</Label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="codePostal"
+                      name="codePostal"
+                      required
+                      className={`pl-10 ${
+                        formErrors.codePostal ? "border-red-500" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Détails de la commande */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Détails de la commande
+            </h2>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="designation">Désignation</Label>
+                <div className="relative">
+                  <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <Input
+                    id="designation"
+                    name="designation"
+                    required
+                    className={`pl-10 ${
+                      formErrors.designation ? "border-red-500" : ""
+                    }`}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="prix">Prix</Label>
+                  <div className="relative">
+                    <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="prix"
+                      name="prix"
+                      type="number"
+                      step="0.01"
+                      required
+                      className={`pl-10 ${
+                        formErrors.prix ? "border-red-500" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="nbArticles">Nombre d'Articles</Label>
+                  <div className="relative">
+                    <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                    <Input
+                      id="nbArticles"
+                      name="nbArticles"
+                      type="number"
+                      required
+                      className={`pl-10 ${
+                        formErrors.nb_article ? "border-red-500" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="possibleOuvrir" name="possibleOuvrir" />
+                  <Label htmlFor="possibleOuvrir">Possible d'Ouvrir</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="possibleEchange"
+                    name="possibleEchange"
+                    checked={isEchangePossible}
+                    onCheckedChange={setIsEchangePossible}
+                  />
+                  <Label htmlFor="possibleEchange">Possible d'Échange</Label>
+                </div>
+              </div>
+
+              {isEchangePossible && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="codeBarreEchange">
+                      Code à Barre Échange
+                    </Label>
+                    <div className="relative">
+                      <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <Input
+                        id="codeBarreEchange"
+                        name="codeBarreEchange"
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="nbArticlesEchange">
+                      Nombre d'Articles Échange
+                    </Label>
+                    <div className="relative">
+                      <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                      <Input
+                        id="nbArticlesEchange"
+                        name="nbArticlesEchange"
+                        type="number"
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="remarque">Remarque (Optionnel)</Label>
+                <div className="relative">
+                  <Info className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <Textarea
+                    id="remarque"
+                    name="remarque"
+                    className="pl-10 min-h-[100px]"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-4 justify-end pt-6">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Annuler
+          </Button>
+          <Button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            Enregistrer la commande
+          </Button>
+        </div>
+      </form>
+    </Card>
+  );
+};
+
+// Composant OrdersTable
+const OrdersTable = ({ commandes, onViewDetails }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <table className="w-full">
+        <thead>
+          <tr className="bg-gray-50">
+            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+              Commande
+            </th>
+            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+              Client
+            </th>
+            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+              Ville
+            </th>
+            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+              Prix
+            </th>
+            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">
+              État
+            </th>
+            <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {commandes.map((commande) => (
+            <tr key={commande.code_a_barre} className="hover:bg-gray-50">
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                #{commande.code_a_barre}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {commande.nom_prioritaire} {commande.prenom_prioritaire}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {commande.ville}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {commande.prix.toFixed(2)} TND
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <Badge
+                  variant={
+                    commande.etat === "delivered"
+                      ? "default"
+                      : commande.etat === "EN_ATTENTE"
+                      ? "secondary"
+                      : "destructive"
+                  }
+                >
+                  {commande.etat}
+                </Badge>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                <Button
+                  variant="ghost"
+                  className="text-blue-600 hover:text-blue-800"
+                  onClick={() => onViewDetails(commande)}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+// Composant CommandeDetailsModal
+const CommandeDetailsModal = ({ commande, onClose }) => {
+  if (!commande) return null;
+
+  return (
+    <Dialog open={!!commande} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Package className="h-6 w-6 text-blue-500" />
+            Détails de la commande #{commande.code_a_barre}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Informations client */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Informations client</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <p className="font-medium">
+                  {commande.nom_prioritaire} {commande.prenom_prioritaire}
+                </p>
+                <p className="text-sm text-gray-600">{commande.telephone1}</p>
+                <p className="text-sm text-gray-600">
+                  {commande.adresse}, {commande.ville}, {commande.gouvernorat}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Détails de la commande */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Détails de la commande</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <p className="font-medium">
+                  Désignation: {commande.designation}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Prix: {commande.prix.toFixed(2)} TND
+                </p>
+                <p className="text-sm text-gray-600">
+                  Nombre d'articles: {commande.nb_article}
+                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-gray-600">État:</p>
+                  <Badge
+                    variant={
+                      commande.etat === "delivered"
+                        ? "default"
+                        : commande.etat === "EN_ATTENTE"
+                        ? "secondary"
+                        : "destructive"
+                    }
+                  >
+                    {commande.etat}
+                  </Badge>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Remarque: {commande.remarque || "Aucune remarque"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Section échange (si applicable) */}
+          {commande.possible_echange && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Échange</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    Code à barre d'échange: {commande.code_a_barre_echange}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Nombre d'articles d'échange: {commande.nb_article_echange}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <Separator className="my-4" />
+
+        <div className="flex justify-end">
+          <Button onClick={onClose}>Fermer</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+// Composant MyOrders
+const MyOrders = () => {
+  const [orders, setOrders] = useState([]);
+  const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState([]);
+  const [activeTab, setActiveTab] = useState("commandes");
   const [showForm, setShowForm] = useState(false);
   const [isEchangePossible, setIsEchangePossible] = useState(false);
   const [commandes, setCommandes] = useState([]);
   const [error, setError] = useState(null);
+  const [selectedCommande, setSelectedCommande] = useState(null);
 
   useEffect(() => {
-    const fetchCommands = async () => {
-      const token = localStorage.getItem("authToken");
-      try {
-        const response = await axios.get(`${API_URL}/command/clientAllCommands`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setCommandes(response.data);
-      } catch (err) {
-        setError(err.response?.data?.msg || "Erreur de chargement des commandes");
-      }
-    };
-
     fetchCommands();
   }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    console.log("Recherche effectuée :", searchTerm);
+  const fetchCommands = async () => {
+    const token = localStorage.getItem("authToken");
+    try {
+      const response = await axios.get(`${API_URL}/command/clientAllCommands`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCommandes(response.data);
+    } catch (err) {
+      setError(err.response?.data?.msg || "Erreur de chargement des commandes");
+    }
   };
 
   const handleAddCommande = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem("authToken");
+    const formData = new FormData(e.target);
 
-    const formData = {
-      nom_prioritaire: e.target.elements.nomPrioritaire.value,
-      prenom_prioritaire: e.target.elements.prenomPrioritaire.value,
-      gouvernorat: e.target.elements.gouvernorat.value,
-      ville: e.target.elements.ville.value,
-      localite: e.target.elements.localite.value,
-      codePostal: e.target.elements.codePostal.value,
-      adresse: e.target.elements.adresse.value,
-      telephone1: e.target.elements.telephone1.value,
-      telephone2: e.target.elements.telephone2.value || null,
-      designation: e.target.elements.designation.value,
-      prix: parseFloat(e.target.elements.prix.value),
-      nb_article: parseInt(e.target.elements.nbArticles.value),
-      mode_paiement: e.target.elements.modePaiement.value,
-      possible_ouvrir: e.target.elements.possibleOuvrir.checked,
-      possible_echange: e.target.elements.possibleEchange.checked,
-      remarque: e.target.elements.remarque.value || null,
-      code_a_barre_echange: isEchangePossible ? e.target.elements.codeBarreEchange?.value : null,
-      nb_article_echange: isEchangePossible ? parseInt(e.target.elements.nbArticlesEchange?.value) : null,
+    const commandeData = {
+      nom_prioritaire: formData.get("nomPrioritaire"),
+      prenom_prioritaire: formData.get("prenomPrioritaire"),
+      gouvernorat: formData.get("gouvernorat"),
+      ville: formData.get("ville"),
+      localite: formData.get("localite"),
+      codePostal: formData.get("codePostal"),
+      adresse: formData.get("adresse"),
+      telephone1: formData.get("telephone1"),
+      telephone2: formData.get("telephone2") || null,
+      designation: formData.get("designation"),
+      prix: parseFloat(formData.get("prix")),
+      nb_article: parseInt(formData.get("nbArticles")),
+      possible_ouvrir: formData.get("possibleOuvrir") === "on",
+      possible_echange: formData.get("possibleEchange") === "on",
+      remarque: formData.get("remarque") || null,
+      code_a_barre_echange: isEchangePossible
+        ? formData.get("codeBarreEchange")
+        : null,
+      nb_article_echange: isEchangePossible
+        ? parseInt(formData.get("nbArticlesEchange"))
+        : null,
+      mode_paiement: "ESPECE",
     };
 
     try {
-      const response = await axios.post(`${API_URL}/command`, formData, {
+      await axios.post(`${API_URL}/command`, commandeData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
+
+      await fetchCommands(); // Rafraîchir la liste des commandes
       setShowForm(false);
-
-      const updatedResponse = await axios.get(`${API_URL}/command/clientAllCommands`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setCommandes(updatedResponse.data);
-
       alert("Commande ajoutée avec succès !");
     } catch (error) {
-      console.error("Erreur lors de l'ajout de la commande:", error.response?.data);
-      alert(error.response?.data?.msg || "Erreur lors de l'ajout de la commande");
+      console.error("Erreur lors de l'ajout de la commande:", error);
+      alert(
+        error.response?.data?.msg || "Erreur lors de l'ajout de la commande"
+      );
     }
   };
 
-  const handleEchangeChange = (e) => {
-    setIsEchangePossible(e.target.checked);
+  const handleViewDetails = (commande) => {
+    setSelectedCommande(commande); // Ouvrir le modal avec les détails de la commande
   };
 
   const filteredCommandes = commandes.filter((commande) => {
-    const search = searchTerm.toLowerCase();
-    return (
-      commande.nom_prioritaire.toLowerCase().includes(search) ||
-      commande.prenom_prioritaire.toLowerCase().includes(search) ||
-      commande.ville.toLowerCase().includes(search)
-    );
+    if (!commande) return false;
+
+    const searchMatches =
+      searchTerm.toLowerCase().trim() === "" ||
+      (commande.nom_prioritaire &&
+        commande.nom_prioritaire
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+      (commande.prenom_prioritaire &&
+        commande.prenom_prioritaire
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())) ||
+      (commande.ville &&
+        commande.ville.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const filterMatches = filter === "all" || commande.etat === filter;
+
+    return searchMatches && filterMatches;
   });
 
   return (
-    <div className="flex flex-col w-full min-h-screen">
-      <Header title="Gestion des colis" />
-      <br />
-
-      <div className="flex items-center border-b">
-        <button
-          onClick={() => {
-            setActiveTab("commandes");
-            setShowForm(false);
-          }}
-          className={`px-4 py-2 text-sm font-medium ${
-            activeTab === "commandes"
-              ? "border-b-2 border-blue-400 text-blue-400"
-              : "text-gray-500"
-          }`}
-        >
-          Commandes
-        </button>
-        <button
-          onClick={() => {
-            setActiveTab("abandonnee");
-            setShowForm(false);
-          }}
-          className={`px-4 py-2 text-sm font-medium ${
-            activeTab === "abandonnee"
-              ? "border-b-2 border-blue-400 text-blue-400"
-              : "text-gray-500"
-          }`}
-        >
-          Abandonnée (0)
-        </button>
-      </div>
-
-      {!showForm && activeTab === "commandes" && (
-        <div className="p-4">
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-blue-400 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-500 shadow-md"
-          >
-            + Ajouter une commande
-          </button>
+    <div className="flex-1 overflow-auto relative z-10">
+      {error && (
+        <div className="mb-4">
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         </div>
       )}
 
-      <main className="flex-1 p-6 overflow-auto">
+      <Header title="Mes Commandes" />
+      <div className="flex justify-between items-center mb-8">
         {!showForm && (
-          <div className="flex items-center justify-between p-4 bg-gray-100 rounded-lg mb-4">
-            <div className="flex items-center space-x-4">
-              <select className="px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-400">
-                <option>Produit 📦</option>
-              </select>
-              <select className="px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-400">
-                <option>Livraison 🚚</option>
-              </select>
-              <select className="px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-400">
-                <option>Statut</option>
-              </select>
-            </div>
-            <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                placeholder="Rechercher..."
-                className="rounded-md px-3 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-400 text-black border border-gray-300"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <button
-                onClick={handleSearch}
-                className="bg-blue-400 text-white px-4 py-2 rounded-md hover:bg-blue-500"
-              >
-                Rechercher
-              </button>
-            </div>
+          <div className="mt-8">
+            <Button
+              onClick={() => setShowForm(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white flex items-center gap-3"
+            >
+              <Plus className="h-4 w-4" />
+              Nouvelle Commande
+            </Button>
           </div>
         )}
+      </div>
 
+      {/* Onglets */}
+      <div className="border-b border-gray-200 mb-8">
+        <div className="flex gap-8">
+          <button
+            onClick={() => {
+              setActiveTab("commandes");
+              setShowForm(false);
+            }}
+            className={`pb-4 px-2 -mb-px font-medium text-sm transition-colors duration-200 ${
+              activeTab === "commandes"
+                ? "border-b-2 border-blue-500 text-blue-600"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Commandes en cours
+          </button>
+        </div>
+      </div>
+
+      {/* Contenu principal */}
+      <div className="space-y-6">
         {showForm ? (
-          <form onSubmit={handleAddCommande} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              {/* Nom Prioritaire */}
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="nomPrioritaire"
-                  placeholder="Nom Prioritaire"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Prénom Prioritaire */}
-              <div className="relative">
-                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="prenomPrioritaire"
-                  placeholder="Prénom Prioritaire"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Gouvernorat */}
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="gouvernorat"
-                  placeholder="Gouvernorat"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Ville */}
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="ville"
-                  placeholder="Ville"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Localité */}
-              <div className="relative">
-                <Home className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="localite"
-                  placeholder="Localité"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Code Postal */}
-              <div className="relative">
-                <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="codePostal"
-                  placeholder="Code Postal"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Adresse */}
-              <div className="relative">
-                <Home className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="adresse"
-                  placeholder="Adresse"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Téléphone 1 */}
-              <div className="relative">
-                <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="tel"
-                  name="telephone1"
-                  placeholder="Téléphone 1"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Téléphone 2 */}
-              <div className="relative">
-                <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="tel"
-                  name="telephone2"
-                  placeholder="Téléphone 2 (Optionnel)"
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Désignation */}
-              <div className="relative">
-                <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="designation"
-                  placeholder="Désignation"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Prix */}
-              <div className="relative">
-                <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="number"
-                  name="prix"
-                  placeholder="Prix"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-
-              {/* Nombre d'Articles */}
-              <div className="relative">
-                <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  type="number"
-                  name="nbArticles"
-                  placeholder="Nombre d'Articles"
-                  required
-                  className="border p-2 rounded-md w-full pl-10"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="possibleOuvrir"
-                  name="possibleOuvrir"
-                  className="h-4 w-4"
-                />
-                <label htmlFor="possibleOuvrir" className="ml-2">
-                  Possible d'Ouvrir
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="possibleEchange"
-                  name="possibleEchange"
-                  className="h-4 w-4"
-                  onChange={handleEchangeChange}
-                />
-                <label htmlFor="possibleEchange" className="ml-2">
-                  Possible d'Échange
-                </label>
-              </div>
-
-              {isEchangePossible && (
-                <>
-                  {/* Code à Barre Échange */}
-                  <div className="relative">
-                    <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="text"
-                      name="codeBarreEchange"
-                      placeholder="Code à Barre Échange (Optionnel)"
-                      className="border p-2 rounded-md w-full pl-10"
-                    />
-                  </div>
-
-                  {/* Nombre d'Articles Échange */}
-                  <div className="relative">
-                    <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <input
-                      type="number"
-                      name="nbArticlesEchange"
-                      placeholder="Nombre d'Articles Échange (Optionnel)"
-                      className="border p-2 rounded-md w-full pl-10"
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Remarque */}
-            <div className="relative">
-              <Info className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-              <textarea
-                name="remarque"
-                placeholder="Remarque (Optionnel)"
-                className="border p-2 rounded-md w-full pl-10"
-                rows="4"
-              />
-            </div>
-
-            {/* Boutons Enregistrer et Annuler */}
-            <div className="flex space-x-4">
-              <button
-                type="submit"
-                className="bg-blue-400 text-white px-4 py-2 rounded-md hover:bg-blue-500"
-              >
-                Enregistrer
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400"
-              >
-                Annuler
-              </button>
-            </div>
-          </form>
-        ) : activeTab === "commandes" ? (
-          <table className="w-full border-collapse border border-gray-200">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-200 px-4 py-2">Nom</th>
-                <th className="border border-gray-200 px-4 py-2">Prénom</th>
-                <th className="border border-gray-200 px-4 py-2">Ville</th>
-                <th className="border border-gray-200 px-4 py-2">Prix</th>
-                <th className="border border-gray-200 px-4 py-2">État</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredCommandes.map((commande) => (
-                <tr key={commande.code_a_barre} className="text-center">
-                  <td className="border border-gray-200 px-4 py-2">
-                    {commande.nom_prioritaire}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-2">
-                    {commande.prenom_prioritaire}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-2">
-                    {commande.ville}
-                  </td>
-                  <td className="border border-gray-200 px-4 py-2">
-                    {commande.prix.toFixed(2)} TND
-                  </td>
-                  <td className="border border-gray-200 px-4 py-2">
-                    {commande.etat}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <OrderForm
+            onSubmit={handleAddCommande}
+            onCancel={() => setShowForm(false)}
+            isEchangePossible={isEchangePossible}
+            setIsEchangePossible={setIsEchangePossible}
+          />
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            Aucun colis trouvé
-          </div>
+          <>
+            {/* Recherche et filtre */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <div className="flex flex-col sm:flex-row gap-4 justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                    <Input
+                      type="text"
+                      placeholder="Rechercher une commande..."
+                      className="pl-10 w-full sm:w-64"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <Select value={filter} onValueChange={setFilter}>
+                    <SelectTrigger className="w-40">
+                      <SelectValue placeholder="Filtrer par état" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous les états</SelectItem>
+                      <SelectItem value="EN_ATTENTE">En attente</SelectItem>
+                      <SelectItem value="delivered">Livrées</SelectItem>
+                      <SelectItem value="canceled">Annulées</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            {/* Tableau des commandes */}
+            {activeTab === "commandes" ? (
+              filteredCommandes.length > 0 ? (
+                <OrdersTable
+                  commandes={filteredCommandes}
+                  onViewDetails={handleViewDetails}
+                />
+              ) : (
+                <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                  <Package className="mx-auto h-12 w-12 text-gray-400" />
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">
+                    Aucune commande
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Commencez par créer une nouvelle commande.
+                  </p>
+                </div>
+              )
+            ) : (
+              <div className="text-center py-12 bg-white rounded-lg shadow-sm">
+                <h3 className="text-sm font-medium text-gray-900">
+                  Aucune commande abandonnée
+                </h3>
+              </div>
+            )}
+          </>
         )}
-      </main>
+      </div>
+
+      {/* Modal des détails de la commande */}
+      <CommandeDetailsModal
+        commande={selectedCommande}
+        onClose={() => setSelectedCommande(null)}
+      />
     </div>
   );
 };
 
-export default Searchcolis;
+export default MyOrders;

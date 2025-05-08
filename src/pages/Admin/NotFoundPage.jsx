@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
 import { Frown } from "lucide-react";
+import Header from "../../components/common/Header";
 
 const NotFoundPage = () => {
   return (
     <div className="flex-1 relative z-10 overflow-auto">
-      <header className="bg-white text-white py-4 px-6 shadow-md">
-        <h1 className="text-2xl font-semibold">Page Introuvable</h1>
-      </header>
+            <Header title="Page Introuvable" />
+      
 
       <main className="max-w-4xl mx-auto py-12 px-6 lg:px-8 text-center">
         <motion.div

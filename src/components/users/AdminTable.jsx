@@ -38,11 +38,11 @@ const AdminTable = ({
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [setIsModalOpen] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [setError] = useState("");
+  const [error,setError] = useState("");
   const itemsPerPage = 5;
   const [newUser, setNewUser] = useState({
     nom: "",
@@ -248,7 +248,6 @@ const AdminTable = ({
 
       // Ajouter le nouvel utilisateur à la liste
       setFilteredUsers((prev) => [...prev, response.data]);
-      setIsModalOpen(false);
 
       // Réinitialiser le formulaire
       setNewUser({
