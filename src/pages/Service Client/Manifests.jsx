@@ -175,6 +175,7 @@ const ManifestesPage = () => {
                           <span className="font-medium">{formatDate(manifest.dateCreation)}</span>
                         </div>
                         <div className="flex items-center space-x-3 text-gray-500 text-sm">
+                          <span>{manifest.client.nomShop}</span>
                           <span>{manifest.commandes.length} commandes</span>
                           <span className="font-medium">{calculateManifestTotal(manifest.commandes)} TND</span>
                         </div>

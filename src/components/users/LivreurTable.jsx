@@ -22,11 +22,15 @@ const Livreur = ({
 }) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchFilteredUsers, setSearchFilteredUsers] = useState([]);
+  const [regionFilteredUsers, setRegionFilteredUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error,setError] = useState("");
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [filterRegion, setFilterRegion] = useState(""); 
+  const [regions, setRegions] = useState([]);
   const [newUser, setNewUser] = useState({
     nom: "",
     prenom: "",
@@ -58,6 +62,28 @@ const Livreur = ({
   useEffect(() => {
     fetchLivreurs();
   }, []);
+
+  useEffect(() => {
+    let result = users;
+
+    // Apply search filter if active
+    if (searchTerm) {
+      result = result.filter((user) =>
+        searchFilteredUsers.some((u) => u.id === user.id)
+      );
+    }
+
+    // Apply region filter if active
+    if (filterRegion) {
+      result = result.filter((user) =>
+        regionFilteredUsers.some((u) => u.id === user.id)
+      );
+    }
+    setFilteredUsers([...result]); // Force new array
+    setCurrentPage(1);
+  }, [users, searchFilteredUsers, regionFilteredUsers, searchTerm, filterRegion]);
+
+
   const fetchLivreurs = async () => {
     try {
       const token = localStorage.getItem("authToken");
@@ -66,7 +92,21 @@ const Livreur = ({
           Authorization: `Bearer ${token}`,
         },
       });
+      const data = response.data || [];
       setFilteredUsers(response.data);
+      setUsers(data);
+      setSearchFilteredUsers(data);
+      setRegionFilteredUsers(data);
+      setFilteredUsers(data);
+      const uniqueRegions = Array.from(
+        new Set(
+          data
+          .filter((u) => u.livreur && u.livreur.gouvernorat)
+          .map((u) => (u.livreur.gouvernorat || '').trim())
+          .filter((g) => g)
+        )
+      );
+      setRegions(uniqueRegions);
     } catch (error) {
       console.error("Error fetching livreurs:", error);
       setError("Failed to load livreurs");
@@ -90,7 +130,7 @@ const Livreur = ({
           <h1 style={{ fontWeight: "bold", marginBottom: "20px" }}>
             Confirmer la suppression
           </h1>
-          <p>Êtes-vous sûr de vouloir supprimer cet administrateur ?</p>
+          <p>Êtes-vous sûr de vouloir supprimer ce Livreur?</p>
           <div
             style={{
               display: "flex",
@@ -166,17 +206,41 @@ const Livreur = ({
       ),
     });
   };
+  
+  // Handle search input (restored original logic)
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    const filtered = users.filter(
-      (user) =>
-        `${user.prenom} ${user.nom}`.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term)
-    );
-    setFilteredUsers(filtered);
-    setCurrentPage(1); // Reset à la première page après une recherche
+    console.log('Search term:', term);
+    const filtered = users.filter((user) => {
+      const prenom = (user.prenom || '').toLowerCase().trim();
+      const nom = (user.nom || '').toLowerCase().trim();
+      const email = (user.email || '').toLowerCase().trim();
+      const matches = `${prenom} ${nom}`.includes(term) || email.includes(term) || term === '';
+      console.log('User:', user, 'Matches search:', matches);
+      return matches;
+    });
+    console.log('Search filtered users:', filtered);
+    setSearchFilteredUsers([...filtered]);
   };
+
+  // Handle region filter
+  const handleFilterRegion = (e) => {
+    const region = e.target.value;
+    setFilterRegion(region);
+    console.log('Selected region:', region);
+    const filtered = users.filter((user) => {
+      const gouvernorat = (user.livreur?.gouvernorat || '').toLowerCase().trim();
+      const matchesRegion = !region || gouvernorat === region.toLowerCase().trim();
+      console.log('User:', user, 'Matches region:', matchesRegion);
+      return matchesRegion;
+    });
+    console.log('Region filtered users:', filtered);
+    setRegionFilteredUsers([...filtered]);
+  };
+  
+
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -424,14 +488,19 @@ const Livreur = ({
 
               <div>
                 <label className="block text-black-700">Gouvernorat</label>
-                <input
-                  type="text"
+                <select
                   name="gouvernorat"
                   value={newUser.gouvernorat}
                   onChange={handleInputChange}
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
-                />
+                >
+                  <option value="" disabled>Sélectionner un gouvernorat</option>
+                  <option value="Ariana">Ariana</option>
+                  <option value="Tunis">Tunis</option>
+                  <option value="Mannouba">Mannouba</option>
+                  <option value="Ben Arous">Ben Arous</option>
+                </select>
               </div>
 
               <div className="flex justify-end space-x-4 mt-4">
@@ -465,11 +534,20 @@ const Livreur = ({
               value={searchTerm}
               onChange={handleSearch}
             />
-            <Search
-              className="absolute left-3 top-2.5 text-black-700"
-              size={18}
-            />
-          </div>
+            <Search className="absolute left-3 top-2.5 text-black-700" size={18} />
+            </div>
+          <select
+            value={filterRegion}
+            onChange={handleFilterRegion}
+            className="bg-gray-200 text-black rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Regions</option>
+            {regions.map((region) => (
+              <option key={region} value={region}>
+                {region}
+              </option>
+            ))}
+          </select>
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
             onClick={onAddClick}
@@ -615,7 +693,7 @@ const Livreur = ({
           >
             <div className="flex justify-between items-center mb-6">
               <h3 className="justify-center text-2xl font-semibold text-gray-800">
-                Détails de l'administrateur
+                Détails du Livreur
               </h3>
               <button
                 onClick={() => setSelectedUser(null)}

@@ -26,6 +26,9 @@ import Retours from "./pages/Client/Retourspage";
 import Orders from "./pages/Livreur/deliverypage";
 import StatisticLivreur from "./pages/Livreur/StatisticsDashboard";
 import ManifesteService from "./pages/Service Client/Manifests";
+import Feedback from "./pages/Client/FeedbackPage";
+import CreateFeedback from "./pages/Client/CreateFeedbackPage";
+import FeedbackService from "./pages/Service Client/Feedback";
 
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -120,6 +123,14 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/my-orders"
+          element={
+            <ProtectedRoute allowedRoles={["CLIENT"]}>
+              <Searchcolis />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/edit-admin/:userId" element={<EditAdminPage />} />
         <Route path="/edit-client/:userId" element={<EditClientPage />} />
         <Route path="/edit-livreur/:userId" element={<EditLivreurPage />} />
@@ -145,7 +156,10 @@ function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/create-manifest" element={<CreateManifeste/>} />
         <Route path="/my-returns" element={<Retours />} />
+        <Route path="/my-feedbacks" element={<Feedback />} />
+        <Route path="/create-feedback" element={<CreateFeedback/>} />
         <Route path="/manifests" element={<ManifesteService/>} />
+        <Route path="/feedbacks" element={<FeedbackService/>} />
 
 
       
@@ -176,7 +190,7 @@ function App() {
         <Route
           path="/orders"
           element={
-            <ProtectedRoute allowedRoles={["SERVICECLIENT"]}>
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
               <OrdersPage />
             </ProtectedRoute>
           }

@@ -26,6 +26,10 @@ const ClientTable = ({
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchFilteredUsers, setSearchFilteredUsers] = useState([]);
+  const [regionFilteredUsers, setRegionFilteredUsers] = useState([]);
+  const [filterRegion, setFilterRegion] = useState(""); 
+  const [regions, setRegions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [Error, setError] = useState("");
@@ -83,6 +87,30 @@ const ClientTable = ({
   useEffect(() => {
     fetchClients();
   }, []);
+
+
+  useEffect(() => {
+    let result = users;
+
+    // Apply search filter if active
+    if (searchTerm) {
+      result = result.filter((user) =>
+        searchFilteredUsers.some((u) => u.id === user.id)
+      );
+    }
+
+    // Apply region filter if active
+    if (filterRegion) {
+      result = result.filter((user) =>
+        regionFilteredUsers.some((u) => u.id === user.id)
+      );
+    }
+    setFilteredUsers([...result]); // Force new array
+    setCurrentPage(1);
+  }, [users, searchFilteredUsers, regionFilteredUsers, searchTerm, filterRegion]);
+
+
+
   const fetchClients = async () => {
     const token = localStorage.getItem("authToken");
     console.log("Token: " + token);
@@ -92,9 +120,22 @@ const ClientTable = ({
           Authorization: `Bearer ${token}`,
         },
       });
-      setUsers(response.data);
-      setFilteredUsers(response.data);
       setIsLoading(false);
+      const data = response.data || [];
+      setFilteredUsers(response.data);
+      setUsers(data);
+      setSearchFilteredUsers(data);
+      setRegionFilteredUsers(data);
+      setFilteredUsers(data);
+      const uniqueRegions = Array.from(
+        new Set(
+          data
+          .filter((u) => u.client && u.client.gouvernorat)
+          .map((u) => (u.client.gouvernorat || '').trim())
+          .filter((g) => g)
+        )
+      );
+      setRegions(uniqueRegions);
     } catch (err) {
       setError(err.response?.data?.msg || "Erreur de chargement des clients");
       setIsLoading(false);
@@ -109,16 +150,43 @@ const ClientTable = ({
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
+
+
+  // Handle search input (restored original logic)
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-    const filtered = users.filter(
-      (user) =>
-        `${user.prenom} ${user.nom}`.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term)
-    );
-    setFilteredUsers(filtered);
+    console.log('Search term:', term);
+    const filtered = users.filter((user) => {
+      const prenom = (user.prenom || '').toLowerCase().trim();
+      const nom = (user.nom || '').toLowerCase().trim();
+      const email = (user.email || '').toLowerCase().trim();
+      const matches = `${prenom} ${nom}`.includes(term) || email.includes(term) || term === '';
+      console.log('User:', user, 'Matches search:', matches);
+      return matches;
+    });
+    console.log('Search filtered users:', filtered);
+    setSearchFilteredUsers([...filtered]);
   };
+
+  // Handle region filter
+  const handleFilterRegion = (e) => {
+    const region = e.target.value;
+    setFilterRegion(region);
+    console.log('Selected region:', region);
+    const filtered = users.filter((user) => {
+      const gouvernorat = (user.client?.gouvernorat || '').toLowerCase().trim();
+      const matchesRegion = !region || gouvernorat === region.toLowerCase().trim();
+      console.log('User:', user, 'Matches region:', matchesRegion);
+      return matchesRegion;
+    });
+    console.log('Region filtered users:', filtered);
+    setRegionFilteredUsers([...filtered]);
+  };
+  
+
+
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewUser((prevUser) => ({
@@ -518,6 +586,18 @@ const ClientTable = ({
                     size={18}
                   />
                 </div>
+                <select
+                    value={filterRegion}
+                    onChange={handleFilterRegion}
+                    className="bg-gray-200 text-black rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Regions</option>
+                    {regions.map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    ))}
+                  </select>
                 <button
                   className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
                   onClick={onAddClick}
@@ -545,6 +625,9 @@ const ClientTable = ({
                     Role
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                    Region
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
                     Action
                   </th>
                 </tr>
@@ -565,6 +648,9 @@ const ClientTable = ({
                       >
                         {user.role}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-700">
+                      {user.client?.gouvernorat}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 flex space-x-3">
                       <button

@@ -289,8 +289,7 @@ const EditLivreurPage = () => {
               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <MapPin className="h-5 w-5 text-gray-400" />
               </div>
-              <input
-                type="text"
+              <select
                 name="gouvernorat"
                 value={user.gouvernorat}
                 onChange={handleInputChange}
@@ -298,7 +297,13 @@ const EditLivreurPage = () => {
                   errors.gouvernorat ? "border-red-500" : "border-gray-300"
                 } rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 required
-              />
+              >
+                <option value="" disabled>Sélectionner un gouvernorat</option>
+                <option value="Ariana">Ariana</option>
+                <option value="Tunis">Tunis</option>
+                <option value="Mannouba">Mannouba</option>
+                <option value="Ben Arous">Ben Arous</option>
+              </select>
             </div>
             {errors.gouvernorat && <p className="text-red-500 text-sm mt-1">{errors.gouvernorat}</p>}
           </div>

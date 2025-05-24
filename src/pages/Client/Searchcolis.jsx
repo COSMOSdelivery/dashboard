@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link , useLocation, useNavigate} from "react-router-dom";
 import Header from "../../components/common/Header";
 
 import {
@@ -194,14 +194,17 @@ const OrderForm = ({
                   <Label htmlFor="gouvernorat">Gouvernorat</Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="gouvernorat"
-                      name="gouvernorat"
-                      required
-                      className={`pl-10 ${
-                        formErrors.gouvernorat ? "border-red-500" : ""
-                      }`}
-                    />
+                    <Select name="gouvernorat" required>
+                      <SelectTrigger id="gouvernorat" className={`pl-10 ${formErrors.gouvernorat ? "border-red-500" : ""}`}>
+                        <SelectValue placeholder="Sélectionner un gouvernorat" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Ariana">Ariana</SelectItem>
+                        <SelectItem value="Tunis">Tunis</SelectItem>
+                        <SelectItem value="Mannouba">Mannouba</SelectItem>
+                        <SelectItem value="Ben Arous">Ben Arous</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -561,6 +564,8 @@ const CommandeDetailsModal = ({ commande, onClose }) => {
 
 // Composant MyOrders
 const MyOrders = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -570,6 +575,22 @@ const MyOrders = () => {
   const [commandes, setCommandes] = useState([]);
   const [error, setError] = useState(null);
   const [selectedCommande, setSelectedCommande] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  
+  
+
+  
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const filterParam = params.get("filter") || "all";
+    setFilter(filterParam);
+  }, [location.search]);
+
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+    navigate(`/my-orders?filter=${newFilter}`, { replace: true });
+  };
 
   useEffect(() => {
     fetchCommands();
@@ -739,6 +760,18 @@ const MyOrders = () => {
                     <SelectContent>
                       <SelectItem value="all">Tous les états</SelectItem>
                       <SelectItem value="EN_ATTENTE">En attente</SelectItem>
+                      <SelectItem value="A_ENLEVER">A Enlever</SelectItem>
+                      <SelectItem value="AU_DEPOT">Enlevé</SelectItem>
+                      <SelectItem value="RETOUR_DEPOT">Retour Depot</SelectItem>
+                      <SelectItem value="EN_COURS">En cours</SelectItem>
+                      <SelectItem value="A_VERIFIER">A verfier</SelectItem>
+                      <SelectItem value="LIVRES">Livrés</SelectItem>
+                      <SelectItem value="LIVRES_PAYE">Livrés payés</SelectItem>
+                      <SelectItem value="ECHANGE">Echange</SelectItem>
+                      <SelectItem value="RETOUR_DEFINITIF">Retour Definitif</SelectItem>
+                      <SelectItem value="RETOUR_INTER_AGENCE">Retour Inter-Agence</SelectItem>
+                      <SelectItem value="RETOUR_EXPEDITEURS">Retour Expediteurs</SelectItem>
+                      <SelectItem value="RETOUR_RECU_PAYE">Retour Recu Payé</SelectItem>
                       <SelectItem value="delivered">Livrées</SelectItem>
                       <SelectItem value="canceled">Annulées</SelectItem>
                     </SelectContent>
@@ -758,7 +791,7 @@ const MyOrders = () => {
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm">
                   <Package className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-sm font-medium text-gray-900">
-                    Aucune commande
+                    Aucune commande 
                   </h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Commencez par créer une nouvelle commande.
