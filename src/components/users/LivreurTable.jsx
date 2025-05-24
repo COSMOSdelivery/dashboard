@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { motion } from "framer-motion";
 import {
   Edit,
@@ -37,7 +37,11 @@ const validators = {
   nom: (value) => {
     if (!value.trim()) return "Le nom est requis";
     if (value.trim().length < 2) return "Le nom doit contenir au moins 2 caractères";
-    if (!/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð\s-']+$/.test(value)) {
+    if (
+      !/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð\s-']+$/.test(
+        value
+      )
+    ) {
       return "Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes";
     }
     return null;
@@ -46,7 +50,11 @@ const validators = {
   prenom: (value) => {
     if (!value.trim()) return "Le prénom est requis";
     if (value.trim().length < 2) return "Le prénom doit contenir au moins 2 caractères";
-    if (!/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð\s-']+$/.test(value)) {
+    if (
+      !/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð\s-']+$/.test(
+        value
+      )
+    ) {
       return "Le prénom ne peut contenir que des lettres, espaces, tirets et apostrophes";
     }
     return null;
@@ -66,7 +74,8 @@ const validators = {
     if (!/(?=.*[a-z])/.test(value)) return "Le mot de passe doit contenir au moins une minuscule";
     if (!/(?=.*[A-Z])/.test(value)) return "Le mot de passe doit contenir au moins une majuscule";
     if (!/(?=.*\d)/.test(value)) return "Le mot de passe doit contenir au moins un chiffre";
-    if (!/(?=.*[@$!%*?&])/.test(value)) return "Le mot de passe doit contenir au moins un caractère spécial (@$!%*?&)";
+    if (!/(?=.*[@$!%*?&])/.test(value))
+      return "Le mot de passe doit contenir au moins un caractère spécial (@$!%*?&)";
     return null;
   },
 
@@ -79,7 +88,7 @@ const validators = {
   telephone1: (value) => {
     if (!value.trim()) return "Le téléphone principal est requis";
     const phoneRegex = /^(\+216|216)?[2-9]\d{7}$/;
-    const cleanPhone = value.replace(/\s+/g, '');
+    const cleanPhone = value.replace(/\s+/g, "");
     if (!phoneRegex.test(cleanPhone)) {
       return "Format de téléphone invalide (ex: +216 20123456 ou 20123456)";
     }
@@ -89,7 +98,7 @@ const validators = {
   telephone2: (value) => {
     if (value && value.trim()) {
       const phoneRegex = /^(\+216|216)?[2-9]\d{7}$/;
-      const cleanPhone = value.replace(/\s+/g, '');
+      const cleanPhone = value.replace(/\s+/g, "");
       if (!phoneRegex.test(cleanPhone)) {
         return "Format de téléphone invalide (ex: +216 20123456 ou 20123456)";
       }
@@ -100,7 +109,7 @@ const validators = {
   cin: (value) => {
     if (!value.trim()) return "Le CIN est requis";
     const cinRegex = /^\d{8}$/;
-    if (!cinRegex.test(value.replace(/\s+/g, ''))) {
+    if (!cinRegex.test(value.replace(/\s+/g, ""))) {
       return "Le CIN doit contenir exactement 8 chiffres";
     }
     return null;
@@ -109,7 +118,7 @@ const validators = {
   codeTVA: (value) => {
     if (!value.trim()) return "Le code TVA est requis";
     const tvaRegex = /^1\d{6}$/;
-    if (!tvaRegex.test(value.replace(/\s+/g, ''))) {
+    if (!tvaRegex.test(value.replace(/\s+/g, ""))) {
       return "Le code TVA doit commencer par 1 suivi de 6 chiffres (ex: 1234567)";
     }
     return null;
@@ -126,6 +135,97 @@ const validators = {
     return null;
   },
 };
+
+// InputField component (memoized, defined outside LivreurTable)
+const InputField = memo(
+  ({
+    label,
+    name,
+    type = "text",
+    required = true,
+    icon: Icon,
+    placeholder,
+    options,
+    newUser,
+    touched,
+    errors,
+    handleInputChange,
+    handleBlur,
+  }) => {
+    const hasError = touched[name] && errors[name];
+    const isValid = touched[name] && !errors[name] && newUser[name];
+
+    return (
+      <div>
+        <label className="block text-gray-700 mb-2">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <div className="relative">
+          {type === "select" ? (
+            <select
+              name={name}
+              value={newUser[name]}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              className={`w-full pl-10 pr-10 px-4 py-2 border rounded-lg transition-colors duration-200 ${
+                hasError
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                  : isValid
+                  ? "border-green-300 focus:border-green-500 focus:ring-green-200"
+                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+              } focus:outline-none focus:ring-2`}
+              required={required}
+            >
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type={type}
+              name={name}
+              value={newUser[name]}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              placeholder={placeholder}
+              className={`w-full pl-10 pr-10 px-4 py-2 border rounded-lg transition-colors duration-200 ${
+                hasError
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                  : isValid
+                  ? "border-green-300 focus:border-green-500 focus:ring-green-200"
+                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+              } focus:outline-none focus:ring-2`}
+              required={required}
+            />
+          )}
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <Icon
+              className={`h-5 w-5 ${hasError ? "text-red-400" : isValid ? "text-green-400" : "text-gray-400"}`}
+            />
+          </div>
+          {hasError && (
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <AlertCircle className="h-5 w-5 text-red-400" />
+            </div>
+          )}
+          {isValid && (
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <CheckCircle className="h-5 w-5 text-green-400" />
+            </div>
+          )}
+        </div>
+        {hasError && (
+          <p className="mt-1 text-sm text-red-600 flex items-center">
+            <AlertCircle className="h-4 w-4 mr-1" />
+            {errors[name]}
+          </p>
+        )}
+      </div>
+    );
+  }
+);
 
 const LivreurTable = ({
   fullWidth = false,
@@ -160,36 +260,6 @@ const LivreurTable = ({
     adresse: "",
     role: "LIVREUR",
   });
-
-  // Données mockées pour la démonstration
-  const mockUsers = [
-    {
-      id: 1,
-      nom: "Ben Ali",
-      prenom: "Ahmed",
-      email: "ahmed.benali@example.com",
-      telephone1: "20 123 456",
-      telephone2: "25 987 654",
-      cin: "12345678",
-      codeTVA: "1234567",
-      gouvernorat: "tunis",
-      adresse: "123 Avenue de la Liberté",
-      role: "LIVREUR",
-    },
-    {
-      id: 2,
-      nom: "Trabelsi",
-      prenom: "Fatma",
-      email: "fatma.trabelsi@example.com",
-      telephone1: "22 456 789",
-      telephone2: "",
-      cin: "87654321",
-      codeTVA: "1987654",
-      gouvernorat: "ariana",
-      adresse: "456 Rue de l'Indépendance",
-      role: "LIVREUR",
-    },
-  ];
 
   useEffect(() => {
     fetchLivreurs();
@@ -250,7 +320,9 @@ const LivreurTable = ({
         if (cleanPhone.length <= 8) {
           return cleanPhone.replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3").trim();
         }
-        return cleanPhone.substring(0, 8).replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3");
+        return cleanPhone
+          .substring(0, 8)
+          .replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3");
       case "cin":
         return value.replace(/\D/g, "").substring(0, 8);
       case "codeTVA":
@@ -394,8 +466,7 @@ const LivreurTable = ({
     setSearchTerm(term);
     const filtered = users.filter(
       (user) =>
-        `${user.prenom} ${user.nom}`.toLowerCase().includes(term) ||
-        user.email.toLowerCase().includes(term)
+        `${user.prenom} ${user.nom}`.toLowerCase().includes(term) || user.email.toLowerCase().includes(term)
     );
     setCurrentPage(1);
     setFilteredUsers(filtered);
@@ -507,82 +578,6 @@ const LivreurTable = ({
     },
   };
 
-  // Composant pour les champs de saisie avec validation
-  const InputField = ({ label, name, type = "text", required = true, icon: Icon, placeholder, options }) => {
-    const hasError = touched[name] && errors[name];
-    const isValid = touched[name] && !errors[name] && newUser[name];
-
-    return (
-      <div>
-        <label className="block text-gray-700 mb-2">
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
-        <div className="relative">
-          {type === "select" ? (
-            <select
-              name={name}
-              value={newUser[name]}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              className={`w-full pl-10 pr-10 px-4 py-2 border rounded-lg transition-colors duration-200 ${
-                hasError
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                  : isValid
-                  ? "border-green-300 focus:border-green-500 focus:ring-green-200"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
-              } focus:outline-none focus:ring-2`}
-              required={required}
-            >
-              {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              type={type}
-              name={name}
-              value={newUser[name]}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              placeholder={placeholder}
-              className={`w-full pl-10 pr-10 px-4 py-2 border rounded-lg transition-colors duration-200 ${
-                hasError
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                  : isValid
-                  ? "border-green-300 focus:border-green-500 focus:ring-green-200"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
-              } focus:outline-none focus:ring-2`}
-              required={required}
-            />
-          )}
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <Icon
-              className={`h-5 w-5 ${hasError ? "text-red-400" : isValid ? "text-green-400" : "text-gray-400"}`}
-            />
-          </div>
-          {hasError && (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <AlertCircle className="h-5 w-5 text-red-400" />
-            </div>
-          )}
-          {isValid && (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <CheckCircle className="h-5 w-5 text-green-400" />
-            </div>
-          )}
-        </div>
-        {hasError && (
-          <p className="mt-1 text-sm text-red-600 flex items-center">
-            <AlertCircle className="h-4 w-4 mr-1" />
-            {errors[name]}
-          </p>
-        )}
-      </div>
-    );
-  };
-
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const currentItems = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
@@ -607,55 +602,148 @@ const LivreurTable = ({
         >
           <motion.div className="w-full max-w-4xl p-8 relative">
             <br />
-            <h3 className="text-2xl font-semibold text-blue-400 mb-6">Ajouter un livreur</h3>
+            <h3 className="text-2xl font-semibold text-blue-400 mb-6">
+              Ajouter un livreur
+            </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <InputField label="Nom" name="nom" icon={User} placeholder="Ex: Ben Ali" />
-                <InputField label="Prénom" name="prenom" icon={User} placeholder="Ex: Ahmed" />
                 <InputField
+                  key="nom"
+                  label="Nom"
+                  name="nom"
+                  icon={User}
+                  placeholder="Ex: Ben Ali"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="prenom"
+                  label="Prénom"
+                  name="prenom"
+                  icon={User}
+                  placeholder="Ex: Ahmed"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="email"
                   label="Email"
                   name="email"
                   type="email"
                   icon={Mail}
                   placeholder="Ex: ahmed.benali@example.com"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
                 <InputField
+                  key="password"
                   label="Mot de passe"
                   name="password"
                   type="password"
                   icon={Lock}
                   placeholder="Au moins 8 caractères"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
                 <InputField
+                  key="confirmPassword"
                   label="Confirmer le mot de passe"
                   name="confirmPassword"
                   type="password"
                   icon={Lock}
                   placeholder="Répétez le mot de passe"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
                 <InputField
+                  key="telephone1"
                   label="Téléphone principal"
                   name="telephone1"
                   icon={Phone}
                   placeholder="Ex: 20 123 456"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
                 <InputField
+                  key="telephone2"
                   label="Téléphone secondaire"
                   name="telephone2"
                   icon={Phone}
                   placeholder="Ex: 25 987 654 (optionnel)"
                   required={false}
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
-                <InputField label="CIN" name="cin" icon={CreditCard} placeholder="Ex: 12345678" />
-                <InputField label="Code TVA" name="codeTVA" icon={Percent} placeholder="Ex: 1234567" />
                 <InputField
+                  key="cin"
+                  label="CIN"
+                  name="cin"
+                  icon={CreditCard}
+                  placeholder="Ex: 12345678"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="codeTVA"
+                  label="Code TVA"
+                  name="codeTVA"
+                  icon={Percent}
+                  placeholder="Ex: 1234567"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="gouvernorat"
                   label="Gouvernorat"
                   name="gouvernorat"
                   type="select"
                   icon={MapPin}
                   options={GOUVERNORATS}
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
-                <InputField label="Adresse" name="adresse" icon={MapPin} placeholder="Ex: 123 Avenue de la Liberté" />
+                <InputField
+                  key="adresse"
+                  label="Adresse"
+                  name="adresse"
+                  icon={MapPin}
+                  placeholder="Ex: 123 Avenue de la Liberté"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
               </div>
               <div className="flex justify-end space-x-4 mt-6 pt-4 border-t">
                 <button
@@ -761,7 +849,8 @@ const LivreurTable = ({
                       <td className="px-6 py-4 text-gray-900">{user.telephone1}</td>
                       <td className="px-6 py-4 text-gray-900">
                         {user.livreur?.gouvernorat
-                          ? user.livreur.gouvernorat.charAt(0).toUpperCase() + user.livreur.gouvernorat.slice(1)
+                          ? user.livreur.gouvernorat.charAt(0).toUpperCase() +
+                            user.livreur.gouvernorat.slice(1)
                           : "-"}
                       </td>
                       <td className="px-6 py-4">
@@ -852,128 +941,131 @@ const LivreurTable = ({
       )}
 
       {/* Modal de visualisation */}
-      {selectedUser && (
-        <motion.div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+{selectedUser && (
+  <motion.div
+    className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    onClick={() => setSelectedUser(null)}
+  >
+    <motion.div
+      className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg"
+      initial={{ y: -50, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -50, opacity: 0 }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-2xl font-semibold text-gray-800">Détails du livreur</h3>
+        <button
           onClick={() => setSelectedUser(null)}
+          className="text-gray-500 hover:text-gray-700 transition duration-200"
         >
-          <motion.div
-            className="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg"
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -50, opacity: 0 }}
-            onClick={(e) => e.stopPropagation()}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-semibold text-gray-800">Détails du livreur</h3>
-              <button
-                onClick={() => setSelectedUser(null)}
-                className="text-gray-500 hover:text-gray-700 transition duration-200"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="bg-blue-100 p-3 rounded-full">
-                  <User className="h-5 w-5 text-blue-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Nom complet</p>
-                  <p className="font-medium text-gray-800">{`${selectedUser.prenom} ${selectedUser.nom}`}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="bg-purple-100 p-3 rounded-full">
-                  <Mail className="h-5 w-5 text-purple-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium text-gray-800">{selectedUser.email}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="bg-green-100 p-3 rounded-full">
-                  <Phone className="h-5 w-5 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Téléphone principal</p>
-                  <p className="font-medium text-gray-800">{selectedUser.telephone1}</p>
-                </div>
-              </div>
-              {selectedUser.telephone2 && (
-                <div className="flex items-center space-x-4">
-                  <div className="bg-yellow-100 p-3 rounded-full">
-                    <Phone className="h-5 w-5 text-yellow-500" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Téléphone secondaire</p>
-                    <p className="font-medium text-gray-800">{selectedUser.telephone2}</p>
-                  </div>
-                </div>
-              )}
-              <div className="flex items-center space-x-4">
-                <div className="bg-red-100 p-3 rounded-full">
-                  <CreditCard className="h-5 w-5 text-red-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">CIN</p>
-                  <p className="font-medium text-gray-800">{selectedUser.cin}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="bg-indigo-100 p-3 rounded-full">
-                  <Percent className="h-5 w-5 text-indigo-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Code TVA</p>
-                  <p className="font-medium text-gray-800">{selectedUser.codeTVA}</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="bg-blue-100 p-3 rounded-full">
-                  <MapPin className="h-5 w-5 text-blue-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Gouvernorat</p>
-                  <p className="font-medium text-gray-800">
-                    {selectedUser.livreur?.gouvernorat
-                      ? selectedUser.livreur.gouvernorat.charAt(0).toUpperCase() +
-                        selectedUser.livreur.gouvernorat.slice(1)
-                      : "-"}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="bg-green-100 p-3 rounded-full">
-                  <MapPin className="h-5 w-5 text-green-500" />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Adresse</p>
-                  <p className="font-medium text-gray-800">{selectedUser.adresse}</p>
-                </div>
-              </div>
+      <div className="space-y-4">
+        <div className="flex items-center space-x-4">
+          <div className="bg-blue-100 p-3 rounded-full">
+            <User className="h-5 w-5 text-blue-500" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Nom complet</p>
+            <p className="font-medium text-gray-800">{`${selectedUser.prenom} ${selectedUser.nom}`}</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <div className="bg-purple-100 p-3 rounded-full">
+            <Mail className="h-5 w-5 text-purple-500" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Email</p>
+            <p className="font-medium text-gray-800">{selectedUser.email}</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <div className="bg-green-100 p-3 rounded-full">
+            <Phone className="h-5 w-5 text-green-500" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Téléphone principal</p>
+            <p className="font-medium text-gray-800">{selectedUser.telephone1}</p>
+          </div>
+        </div>
+        {selectedUser.telephone2 && (
+          <div className="flex items-center space-x-4">
+            <div className="bg-yellow-100 p-3 rounded-full">
+              <Phone className="h-5 w-5 text-yellow-500" />
             </div>
-          </motion.div>
-        </motion.div>
-      )}
+            <div>
+              <p className="text-sm text-gray-500">Téléphone secondaire</p>
+              <p className="font-medium text-gray-800">{selectedUser.telephone2}</p>
+            </div>
+          </div>
+        )}
+        <div className="flex items-center space-x-4">
+          <div className="bg-red-100 p-3 rounded-full">
+            <CreditCard className="h-5 w-5 text-red-500" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">CIN</p>
+            <p className="font-medium text-gray-800">{selectedUser.cin}</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <div className="bg-indigo-100 p-3 rounded-full">
+            <Percent className="h-5 w-5 text-indigo-500" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Code TVA</p>
+            <p className="font-medium text-gray-800">{selectedUser.codeTVA}</p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <div className="bg-blue-100 p-3 rounded-full">
+            <MapPin className="h-5 w-5 text-blue-500" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Gouvernorat</p>
+            <p className="font-medium text-gray-800">
+              {selectedUser.livreur?.gouvernorat
+                ? selectedUser.livreur.gouvernorat.charAt(0).toUpperCase() +
+                  selectedUser.livreur.gouvernorat.slice(1)
+                : selectedUser.gouvernorat
+                ? selectedUser.gouvernorat.charAt(0).toUpperCase() +
+                  selectedUser.gouvernorat.slice(1)
+                : "-"}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center space-x-4">
+          <div className="bg-green-100 p-3 rounded-full">
+            <MapPin the="h-5 w-5 text-green-500" />
+          </div>
+          <div>
+            <p className="text-sm text-gray-500">Adresse</p>
+            <p className="font-medium text-gray-800">{selectedUser.adresse || "-"}</p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  </motion.div>
+)}
     </motion.div>
   );
 };

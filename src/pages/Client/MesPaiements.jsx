@@ -1,46 +1,60 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Printer, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Header from "../../components/common/Header";
+import config from "../../config.json"; // Assurez-vous que le chemin est correct
+const API_URL = config.API_URL; // Définissez l'URL de l'API
 
 const PaymentsPage = () => {
-  // Données statiques pour les paiements
-  const payments = [
-    {
-      id: 1,
-      date: "2024-10-01T14:30:00Z",
-      amount: 1500.75,
-      status: "Payé",
-      client: "Client A",
-      invoiceNumber: "INV-001",
-    },
-    {
-      id: 2,
-      date: "2024-10-02T10:15:00Z",
-      amount: 2300.5,
-      status: "En attente",
-      client: "Client B",
-      invoiceNumber: "INV-002",
-    },
-    {
-      id: 3,
-      date: "2024-10-03T16:45:00Z",
-      amount: 4500.0,
-      status: "Annulé",
-      client: "Client C",
-      invoiceNumber: "INV-003",
-    },
-  ];
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Fonction pour formater la date
+  // Récupération de l'ID client depuis le localStorage
+  const clientId = JSON.parse(localStorage.getItem("userInfo"))?.id;
+
+  useEffect(() => {
+    if (!clientId) {
+      setError("Client non connecté.");
+      setLoading(false);
+      return;
+    }
+
+    fetch(`${API_URL}/paiements/client/${clientId}`)
+      .then((res) => {
+        if (!res.ok)
+          throw new Error("Erreur lors du chargement des paiements.");
+        return res.json();
+      })
+      .then((data) => {
+        setPayments(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [clientId]);
+
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString('fr-FR', options);
+    const options = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+    return new Date(dateString).toLocaleDateString("fr-FR", options);
   };
 
-  // Fonction pour déterminer la couleur du badge selon l'état
+  const formatMontant = (val) =>
+    new Intl.NumberFormat("fr-TN", {
+      style: "currency",
+      currency: "TND",
+    }).format(val);
+
   const getStatusBadgeColor = (status) => {
     switch (status.toLowerCase()) {
       case "payé":
@@ -63,43 +77,60 @@ const PaymentsPage = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <FileText className="h-5 w-5 text-gray-500" />
-              <CardTitle className="text-xl font-medium text-gray-800">Gestion des Paiements</CardTitle>
+              <CardTitle className="text-xl font-medium text-gray-800">
+                Gestion des Paiements
+              </CardTitle>
             </div>
-            
           </div>
         </CardHeader>
 
         <CardContent>
-          {payments.length === 0 ? (
+          {loading ? (
+            <p className="text-center text-gray-500">Chargement...</p>
+          ) : error ? (
+            <div className="text-center text-red-600">{error}</div>
+          ) : payments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
               <AlertCircle className="h-12 w-12 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-700">Aucun paiement disponible</h3>
+              <h3 className="text-lg font-medium text-gray-700">
+                Aucun paiement disponible
+              </h3>
               <p className="text-gray-500 mt-2 max-w-md">
-                Vous n'avez pas encore enregistré de paiement. Utilisez le bouton "Nouveau Paiement" pour en créer un.
+                Vous n'avez pas encore enregistré de paiement.
               </p>
             </div>
           ) : (
             <div className="space-y-4">
               {payments.map((payment) => (
-                <Card key={payment.id} className="border rounded-lg overflow-hidden">
+                <Card
+                  key={payment.id}
+                  className="border rounded-lg overflow-hidden"
+                >
                   <CardHeader className="bg-gray-50 p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                          #{payment.invoiceNumber}
+                        <Badge
+                          variant="outline"
+                          className="bg-blue-50 text-blue-700 border-blue-200"
+                        >
+                          #{payment.invoiceNumber || `Paiement-${payment.id}`}
                         </Badge>
-                        <span className="font-medium">{formatDate(payment.date)}</span>
+                        <span className="font-medium">
+                          {formatDate(payment.date)}
+                        </span>
                         <span className="text-gray-600 ml-3">
-                          Client: {payment.client}
+                          Client: {payment.client || `#${payment.id_client}`}
                         </span>
                       </div>
                       <div className="flex items-center space-x-3 text-gray-500 text-sm">
-                        <span className="font-medium">{payment.amount} TND</span>
-                        <Badge 
-                          variant="outline" 
-                          className={getStatusBadgeColor(payment.status)}
+                        <span className="font-medium">
+                          {formatMontant(payment.montant)}
+                        </span>
+                        <Badge
+                          variant="outline"
+                          className={getStatusBadgeColor(payment.statut)}
                         >
-                          {payment.status}
+                          {payment.statut}
                         </Badge>
                       </div>
                     </div>
@@ -110,7 +141,9 @@ const PaymentsPage = () => {
                         variant="outline"
                         size="sm"
                         className="bg-white text-gray-700 border-gray-200 hover:bg-gray-100"
-                        onClick={() => window.location.href = `/payments/${payment.id}/print`}
+                        onClick={() =>
+                          (window.location.href = `/payments/${payment.id}/print`)
+                        }
                       >
                         <Printer className="h-4 w-4 mr-2" />
                         Imprimer Facture

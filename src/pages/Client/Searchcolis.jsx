@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link , useLocation, useNavigate} from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Header from "../../components/common/Header";
-
 import {
   ShoppingCart,
   Eye,
@@ -15,6 +14,8 @@ import {
   Search,
   Plus,
   ChevronDown,
+  AlertCircle,
+  CheckCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,11 +39,275 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-
 import axios from "axios";
 import config from "../../config.json";
 
 const API_URL = config.API_URL;
+
+// Liste des gouvernorats
+const GOUVERNORATS = [
+  { value: "ariana", label: "Ariana" },
+  { value: "tunis", label: "Tunis" },
+  { value: "manouba", label: "Manouba" },
+  { value: "ben_arous", label: "Ben Arous" },
+];
+
+// Mapping des gouvernorats aux villes
+const GOUVERNORAT_CITIES = {
+  ariana: [
+    { value: "ariana", label: "Ariana" },
+    { value: "raoued", label: "Raoued" },
+    { value: "sidi_thabet", label: "Sidi Thabet" },
+    { value: "kalâat_l_andalous", label: "Kalâat l’Andalous" },
+    { value: "la_soukra", label: "La Soukra" },
+    { value: "borj_louzir", label: "Borj Louzir" },
+    { value: "mnihla", label: "Mnihla" },
+  ],
+  tunis: [
+    { value: "tunis", label: "Tunis" },
+    { value: "la_marsa", label: "La Marsa" },
+    { value: "carthage", label: "Carthage" },
+    { value: "le_bardo", label: "Le Bardo" },
+    { value: "sidi_bou_said", label: "Sidi Bou Saïd" },
+    { value: "le_kram", label: "Le Kram" },
+    { value: "la_goulette", label: "La Goulette" },
+    { value: "sidi_hassine", label: "Sidi Hassine" },
+    { value: "el_ouardia", label: "El Ouardia" },
+    { value: "ezzouhour", label: "Ezzouhour" },
+    { value: "bab_bhar", label: "Bab Bhar" },
+    { value: "bab_souika", label: "Bab Souika" },
+    { value: "cite_el_khadra", label: "Cité El Khadra" },
+    { value: "jebel_jelloud", label: "Jebel Jelloud" },
+    { value: "kabaria", label: "Kabaria" },
+    { value: "medina", label: "Médina" },
+  ],
+  manouba: [
+    { value: "manouba", label: "Manouba" },
+    { value: "den_den", label: "Den Den" },
+    { value: "douar_hicher", label: "Douar Hicher" },
+    { value: "tebourba", label: "Tebourba" },
+    { value: "bousalem", label: "Bousalem" },
+    { value: "el_battan", label: "El Battan" },
+    { value: "jedaida", label: "Jedaida" },
+    { value: "mornag", label: "Mornag" },
+    { value: "oued_ellil", label: "Oued Ellil" },
+  ],
+  ben_arous: [
+    { value: "ben_arous", label: "Ben Arous" },
+    { value: "hammam_lif", label: "Hammam Lif" },
+    { value: "hammam_chott", label: "Hammam Chott" },
+    { value: "ezzahra", label: "Ezzahra" },
+    { value: "rades", label: "Radès" },
+    { value: "megrine", label: "Mégrine" },
+    { value: "bou_mhel_el_bassatine", label: "Bou Mhel El Bassatine" },
+    { value: "fouchana", label: "Fouchana" },
+    { value: "mohammedia", label: "Mohammedia" },
+    { value: "el_mourouj", label: "El Mourouj" },
+    { value: "khalidia", label: "Khalidia" },
+  ],
+};
+
+// Fonctions de validation
+const validators = {
+  nomPrioritaire: (value) => {
+    if (!value.trim()) return "Le nom est requis";
+    if (value.trim().length < 2) return "Le nom doit contenir au moins 2 caractères";
+    if (!/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð\s-']+$/.test(value)) {
+      return "Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes";
+    }
+    return null;
+  },
+  prenomPrioritaire: (value) => {
+    if (!value.trim()) return "Le prénom est requis";
+    if (value.trim().length < 2) return "Le prénom doit contenir au moins 2 caractères";
+    if (!/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð\s-']+$/.test(value)) {
+      return "Le prénom ne peut contenir que des lettres, espaces, tirets et apostrophes";
+    }
+    return null;
+  },
+  telephone1: (value) => {
+    if (!value.trim()) return "Le téléphone principal est requis";
+    const phoneRegex = /^(\+216|216)?[2-9]\d{7}$/;
+    const cleanPhone = value.replace(/\s+/g, '');
+    if (!phoneRegex.test(cleanPhone)) {
+      return "Format de téléphone invalide (ex: +216 20123456 ou 20123456)";
+    }
+    return null;
+  },
+  telephone2: (value) => {
+    if (value && value.trim()) {
+      const phoneRegex = /^(\+216|216)?[2-9]\d{7}$/;
+      const cleanPhone = value.replace(/\s+/g, '');
+      if (!phoneRegex.test(cleanPhone)) {
+        return "Format de téléphone invalide (ex: +216 20123456 ou 20123456)";
+      }
+    }
+    return null;
+  },
+  adresse: (value) => {
+    if (!value.trim()) return "L'adresse est requise";
+    if (value.trim().length < 5) return "L'adresse doit contenir au moins 5 caractères";
+    return null;
+  },
+  gouvernorat: (value) => {
+    if (!value) return "Le gouvernorat est requis";
+    if (!GOUVERNORATS.some(g => g.value === value)) return "Gouvernorat invalide";
+    return null;
+  },
+  ville: (value, gouvernorat) => {
+    if (!value) return "La ville est requise";
+    if (gouvernorat && !GOUVERNORAT_CITIES[gouvernorat]?.some(c => c.value === value)) {
+      return "Ville invalide pour le gouvernorat sélectionné";
+    }
+    return null;
+  },
+  localite: (value) => {
+    if (!value.trim()) return "La localité est requise";
+    if (value.trim().length < 2) return "La localité doit contenir au moins 2 caractères";
+    return null;
+  },
+  codePostal: (value) => {
+    if (!value.trim()) return "Le code postal est requis";
+    const codePostalRegex = /^\d{4}$/;
+    if (!codePostalRegex.test(value.replace(/\s+/g, ''))) {
+      return "Le code postal doit contenir exactement 4 chiffres";
+    }
+    return null;
+  },
+  designation: (value) => {
+    if (!value.trim()) return "La désignation est requise";
+    if (value.trim().length < 2) return "La désignation doit contenir au moins 2 caractères";
+    return null;
+  },
+  prix: (value) => {
+    if (!value.trim()) return "Le prix est requis";
+    const numericValue = parseFloat(value);
+    if (isNaN(numericValue) || numericValue <= 0) {
+      return "Le prix doit être un nombre positif";
+    }
+    return null;
+  },
+  nbArticles: (value) => {
+    if (!value.trim()) return "Le nombre d'articles est requis";
+    const numericValue = parseInt(value);
+    if (isNaN(numericValue) || numericValue <= 0) {
+      return "Le nombre d'articles doit être un entier positif";
+    }
+    return null;
+  },
+  codeBarreEchange: (value, isEchangePossible) => {
+    if (isEchangePossible && !value.trim()) return "Le code à barre d'échange est requis";
+    if (value && value.trim().length < 2) return "Le code à barre doit contenir au moins 2 caractères";
+    return null;
+  },
+  nbArticlesEchange: (value, isEchangePossible) => {
+    if (isEchangePossible && !value.trim()) return "Le nombre d'articles d'échange est requis";
+    if (value) {
+      const numericValue = parseInt(value);
+      if (isNaN(numericValue) || numericValue <= 0) {
+        return "Le nombre d'articles d'échange doit être un entier positif";
+      }
+    }
+    return null;
+  },
+};
+
+// Composant InputField (déplacé hors de OrderForm)
+const InputField = ({
+  label,
+  name,
+  type = "text",
+  required = true,
+  icon: Icon,
+  placeholder,
+  formData,
+  touched,
+  formErrors,
+  handleInputChange,
+  handleBlur,
+  availableCities = [],
+  disabled = false,
+}) => {
+  const hasError = touched[name] && formErrors[name];
+  const isValid = touched[name] && !formErrors[name] && formData[name];
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={name}>
+        {label} {required && <span className="text-red-500">*</span>}
+      </Label>
+      <div className="relative">
+        {type === "select" ? (
+          <Select
+            name={name}
+            value={formData[name]}
+            onValueChange={(value) =>
+              handleInputChange({ target: { name, value } })
+            }
+            required={required}
+            disabled={disabled}
+          >
+            <SelectTrigger
+              id={name}
+              className={`pl-10 ${hasError ? "border-red-500" : isValid ? "border-green-500" : ""}`}
+            >
+              <SelectValue placeholder={placeholder} />
+            </SelectTrigger>
+            <SelectContent>
+              {(name === "gouvernorat" ? GOUVERNORATS : availableCities).map(
+                (option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                )
+              )}
+            </SelectContent>
+          </Select>
+        ) : type === "textarea" ? (
+          <Textarea
+            id={name}
+            name={name}
+            value={formData[name]}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            placeholder={placeholder}
+            className={`pl-10 min-h-[100px] ${hasError ? "border-red-500" : isValid ? "border-green-500" : ""}`}
+            required={required}
+          />
+        ) : (
+          <Input
+            id={name}
+            name={name}
+            type={type}
+            value={formData[name]}
+            onChange={handleInputChange}
+            onBlur={handleBlur}
+            placeholder={placeholder}
+            className={`pl-10 ${hasError ? "border-red-500" : isValid ? "border-green-500" : ""}`}
+            required={required}
+          />
+        )}
+        {Icon && (
+          <Icon
+            className={`absolute left-3 top-3 h-5 w-5 ${hasError ? "text-red-400" : isValid ? "text-green-400" : "text-gray-400"}`}
+          />
+        )}
+        {hasError && (
+          <AlertCircle className="absolute right-3 top-3 h-5 w-5 text-red-400" />
+        )}
+        {isValid && (
+          <CheckCircle className="absolute right-3 top-3 h-5 w-5 text-green-400" />
+        )}
+      </div>
+      {hasError && (
+        <p className="text-sm text-red-600 flex items-center">
+          <AlertCircle className="h-4 w-4 mr-1" />
+          {formErrors[name]}
+        </p>
+      )}
+    </div>
+  );
+};
 
 // Composant OrderForm
 const OrderForm = ({
@@ -51,54 +316,150 @@ const OrderForm = ({
   isEchangePossible,
   setIsEchangePossible,
 }) => {
+  const [formData, setFormData] = useState({
+    nomPrioritaire: "",
+    prenomPrioritaire: "",
+    telephone1: "",
+    telephone2: "",
+    adresse: "",
+    gouvernorat: "",
+    ville: "",
+    localite: "",
+    codePostal: "",
+    designation: "",
+    prix: "",
+    nbArticles: "",
+    possibleOuvrir: false,
+    possibleEchange: isEchangePossible,
+    codeBarreEchange: "",
+    nbArticlesEchange: "",
+    remarque: "",
+  });
   const [formErrors, setFormErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [availableCities, setAvailableCities] = useState([]);
 
-  const validateForm = (formData) => {
-    const errors = {};
-    const requiredFields = [
-      "nomPrioritaire",
-      "prenomPrioritaire",
-      "telephone1",
-      "adresse",
-      "gouvernorat",
-      "ville",
-      "localite",
-      "codePostal",
-      "designation",
-      "prix",
-      "nbArticles",
-    ];
+  // Formatage automatique des champs
+  const formatField = (name, value) => {
+    switch (name) {
+      case "telephone1":
+      case "telephone2":
+        const cleanPhone = value.replace(/\D/g, "");
+        if (cleanPhone.length <= 8) {
+          return cleanPhone.replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3").trim();
+        }
+        return cleanPhone
+          .substring(0, 8)
+          .replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3");
+      case "codePostal":
+        return value.replace(/\D/g, "").substring(0, 4);
+      case "nomPrioritaire":
+      case "prenomPrioritaire":
+      case "localite":
+        return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+      case "prix":
+        return value.replace(/[^0-9.]/g, "");
+      case "nbArticles":
+      case "nbArticlesEchange":
+        return value.replace(/[^0-9]/g, "");
+      default:
+        return value;
+    }
+  };
 
-    requiredFields.forEach((field) => {
-      if (!formData.get(field)) {
-        errors[field] = "Ce champ est obligatoire";
+  // Validation en temps réel
+  const validateField = (name, value) => {
+    let error = null;
+    if (name === "ville") {
+      error = validators[name](value, formData.gouvernorat);
+    } else if (name === "codeBarreEchange" || name === "nbArticlesEchange") {
+      error = validators[name](value, isEchangePossible);
+    } else if (validators[name]) {
+      error = validators[name](value);
+    }
+    setFormErrors((prev) => ({
+      ...prev,
+      [name]: error,
+    }));
+    return error === null;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    const formattedValue = type === "checkbox" ? checked : formatField(name, value);
+
+    setFormData((prev) => {
+      const updatedData = {
+        ...prev,
+        [name]: formattedValue,
+      };
+      if (name === "gouvernorat") {
+        updatedData.ville = "";
+        setAvailableCities(GOUVERNORAT_CITIES[value] || []);
+      }
+      return updatedData;
+    });
+
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+
+    if (touched[name] || value || type === "checkbox") {
+      validateField(name, formattedValue);
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
+    validateField(name, value);
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    let isValid = true;
+
+    Object.keys(formData).forEach((field) => {
+      if (field === "telephone2" || field === "remarque") return;
+      if (field === "codeBarreEchange" || field === "nbArticlesEchange") {
+        const error = validators[field](formData[field], isEchangePossible);
+        if (error) {
+          newErrors[field] = error;
+          isValid = false;
+        }
+      } else if (field === "possibleOuvrir" || field === "possibleEchange") {
+        return;
+      } else {
+        const error = validateField(field, formData[field]);
+        if (!error) {
+          newErrors[field] = error;
+          isValid = false;
+        }
       }
     });
 
-    if (isEchangePossible) {
-      if (!formData.get("codeBarreEchange")) {
-        errors.codeBarreEchange = "Code à barre d'échange requis";
-      }
-      if (!formData.get("nbArticlesEchange")) {
-        errors.nbArticlesEchange = "Nombre d'articles d'échange requis";
-      }
-    }
-
-    return errors;
+    setFormErrors(newErrors);
+    setTouched(
+      Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {})
+    );
+    return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const errors = validateForm(formData);
-
-    if (Object.keys(errors).length === 0) {
-      onSubmit(e);
-    } else {
-      setFormErrors(errors);
-      const firstErrorField = Object.keys(errors)[0];
+    if (!validateForm()) {
+      const firstErrorField = Object.keys(formErrors).find(
+        (key) => formErrors[key]
+      );
       document.getElementById(firstErrorField)?.focus();
+      return;
     }
+
+    await onSubmit(e, formData);
   };
 
   return (
@@ -112,146 +473,118 @@ const OrderForm = ({
             </h2>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nomPrioritaire">Nom</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="nomPrioritaire"
-                      name="nomPrioritaire"
-                      required
-                      className={`pl-10 ${
-                        formErrors.nomPrioritaire ? "border-red-500" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="prenomPrioritaire">Prénom</Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="prenomPrioritaire"
-                      name="prenomPrioritaire"
-                      required
-                      className={`pl-10 ${
-                        formErrors.prenom_prioritaire ? "border-red-500" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
+                <InputField
+                  label="Nom"
+                  name="nomPrioritaire"
+                  icon={User}
+                  placeholder="Ex: Dupont"
+                  formData={formData}
+                  touched={touched}
+                  formErrors={formErrors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  label="Prénom"
+                  name="prenomPrioritaire"
+                  icon={User}
+                  placeholder="Ex: Jean"
+                  formData={formData}
+                  touched={touched}
+                  formErrors={formErrors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
               </div>
-
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="telephone1">Téléphone 1</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="telephone1"
-                      name="telephone1"
-                      type="tel"
-                      required
-                      className={`pl-10 ${
-                        formErrors.telephone1 ? "border-red-500" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="telephone2">Téléphone 2 (Optionnel)</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="telephone2"
-                      name="telephone2"
-                      type="tel"
-                      className={`pl-10 ${
-                        formErrors.telephone2 ? "border-red-500" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
+                <InputField
+                  label="Téléphone 1"
+                  name="telephone1"
+                  type="tel"
+                  icon={Phone}
+                  placeholder="Ex: 20 123 456"
+                  formData={formData}
+                  touched={touched}
+                  formErrors={formErrors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  label="Téléphone 2 (Optionnel)"
+                  name="telephone2"
+                  type="tel"
+                  icon={Phone}
+                  placeholder="Ex: 25 987 654"
+                  required={false}
+                  formData={formData}
+                  touched={touched}
+                  formErrors={formErrors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="adresse">Adresse</Label>
-                <div className="relative">
-                  <Home className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <Input
-                    id="adresse"
-                    name="adresse"
-                    required
-                    className={`pl-10 ${
-                      formErrors.adresse ? "border-red-500" : ""
-                    }`}
-                  />
-                </div>
-              </div>
-
+              <InputField
+                label="Adresse"
+                name="adresse"
+                icon={Home}
+                placeholder="Ex: 123 Rue Principale"
+                formData={formData}
+                touched={touched}
+                formErrors={formErrors}
+                handleInputChange={handleInputChange}
+                handleBlur={handleBlur}
+              />
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="gouvernorat">Gouvernorat</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Select name="gouvernorat" required>
-                      <SelectTrigger id="gouvernorat" className={`pl-10 ${formErrors.gouvernorat ? "border-red-500" : ""}`}>
-                        <SelectValue placeholder="Sélectionner un gouvernorat" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Ariana">Ariana</SelectItem>
-                        <SelectItem value="Tunis">Tunis</SelectItem>
-                        <SelectItem value="Mannouba">Mannouba</SelectItem>
-                        <SelectItem value="Ben Arous">Ben Arous</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ville">Ville</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="ville"
-                      name="ville"
-                      required
-                      className={`pl-10 ${
-                        formErrors.ville ? "border-red-500" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
+                <InputField
+                  label="Gouvernorat"
+                  name="gouvernorat"
+                  type="select"
+                  icon={MapPin}
+                  placeholder="Sélectionner un gouvernorat"
+                  formData={formData}
+                  touched={touched}
+                  formErrors={formErrors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  label="Ville"
+                  name="ville"
+                  type="select"
+                  icon={MapPin}
+                  placeholder="Sélectionner une ville"
+                  formData={formData}
+                  touched={touched}
+                  formErrors={formErrors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                  availableCities={availableCities}
+                  disabled={!formData.gouvernorat}
+                />
               </div>
-
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="localite">Localité</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="localite"
-                      name="localite"
-                      required
-                      className={`pl-10 ${
-                        formErrors.localite ? "border-red-500" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="codePostal">Code Postal</Label>
-                  <div className="relative">
-                    <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="codePostal"
-                      name="codePostal"
-                      required
-                      className={`pl-10 ${
-                        formErrors.codePostal ? "border-red-500" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
+                <InputField
+                  label="Localité"
+                  name="localite"
+                  icon={MapPin}
+                  placeholder="Ex: Centre"
+                  formData={formData}
+                  touched={touched}
+                  formErrors={formErrors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  label="Code Postal"
+                  name="codePostal"
+                  icon={CreditCard}
+                  placeholder="Ex: 1000"
+                  formData={formData}
+                  touched={touched}
+                  formErrors={formErrors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
               </div>
             </div>
           </div>
@@ -262,58 +595,56 @@ const OrderForm = ({
               Détails de la commande
             </h2>
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="designation">Désignation</Label>
-                <div className="relative">
-                  <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <Input
-                    id="designation"
-                    name="designation"
-                    required
-                    className={`pl-10 ${
-                      formErrors.designation ? "border-red-500" : ""
-                    }`}
-                  />
-                </div>
-              </div>
-
+              <InputField
+                label="Désignation"
+                name="designation"
+                icon={Package}
+                placeholder="Ex: Produit XYZ"
+                formData={formData}
+                touched={touched}
+                formErrors={formErrors}
+                handleInputChange={handleInputChange}
+                handleBlur={handleBlur}
+              />
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="prix">Prix</Label>
-                  <div className="relative">
-                    <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="prix"
-                      name="prix"
-                      type="number"
-                      step="0.01"
-                      required
-                      className={`pl-10 ${
-                        formErrors.prix ? "border-red-500" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="nbArticles">Nombre d'Articles</Label>
-                  <div className="relative">
-                    <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                    <Input
-                      id="nbArticles"
-                      name="nbArticles"
-                      type="number"
-                      required
-                      className={`pl-10 ${
-                        formErrors.nb_article ? "border-red-500" : ""
-                      }`}
-                    />
-                  </div>
-                </div>
+                <InputField
+                  label="Prix"
+                  name="prix"
+                  type="number"
+                  icon={CreditCard}
+                  placeholder="Ex: 10.00"
+                  step="0.01"
+                  formData={formData}
+                  touched={touched}
+                  formErrors={formErrors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  label="Nombre d'Articles"
+                  name="nbArticles"
+                  type="number"
+                  icon={Package}
+                  placeholder="Ex: 1"
+                  formData={formData}
+                  touched={touched}
+                  formErrors={formErrors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
               </div>
-
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="possibleOuvrir" name="possibleOuvrir" />
+                  <Checkbox
+                    id="possibleOuvrir"
+                    name="possibleOuvrir"
+                    checked={formData.possibleOuvrir}
+                    onCheckedChange={(checked) =>
+                      handleInputChange({
+                        target: { name: "possibleOuvrir", type: "checkbox", checked },
+                      })
+                    }
+                  />
                   <Label htmlFor="possibleOuvrir">Possible d'Ouvrir</Label>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -321,55 +652,56 @@ const OrderForm = ({
                     id="possibleEchange"
                     name="possibleEchange"
                     checked={isEchangePossible}
-                    onCheckedChange={setIsEchangePossible}
+                    onCheckedChange={(checked) => {
+                      setIsEchangePossible(checked);
+                      handleInputChange({
+                        target: { name: "possibleEchange", type: "checkbox", checked },
+                      });
+                    }}
                   />
                   <Label htmlFor="possibleEchange">Possible d'Échange</Label>
                 </div>
               </div>
-
               {isEchangePossible && (
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="codeBarreEchange">
-                      Code à Barre Échange
-                    </Label>
-                    <div className="relative">
-                      <CreditCard className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                      <Input
-                        id="codeBarreEchange"
-                        name="codeBarreEchange"
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="nbArticlesEchange">
-                      Nombre d'Articles Échange
-                    </Label>
-                    <div className="relative">
-                      <Package className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                      <Input
-                        id="nbArticlesEchange"
-                        name="nbArticlesEchange"
-                        type="number"
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <Label htmlFor="remarque">Remarque (Optionnel)</Label>
-                <div className="relative">
-                  <Info className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <Textarea
-                    id="remarque"
-                    name="remarque"
-                    className="pl-10 min-h-[100px]"
+                  <InputField
+                    label="Code à Barre Échange"
+                    name="codeBarreEchange"
+                    icon={CreditCard}
+                    placeholder="Ex: ABC123"
+                    formData={formData}
+                    touched={touched}
+                    formErrors={formErrors}
+                    handleInputChange={handleInputChange}
+                    handleBlur={handleBlur}
+                  />
+                  <InputField
+                    label="Nombre d'Articles Échange"
+                    name="nbArticlesEchange"
+                    type="number"
+                    icon={Package}
+                    placeholder="Ex: 1"
+                    formData={formData}
+                    touched={touched}
+                    formErrors={formErrors}
+                    handleInputChange={handleInputChange}
+                    handleBlur={handleBlur}
                   />
                 </div>
-              </div>
+              )}
+              <InputField
+                label="Remarque (Optionnel)"
+                name="remarque"
+                type="textarea"
+                icon={Info}
+                placeholder="Ex: Instructions spécifiques"
+                required={false}
+                formData={formData}
+                touched={touched}
+                formErrors={formErrors}
+                handleInputChange={handleInputChange}
+                handleBlur={handleBlur}
+              />
             </div>
           </div>
         </div>
@@ -381,6 +713,7 @@ const OrderForm = ({
           <Button
             type="submit"
             className="bg-blue-500 hover:bg-blue-600 text-white"
+            disabled={Object.values(formErrors).some((error) => error)}
           >
             Enregistrer la commande
           </Button>
@@ -392,6 +725,12 @@ const OrderForm = ({
 
 // Composant OrdersTable
 const OrdersTable = ({ commandes, onViewDetails }) => {
+  const getCityLabel = (gouvernorat, ville) => {
+    const cities = GOUVERNORAT_CITIES[gouvernorat?.toLowerCase()] || [];
+    const city = cities.find((c) => c.value === ville);
+    return city ? city.label : ville || "-";
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <table className="w-full">
@@ -427,7 +766,7 @@ const OrdersTable = ({ commandes, onViewDetails }) => {
                 {commande.nom_prioritaire} {commande.prenom_prioritaire}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {commande.ville}
+                {getCityLabel(commande.gouvernorat, commande.ville)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 {commande.prix.toFixed(2)} TND
@@ -464,6 +803,12 @@ const OrdersTable = ({ commandes, onViewDetails }) => {
 
 // Composant CommandeDetailsModal
 const CommandeDetailsModal = ({ commande, onClose }) => {
+  const getCityLabel = (gouvernorat, ville) => {
+    const cities = GOUVERNORAT_CITIES[gouvernorat?.toLowerCase()] || [];
+    const city = cities.find((c) => c.value === ville);
+    return city ? city.label : ville || "-";
+  };
+
   if (!commande) return null;
 
   return (
@@ -489,7 +834,8 @@ const CommandeDetailsModal = ({ commande, onClose }) => {
                 </p>
                 <p className="text-sm text-gray-600">{commande.telephone1}</p>
                 <p className="text-sm text-gray-600">
-                  {commande.adresse}, {commande.ville}, {commande.gouvernorat}
+                  {commande.adresse}, {getCityLabel(commande.gouvernorat, commande.ville)},{" "}
+                  {commande.gouvernorat}
                 </p>
               </div>
             </CardContent>
@@ -502,9 +848,7 @@ const CommandeDetailsModal = ({ commande, onClose }) => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <p className="font-medium">
-                  Désignation: {commande.designation}
-                </p>
+                <p className="font-medium">Désignation: {commande.designation}</p>
                 <p className="text-sm text-gray-600">
                   Prix: {commande.prix.toFixed(2)} TND
                 </p>
@@ -541,10 +885,10 @@ const CommandeDetailsModal = ({ commande, onClose }) => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <p className="text-sm text-gray-600">
-                    Code à barre d'échange: {commande.code_a_barre_echange}
+                    Code à barre d'échange: {commande.code_a_barre_echange || "-"}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Nombre d'articles d'échange: {commande.nb_article_echange}
+                    Nombre d'articles d'échange: {commande.nb_article_echange || "-"}
                   </p>
                 </div>
               </CardContent>
@@ -575,12 +919,7 @@ const MyOrders = () => {
   const [commandes, setCommandes] = useState([]);
   const [error, setError] = useState(null);
   const [selectedCommande, setSelectedCommande] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
 
-  
-  
-
-  
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const filterParam = params.get("filter") || "all";
@@ -610,32 +949,29 @@ const MyOrders = () => {
     }
   };
 
-  const handleAddCommande = async (e) => {
+  const handleAddCommande = async (e, formData) => {
     e.preventDefault();
     const token = localStorage.getItem("authToken");
-    const formData = new FormData(e.target);
 
     const commandeData = {
-      nom_prioritaire: formData.get("nomPrioritaire"),
-      prenom_prioritaire: formData.get("prenomPrioritaire"),
-      gouvernorat: formData.get("gouvernorat"),
-      ville: formData.get("ville"),
-      localite: formData.get("localite"),
-      codePostal: formData.get("codePostal"),
-      adresse: formData.get("adresse"),
-      telephone1: formData.get("telephone1"),
-      telephone2: formData.get("telephone2") || null,
-      designation: formData.get("designation"),
-      prix: parseFloat(formData.get("prix")),
-      nb_article: parseInt(formData.get("nbArticles")),
-      possible_ouvrir: formData.get("possibleOuvrir") === "on",
-      possible_echange: formData.get("possibleEchange") === "on",
-      remarque: formData.get("remarque") || null,
-      code_a_barre_echange: isEchangePossible
-        ? formData.get("codeBarreEchange")
-        : null,
+      nom_prioritaire: formData.nomPrioritaire,
+      prenom_prioritaire: formData.prenomPrioritaire,
+      gouvernorat: formData.gouvernorat,
+      ville: formData.ville,
+      localite: formData.localite,
+      codePostal: formData.codePostal,
+      adresse: formData.adresse,
+      telephone1: formData.telephone1.replace(/\s+/g, ""),
+      telephone2: formData.telephone2 ? formData.telephone2.replace(/\s+/g, "") : null,
+      designation: formData.designation,
+      prix: parseFloat(formData.prix),
+      nb_article: parseInt(formData.nbArticles),
+      possible_ouvrir: formData.possibleOuvrir,
+      possible_echange: isEchangePossible,
+      remarque: formData.remarque || null,
+      code_a_barre_echange: isEchangePossible ? formData.codeBarreEchange : null,
       nb_article_echange: isEchangePossible
-        ? parseInt(formData.get("nbArticlesEchange"))
+        ? parseInt(formData.nbArticlesEchange)
         : null,
       mode_paiement: "ESPECE",
     };
@@ -648,7 +984,7 @@ const MyOrders = () => {
         },
       });
 
-      await fetchCommands(); // Rafraîchir la liste des commandes
+      await fetchCommands();
       setShowForm(false);
       alert("Commande ajoutée avec succès !");
     } catch (error) {
@@ -660,7 +996,7 @@ const MyOrders = () => {
   };
 
   const handleViewDetails = (commande) => {
-    setSelectedCommande(commande); // Ouvrir le modal avec les détails de la commande
+    setSelectedCommande(commande);
   };
 
   const filteredCommandes = commandes.filter((commande) => {
@@ -709,7 +1045,6 @@ const MyOrders = () => {
         )}
       </div>
 
-      {/* Onglets */}
       <div className="border-b border-gray-200 mb-8">
         <div className="flex gap-8">
           <button
@@ -728,7 +1063,6 @@ const MyOrders = () => {
         </div>
       </div>
 
-      {/* Contenu principal */}
       <div className="space-y-6">
         {showForm ? (
           <OrderForm
@@ -739,7 +1073,6 @@ const MyOrders = () => {
           />
         ) : (
           <>
-            {/* Recherche et filtre */}
             <div className="bg-white rounded-lg shadow-sm p-6">
               <div className="flex flex-col sm:flex-row gap-4 justify-between">
                 <div className="flex items-center gap-4">
@@ -760,18 +1093,26 @@ const MyOrders = () => {
                     <SelectContent>
                       <SelectItem value="all">Tous les états</SelectItem>
                       <SelectItem value="EN_ATTENTE">En attente</SelectItem>
-                      <SelectItem value="A_ENLEVER">A Enlever</SelectItem>
+                      <SelectItem value="A_ENLEVER">À Enlever</SelectItem>
                       <SelectItem value="AU_DEPOT">Enlevé</SelectItem>
-                      <SelectItem value="RETOUR_DEPOT">Retour Depot</SelectItem>
+                      <SelectItem value="RETOUR_DEPOT">Retour Dépôt</SelectItem>
                       <SelectItem value="EN_COURS">En cours</SelectItem>
-                      <SelectItem value="A_VERIFIER">A verfier</SelectItem>
-                      <SelectItem value="LIVRES">Livrés</SelectItem>
-                      <SelectItem value="LIVRES_PAYE">Livrés payés</SelectItem>
-                      <SelectItem value="ECHANGE">Echange</SelectItem>
-                      <SelectItem value="RETOUR_DEFINITIF">Retour Definitif</SelectItem>
-                      <SelectItem value="RETOUR_INTER_AGENCE">Retour Inter-Agence</SelectItem>
-                      <SelectItem value="RETOUR_EXPEDITEURS">Retour Expediteurs</SelectItem>
-                      <SelectItem value="RETOUR_RECU_PAYE">Retour Recu Payé</SelectItem>
+                      <SelectItem value="A_VERIFIER">À vérifier</SelectItem>
+                      <SelectItem value="LIVRES">Livrées</SelectItem>
+                      <SelectItem value="LIVRES_PAYE">Livrées payées</SelectItem>
+                      <SelectItem value="ECHANGE">Échange</SelectItem>
+                      <SelectItem value="RETOUR_DEFINITIF">
+                        Retour Définitif
+                      </SelectItem>
+                      <SelectItem value="RETOUR_INTER_AGENCE">
+                        Retour Inter-Agence
+                      </SelectItem>
+                      <SelectItem value="RETOUR_EXPEDITEURS">
+                        Retour Expéditeurs
+                      </SelectItem>
+                      <SelectItem value="RETOUR_RECU_PAYE">
+                        Retour Reçu Payé
+                      </SelectItem>
                       <SelectItem value="delivered">Livrées</SelectItem>
                       <SelectItem value="canceled">Annulées</SelectItem>
                     </SelectContent>
@@ -780,7 +1121,6 @@ const MyOrders = () => {
               </div>
             </div>
 
-            {/* Tableau des commandes */}
             {activeTab === "commandes" ? (
               filteredCommandes.length > 0 ? (
                 <OrdersTable
@@ -791,7 +1131,7 @@ const MyOrders = () => {
                 <div className="text-center py-12 bg-white rounded-lg shadow-sm">
                   <Package className="mx-auto h-12 w-12 text-gray-400" />
                   <h3 className="mt-2 text-sm font-medium text-gray-900">
-                    Aucune commande 
+                    Aucune commande
                   </h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Commencez par créer une nouvelle commande.
@@ -809,7 +1149,6 @@ const MyOrders = () => {
         )}
       </div>
 
-      {/* Modal des détails de la commande */}
       <CommandeDetailsModal
         commande={selectedCommande}
         onClose={() => setSelectedCommande(null)}

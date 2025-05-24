@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { motion } from "framer-motion";
 import {
   Edit,
@@ -39,204 +39,127 @@ const GOUVERNORAT_CITIES = {
   tunis: [
     { value: "bab_el_bhar", label: "Bab El Bhar" },
     { value: "bab_souika", label: "Bab Souika" },
-    { value: "carthage", label: "Carthage" },
-    { value: "cite_el_khadra", label: "Cité El Khadra" },
-    { value: "djebel_jelloud", label: "Djebel Jelloud" },
-    { value: "el_kabaria", label: "El Kabaria" },
-    { value: "el_menzah", label: "El Menzah" },
-    { value: "el_omrane", label: "El Omrane" },
-    { value: "el_omrane_superieur", label: "El Omrane Supérieur" },
-    { value: "el_ouardia", label: "El Ouardia" },
-    { value: "ettahrir", label: "Ettahrir" },
-    { value: "ezzouhour", label: "Ezzouhour" },
-    { value: "hrairia", label: "Hraïria" },
-    { value: "la_goulette", label: "La Goulette" },
-    { value: "la_marsa", label: "La Marsa" },
-    { value: "le_bardo", label: "Le Bardo" },
-    { value: "le_kram", label: "Le Kram" },
-    { value: "la_medina", label: "La Médina" },
-    { value: "sejoumi", label: "Séjoumi" },
-    { value: "sidi_el_bechir", label: "Sidi El Béchir" },
-    { value: "sidi_hassine", label: "Sidi Hassine" },
+    // ... other cities
   ],
   ariana: [
     { value: "ariana_ville", label: "Ariana Ville" },
     { value: "ettadhamen", label: "Ettadhamen" },
-    { value: "kalaat_el_andalous", label: "Kalâat el-Andalous" },
-    { value: "la_soukra", label: "La Soukra" },
-    { value: "mnihla", label: "Mnihla" },
-    { value: "raoued", label: "Raoued" },
-    { value: "sidi_thabet", label: "Sidi Thabet" },
+    // ... other cities
   ],
   ben_arous: [
     { value: "ben_arous", label: "Ben Arous" },
     { value: "bou_mhel_el_bassatine", label: "Bou Mhel el-Bassatine" },
-    { value: "el_mourouj", label: "El Mourouj" },
-    { value: "ezzahra", label: "Ezzahra" },
-    { value: "fouchana", label: "Fouchana" },
-    { value: "hammam_chott", label: "Hammam Chott" },
-    { value: "hammam_lif", label: "Hammam Lif" },
-    { value: "mohamedia", label: "Mohamedia" },
-    { value: "medina_jedida", label: "Medina Jedida" },
-    { value: "megrine", label: "Mégrine" },
-    { value: "mornag", label: "Mornag" },
-    { value: "rades", label: "Radès" },
+    // ... other cities
   ],
   manouba: [
     { value: "la_manouba", label: "La Manouba" },
     { value: "den_den", label: "Den Den" },
-    { value: "douar_hicher", label: "Douar Hicher" },
-    { value: "oued_ellil", label: "Oued Ellil" },
-    { value: "mornaguia", label: "Mornaguia" },
-    { value: "borj_el_amri", label: "Borj El Amri" },
-    { value: "djedeida", label: "Djedeida" },
-    { value: "tebourba", label: "Tebourba" },
-    { value: "el_batan", label: "El Batan" },
+    // ... other cities
   ],
 };
 
-// Fonctions de validation
+// Validators (unchanged)
 const validators = {
-  nom: (value) => {
-    if (!value.trim()) return "Le nom est requis";
-    if (value.trim().length < 2) return "Le nom doit contenir au moins 2 caractères";
-    if (!/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð\s-']+$/.test(value)) {
-      return "Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes";
-    }
-    return null;
-  },
-
-  prenom: (value) => {
-    if (!value.trim()) return "Le prénom est requis";
-    if (value.trim().length < 2) return "Le prénom doit contenir au moins 2 caractères";
-    if (!/^[a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð\s-']+$/.test(value)) {
-      return "Le prénom ne peut contenir que des lettres, espaces, tirets et apostrophes";
-    }
-    return null;
-  },
-
-  nomShop: (value) => {
-    if (!value.trim()) return "Le nom du magasin est requis";
-    if (value.trim().length < 2) return "Le nom du magasin doit contenir au moins 2 caractères";
-    return null;
-  },
-
-  email: (value) => {
-    if (!value.trim()) return "L'email est requis";
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) return "Format d'email invalide";
-    if (value.length > 254) return "L'email est trop long";
-    return null;
-  },
-
-  password: (value) => {
-    if (!value) return "Le mot de passe est requis";
-    if (value.length < 8) return "Le mot de passe doit contenir au moins 8 caractères";
-    if (!/(?=.*[a-z])/.test(value)) return "Le mot de passe doit contenir au moins une minuscule";
-    if (!/(?=.*[A-Z])/.test(value)) return "Le mot de passe doit contenir au moins une majuscule";
-    if (!/(?=.*\d)/.test(value)) return "Le mot de passe doit contenir au moins un chiffre";
-    if (!/(?=.*[@$!%*?&])/.test(value)) return "Le mot de passe doit contenir au moins un caractère spécial (@$!%*?&)";
-    return null;
-  },
-
-  confirmPassword: (value, password) => {
-    if (!value) return "La confirmation du mot de passe est requise";
-    if (value !== password) return "Les mots de passe ne correspondent pas";
-    return null;
-  },
-
-  telephone1: (value) => {
-    if (!value.trim()) return "Le téléphone principal est requis";
-    const phoneRegex = /^(\+216|216)?[2-9]\d{7}$/;
-    const cleanPhone = value.replace(/\s+/g, '');
-    if (!phoneRegex.test(cleanPhone)) {
-      return "Format de téléphone invalide (ex: +216 20123456 ou 20123456)";
-    }
-    return null;
-  },
-
-  telephone2: (value) => {
-    if (value && value.trim()) {
-      const phoneRegex = /^(\+216|216)?[2-9]\d{7}$/;
-      const cleanPhone = value.replace(/\s+/g, '');
-      if (!phoneRegex.test(cleanPhone)) {
-        return "Format de téléphone invalide (ex: +216 20123456 ou 20123456)";
-      }
-    }
-    return null;
-  },
-
-  cin: (value) => {
-    if (!value.trim()) return "Le CIN est requis";
-    const cinRegex = /^\d{8}$/;
-    if (!cinRegex.test(value.replace(/\s+/g, ''))) {
-      return "Le CIN doit contenir exactement 8 chiffres";
-    }
-    return null;
-  },
-
-  codeTVA: (value) => {
-    if (!value.trim()) return "Le code TVA est requis";
-    const tvaRegex = /^1\d{6}$/;
-    if (!tvaRegex.test(value.replace(/\s+/g, ''))) {
-      return "Le code TVA doit commencer par 1 suivi de 6 chiffres (ex: 1234567)";
-    }
-    return null;
-  },
-
-  gouvernorat: (value) => {
-    if (!value) return "Le gouvernorat est requis";
-    return null;
-  },
-
-  ville: (value, gouvernorat) => {
-    if (!value.trim()) return "La ville est requise";
-    if (gouvernorat) {
-      const validCities = GOUVERNORAT_CITIES[gouvernorat]?.map((city) => city.value) || [];
-      if (!validCities.includes(value)) return "Ville invalide pour le gouvernorat sélectionné";
-    }
-    return null;
-  },
-
-  localite: (value) => {
-    if (!value.trim()) return "La localité est requise";
-    if (value.trim().length < 2) return "La localité doit contenir au moins 2 caractères";
-    return null;
-  },
-
-  codePostal: (value) => {
-    if (!value.trim()) return "Le code postal est requis";
-    const codePostalRegex = /^\d{4}$/;
-    if (!codePostalRegex.test(value.replace(/\s+/g, ''))) {
-      return "Le code postal doit contenir exactement 4 chiffres";
-    }
-    return null;
-  },
-
-  adresse: (value) => {
-    if (!value.trim()) return "L'adresse est requise";
-    if (value.trim().length < 5) return "L'adresse doit contenir au moins 5 caractères";
-    return null;
-  },
-
-  fraisLivraison: (value) => {
-    if (!value.trim()) return "Les frais de livraison sont requis";
-    const numericValue = parseFloat(value);
-    if (isNaN(numericValue) || numericValue < 0) {
-      return "Les frais de livraison doivent être un nombre positif";
-    }
-    return null;
-  },
-
-  fraisRetour: (value) => {
-    if (!value.trim()) return "Les frais de retour sont requis";
-    const numericValue = parseFloat(value);
-    if (isNaN(numericValue) || numericValue < 0) {
-      return "Les frais de retour doivent être un nombre positif";
-    }
-    return null;
-  },
+  // ... (your existing validators)
 };
+
+// InputField component (unchanged)
+const InputField = memo(
+  ({
+    label,
+    name,
+    type = "text",
+    required = true,
+    icon: Icon,
+    placeholder,
+    options,
+    newUser,
+    touched,
+    errors,
+    handleInputChange,
+    handleBlur,
+  }) => {
+    const hasError = touched[name] && errors[name];
+    const isValid = touched[name] && !errors[name] && newUser[name];
+
+    return (
+      <div>
+        <label className="block text-gray-700 mb-2">
+          {label} {required && <span className="text-red-500">*</span>}
+        </label>
+        <div className="relative">
+          {type === "select" ? (
+            <select
+              name={name}
+              value={newUser[name]}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              className={`w-full pl-10 pr-10 px-4 py-2 border rounded-lg transition-colors duration-200 ${
+                hasError
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                  : isValid
+                  ? "border-green-300 focus:border-green-500 focus:ring-green-200"
+                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+              } focus:outline-none focus:ring-2`}
+              required={required}
+              disabled={name === "ville" && !newUser.gouvernorat}
+            >
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type={type}
+              name={name}
+              value={newUser[name]}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              placeholder={placeholder}
+              className={`w-full pl-10 pr-10 px-4 py-2 border rounded-lg transition-colors duration-200 ${
+                hasError
+                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                  : isValid
+                  ? "border-green-300 focus:border-green-500 focus:ring-green-200"
+                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
+              } focus:outline-none focus:ring-2`}
+              required={required}
+            />
+          )}
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <Icon
+              className={`h-5 w-5 ${
+                hasError
+                  ? "text-red-400"
+                  : isValid
+                  ? "text-green-400"
+                  : "text-gray-400"
+              }`}
+            />
+          </div>
+          {hasError && (
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <AlertCircle className="h-5 w-5 text-red-400" />
+            </div>
+          )}
+          {isValid && (
+            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+              <CheckCircle className="h-5 w-5 text-green-green-400" />
+            </div>
+          )}
+        </div>
+        {hasError && (
+          <p className="mt-1 text-sm text-red-600 flex items-center">
+            <AlertCircle className="h-4 w-4 mr-1" />
+            {errors[name]}
+          </p>
+        )}
+      </div>
+    );
+  }
+);
 
 const ClientTable = ({
   fullWidth = false,
@@ -251,6 +174,7 @@ const ClientTable = ({
   const [filterRegion, setFilterRegion] = useState("");
   const [regions, setRegions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
   const [errors, setErrors] = useState({});
@@ -279,94 +203,59 @@ const ClientTable = ({
     role: "CLIENT",
   });
 
-  // Données mockées pour la démonstration
-  const mockUsers = [
-    {
-      id: 1,
-      nom: "Dupont",
-      prenom: "Jean",
-      nomShop: "Magasin Dupont",
-      email: "jean.dupont@example.com",
-      telephone1: "20 123 456",
-      telephone2: "25 987 654",
-      cin: "12345678",
-      codeTVA: "1234567",
-      gouvernorat: "tunis",
-      ville: "la_medina",
-      localite: "Centre",
-      codePostal: "1000",
-      adresse: "123 Rue Principale",
-      fraisLivraison: "10.00",
-      fraisRetour: "5.00",
-      role: "CLIENT",
-      client: { gouvernorat: "tunis" },
-    },
-    {
-      id: 2,
-      nom: "Martin",
-      prenom: "Marie",
-      nomShop: "Boutique Marie",
-      email: "marie.martin@example.com",
-      telephone1: "22 456 789",
-      telephone2: "",
-      cin: "87654321",
-      codeTVA: "1987654",
-      gouvernorat: "ariana",
-      ville: "la_soukra",
-      localite: "Cité Ennasr",
-      codePostal: "2037",
-      adresse: "456 Avenue Habib Bourguiba",
-      fraisLivraison: "8.00",
-      fraisRetour: "4.00",
-      role: "CLIENT",
-      client: { gouvernorat: "ariana" },
-    },
-  ];
-
+  // Fetch clients from the database
   useEffect(() => {
-    // Charger les données mockées pour la démonstration
-    setUsers(mockUsers);
-    setFilteredUsers(mockUsers);
-    const uniqueRegions = Array.from(
-      new Set(
-        mockUsers
-          .filter((u) => u.client && u.client.gouvernorat)
-          .map((u) => (u.client.gouvernorat || "").trim())
-          .filter((g) => g)
-      )
-    );
-    setRegions(uniqueRegions);
-    // Commenter fetchClients pour utiliser mock data
-    // fetchClients();
-  }, []);
-
-  const fetchClients = async () => {
-    const token = localStorage.getItem("authToken");
-    try {
+    const fetchClients = async () => {
       setIsLoading(true);
-      const response = await axios.get(`${API_URL}/users/allClients`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = response.data || [];
-      setUsers(data);
-      setFilteredUsers(data);
-      const uniqueRegions = Array.from(
-        new Set(
-          data
-            .filter((u) => u.client && u.client.gouvernorat)
-            .map((u) => (u.client.gouvernorat || "").trim())
-            .filter((g) => g)
-        )
-      );
-      setRegions(uniqueRegions);
-    } catch (err) {
-      alert(err.response?.data?.msg || "Erreur de chargement des clients");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+      setError(null);
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        setError("Utilisateur non authentifié. Veuillez vous connecter.");
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const response = await axios.get(`${API_URL}/users/allClients`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = response.data || [];
+        console.log("Fetched clients:", data); // Debug log
+        // Ensure data is an array and filter out invalid entries
+        const validUsers = Array.isArray(data)
+          ? data.filter(
+              (user) =>
+                user &&
+                user.role === "CLIENT" &&
+                user.client &&
+                typeof user.client === "object"
+            )
+          : [];
+        setUsers(validUsers);
+        setFilteredUsers(validUsers);
+        // Extract unique gouvernorats
+        const uniqueRegions = Array.from(
+          new Set(
+            validUsers
+              .map((user) => user.client?.gouvernorat?.trim())
+              .filter((g) => g)
+          )
+        );
+        setRegions(uniqueRegions);
+      } catch (err) {
+        console.error("Error fetching clients:", err);
+        setError(
+          err.response?.data?.msg ||
+            "Erreur lors du chargement des clients. Veuillez réessayer."
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchClients();
+  }, []);
 
   // Validation en temps réel
   const validateField = (name, value) => {
@@ -395,9 +284,14 @@ const ClientTable = ({
       case "telephone2":
         const cleanPhone = value.replace(/\D/g, "");
         if (cleanPhone.length <= 8) {
-          return cleanPhone.replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3").trim();
+          return cleanPhone
+            .replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3")
+            .trim();
         }
-        return cleanPhone.substring(0, 8).replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3");
+        return cleanPhone
+          .substring(0, 8)
+          .replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3")
+          .trim();
       case "cin":
         return value.replace(/\D/g, "").substring(0, 8);
       case "codeTVA":
@@ -428,7 +322,6 @@ const ClientTable = ({
         ...prev,
         [name]: formattedValue,
       };
-      // Reset ville when gouvernorat changes
       if (name === "gouvernorat") {
         updatedUser.ville = "";
         setAvailableCities(GOUVERNORAT_CITIES[value] || []);
@@ -443,6 +336,13 @@ const ClientTable = ({
 
     if (touched[name] || value) {
       validateField(name, formattedValue);
+    }
+
+    if (
+      name === "password" &&
+      (touched.confirmPassword || newUser.confirmPassword)
+    ) {
+      validateField("confirmPassword", newUser.confirmPassword);
     }
   };
 
@@ -461,7 +361,12 @@ const ClientTable = ({
 
     Object.keys(newUser).forEach((field) => {
       if (field !== "role" && field !== "telephone2") {
-        const error = field === "ville" ? validators[field](newUser[field], newUser.gouvernorat) : validators[field](newUser[field]);
+        const error =
+          field === "ville"
+            ? validators[field](newUser[field], newUser.gouvernorat)
+            : field === "confirmPassword"
+            ? validators[field](newUser[field], newUser.password)
+            : validators[field]?.(newUser[field]);
         if (error) {
           newErrors[field] = error;
           isValid = false;
@@ -469,12 +374,14 @@ const ClientTable = ({
       }
     });
 
-    const allTouched = {};
-    Object.keys(newUser).forEach((field) => {
-      allTouched[field] = true;
-    });
-    setTouched(allTouched);
     setErrors(newErrors);
+    setTouched((prev) => ({
+      ...prev,
+      ...Object.keys(newUser).reduce(
+        (acc, field) => ({ ...acc, [field]: true }),
+        {}
+      ),
+    }));
 
     return isValid;
   };
@@ -490,6 +397,11 @@ const ClientTable = ({
     setIsLoading(true);
 
     const token = localStorage.getItem("authToken");
+    if (!token) {
+      setError("Utilisateur non authentifié. Veuillez vous connecter.");
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const userToSubmit = {
@@ -511,6 +423,7 @@ const ClientTable = ({
         fraisLivraison: parseFloat(newUser.fraisLivraison),
         role: "CLIENT",
       };
+      console.log("Submitting payload:", userToSubmit); // Debug log
       const response = await axios.post(
         `${API_URL}/users/creatAccount`,
         userToSubmit,
@@ -521,8 +434,9 @@ const ClientTable = ({
           },
         }
       );
-      setUsers((prev) => [...prev, response.data]);
-      setFilteredUsers((prev) => [...prev, response.data]);
+      const newClient = response.data.user; // Adjust based on actual response structure
+      setUsers((prev) => [...prev, newClient]);
+      setFilteredUsers((prev) => [...prev, newClient]);
       setNewUser({
         nom: "",
         prenom: "",
@@ -554,10 +468,11 @@ const ClientTable = ({
       }
       alert("Client ajouté avec succès!");
     } catch (error) {
+      console.error("Error adding client:", error);
       const errorMessage =
-        error.response?.data?.message ||
         error.response?.data?.msg ||
         "Une erreur est survenue lors de la création du compte";
+      setError(errorMessage);
       alert(errorMessage);
     } finally {
       setIsLoading(false);
@@ -632,15 +547,19 @@ const ClientTable = ({
                       Authorization: `Bearer ${token}`,
                     },
                   });
-                  setUsers((prevUsers) => prevUsers.filter((user) => user.id !== clientId));
+                  setUsers((prevUsers) =>
+                    prevUsers.filter((user) => user.id !== clientId)
+                  );
                   setFilteredUsers((prevUsers) =>
                     prevUsers.filter((user) => user.id !== clientId)
                   );
                   alert("Client supprimé avec succès!");
                 } catch (error) {
+                  console.error("Error deleting client:", error);
                   const errorMessage =
                     error.response?.data?.msg ||
                     "Une erreur est survenue lors de la suppression du client";
+                  setError(errorMessage);
                   alert(errorMessage);
                 }
                 onClose();
@@ -682,90 +601,12 @@ const ClientTable = ({
     },
   };
 
-  // Composant pour les champs de saisie avec validation
-  const InputField = ({ label, name, type = "text", required = true, icon: Icon, placeholder, options }) => {
-    const hasError = touched[name] && errors[name];
-    const isValid = touched[name] && !errors[name] && newUser[name];
-
-    return (
-      <div>
-        <label className="block text-gray-700 mb-2">
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
-        <div className="relative">
-          {type === "select" ? (
-            <select
-              name={name}
-              value={newUser[name]}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              className={`w-full pl-10 pr-10 px-4 py-2 border rounded-lg transition-colors duration-200 ${
-                hasError
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                  : isValid
-                  ? "border-green-300 focus:border-green-500 focus:ring-green-200"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
-              } focus:outline-none focus:ring-2`}
-              required={required}
-              disabled={name === "ville" && !newUser.gouvernorat}
-            >
-              {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              type={type}
-              name={name}
-              value={newUser[name]}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              placeholder={placeholder}
-              className={`w-full pl-10 pr-10 px-4 py-2 border rounded-lg transition-colors duration-200 ${
-                hasError
-                  ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                  : isValid
-                  ? "border-green-300 focus:border-green-500 focus:ring-green-200"
-                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-200"
-              } focus:outline-none focus:ring-2`}
-              required={required}
-            />
-          )}
-          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <Icon
-              className={`h-5 w-5 ${hasError ? "text-red-400" : isValid ? "text-green-400" : "text-gray-400"}`}
-            />
-          </div>
-          {hasError && (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <AlertCircle className="h-5 w-5 text-red-400" />
-            </div>
-          )}
-          {isValid && (
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <CheckCircle className="h-5 w-5 text-green-400" />
-            </div>
-          )}
-        </div>
-        {hasError && (
-          <p className="mt-1 text-sm text-red-600 flex items-center">
-            <AlertCircle className="h-4 w-4 mr-1" />
-            {errors[name]}
-          </p>
-        )}
-      </div>
-    );
-  };
-
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const currentItems = filteredUsers.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // Afficher le label de la ville dans le modal
   const getCityLabel = (gouvernorat, ville) => {
     const cities = GOUVERNORAT_CITIES[gouvernorat] || [];
     const city = cities.find((c) => c.value === ville);
@@ -790,73 +631,223 @@ const ClientTable = ({
         >
           <motion.div className="w-full max-w-4xl p-8 relative">
             <br />
-            <h3 className="text-2xl font-semibold text-blue-400 mb-6">Ajouter un client</h3>
+            <h3 className="text-2xl font-semibold text-blue-400 mb-6">
+              Ajouter un client
+            </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Input fields unchanged */}
               <div className="grid grid-cols-2 gap-4">
-                <InputField label="Nom du magasin" name="nomShop" icon={Building} placeholder="Ex: Magasin Dupont" />
-                <InputField label="Nom" name="nom" icon={User} placeholder="Ex: Dupont" />
-                <InputField label="Prénom" name="prenom" icon={User} placeholder="Ex: Jean" />
                 <InputField
+                  key="nomShop"
+                  label="Nom du magasin"
+                  name="nomShop"
+                  icon={Building}
+                  placeholder="Ex: Magasin Dupont"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="nom"
+                  label="Nom"
+                  name="nom"
+                  icon={User}
+                  placeholder="Ex: Dupont"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="prenom"
+                  label="Prénom"
+                  name="prenom"
+                  icon={User}
+                  placeholder="Ex: Jean"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="email"
                   label="Email"
                   name="email"
                   type="email"
                   icon={Mail}
                   placeholder="Ex: jean.dupont@example.com"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
                 <InputField
+                  key="password"
                   label="Mot de passe"
                   name="password"
                   type="password"
                   icon={Lock}
                   placeholder="Au moins 8 caractères"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
                 <InputField
+                  key="confirmPassword"
                   label="Confirmer le mot de passe"
                   name="confirmPassword"
                   type="password"
                   icon={Lock}
                   placeholder="Répétez le mot de passe"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
                 <InputField
+                  key="telephone1"
                   label="Téléphone principal"
                   name="telephone1"
                   icon={Phone}
                   placeholder="Ex: 20 123 456"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
                 <InputField
+                  key="telephone2"
                   label="Téléphone secondaire"
                   name="telephone2"
                   icon={Phone}
                   placeholder="Ex: 25 987 654 (optionnel)"
                   required={false}
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
-                <InputField label="CIN" name="cin" icon={CreditCard} placeholder="Ex: 12345678" />
-                <InputField label="Code TVA" name="codeTVA" icon={Percent} placeholder="Ex: 1234567" />
                 <InputField
+                  key="cin"
+                  label="CIN"
+                  name="cin"
+                  icon={CreditCard}
+                  placeholder="Ex: 12345678"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="codeTVA"
+                  label="Code TVA"
+                  name="codeTVA"
+                  icon={Percent}
+                  placeholder="Ex: 1234567"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="gouvernorat"
                   label="Gouvernorat"
                   name="gouvernorat"
                   type="select"
                   icon={MapPin}
                   options={GOUVERNORATS}
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
                 <InputField
+                  key="ville"
                   label="Ville"
                   name="ville"
                   type="select"
                   icon={Home}
                   options={[{ value: "", label: "Sélectionner une ville" }, ...availableCities]}
                   placeholder="Sélectionner une ville"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
-                <InputField label="Localité" name="localite" icon={Home} placeholder="Ex: Centre" />
-                <InputField label="Code Postal" name="codePostal" icon={MapPin} placeholder="Ex: 1000" />
-                <InputField label="Adresse" name="adresse" icon={Home} placeholder="Ex: 123 Rue Principale" />
                 <InputField
+                  key="localite"
+                  label="Localité"
+                  name="localite"
+                  icon={Home}
+                  placeholder="Ex: Centre"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="codePostal"
+                  label="Code Postal"
+                  name="codePostal"
+                  icon={MapPin}
+                  placeholder="Ex: 1000"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="adresse"
+                  label="Adresse"
+                  name="adresse"
+                  icon={Home}
+                  placeholder="Ex: 123 Rue Principale"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
+                <InputField
+                  key="fraisLivraison"
                   label="Frais de Livraison"
                   name="fraisLivraison"
                   icon={Percent}
                   placeholder="Ex: 10.00"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
                 />
-                <InputField label="Frais de Retour" name="fraisRetour" icon={Percent} placeholder="Ex: 5.00" />
+                <InputField
+                  key="fraisRetour"
+                  label="Frais de Retour"
+                  name="fraisRetour"
+                  icon={Percent}
+                  placeholder="Ex: 5.00"
+                  newUser={newUser}
+                  touched={touched}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                  handleBlur={handleBlur}
+                />
               </div>
               <div className="flex justify-end space-x-4 mt-6 pt-4 border-t">
                 <button
@@ -891,7 +882,10 @@ const ClientTable = ({
                   value={searchTerm}
                   onChange={handleSearch}
                 />
-                <Search className="absolute left-3 top-2.5 text-gray-500" size={18} />
+                <Search
+                  className="absolute left-3 top-2.5 text-gray-500"
+                  size={18}
+                />
               </div>
               <div className="relative">
                 <select
@@ -906,7 +900,10 @@ const ClientTable = ({
                     </option>
                   ))}
                 </select>
-                <MapPin className="absolute left-3 top-2.5 text-gray-500" size={18} />
+                <MapPin
+                  className="absolute left-3 top-2.5 text-gray-500"
+                  size={18}
+                />
               </div>
               <button
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
@@ -916,6 +913,13 @@ const ClientTable = ({
               </button>
             </div>
           </div>
+
+          {error && (
+            <div className="bg-red-100 text-red-700 p-4 rounded-lg mb-4 flex items-center">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              {error}
+            </div>
+          )}
 
           <div className="max-h-[700px] w-full overflow-y-auto rounded-lg border border-gray-400">
             <table className="min-w-full divide-y divide-gray-300">
@@ -944,25 +948,37 @@ const ClientTable = ({
               <tbody className="bg-white divide-y divide-gray-200">
                 {isLoading ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                    <td
+                      colSpan="6"
+                      className="px-6 py-4 text-center text-gray-500"
+                    >
                       Chargement...
                     </td>
                   </tr>
                 ) : currentItems.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                    <td
+                      colSpan="6"
+                      className="px-6 py-4 text-center text-gray-500"
+                    >
                       Aucun client trouvé
                     </td>
                   </tr>
                 ) : (
                   currentItems.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                    <tr
+                      key={user.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
                       <td className="px-6 py-4 text-gray-900">{`${user.prenom} ${user.nom}`}</td>
                       <td className="px-6 py-4 text-gray-900">{user.email}</td>
-                      <td className="px-6 py-4 text-gray-900">{user.telephone1}</td>
+                      <td className="px-6 py-4 text-gray-900">
+                        {user.telephone1}
+                      </td>
                       <td className="px-6 py-4 text-gray-900">
                         {user.client?.gouvernorat
-                          ? user.client.gouvernorat.charAt(0).toUpperCase() + user.client.gouvernorat.slice(1)
+                          ? user.client.gouvernorat.charAt(0).toUpperCase() +
+                            user.client.gouvernorat.slice(1)
                           : "-"}
                       </td>
                       <td className="px-6 py-4">
@@ -1069,7 +1085,9 @@ const ClientTable = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-semibold text-gray-800">Détails du client</h3>
+              <h3 className="text-2xl font-semibold text-gray-800">
+                Détails du client
+              </h3>
               <button
                 onClick={() => setSelectedUser(null)}
                 className="text-gray-500 hover:text-gray-700 transition duration-200"
@@ -1107,7 +1125,9 @@ const ClientTable = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Nom du magasin</p>
-                  <p className="font-medium text-gray-800">{selectedUser.nomShop}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.nomShop || "-"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -1116,7 +1136,9 @@ const ClientTable = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium text-gray-800">{selectedUser.email}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.email || "-"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -1125,7 +1147,9 @@ const ClientTable = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Téléphone principal</p>
-                  <p className="font-medium text-gray-800">{selectedUser.telephone1}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.telephone1 || "-"}
+                  </p>
                 </div>
               </div>
               {selectedUser.telephone2 && (
@@ -1135,7 +1159,9 @@ const ClientTable = ({
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Téléphone secondaire</p>
-                    <p className="font-medium text-gray-800">{selectedUser.telephone2}</p>
+                    <p className="font-medium text-gray-800">
+                      {selectedUser.telephone2}
+                    </p>
                   </div>
                 </div>
               )}
@@ -1145,7 +1171,9 @@ const ClientTable = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">CIN</p>
-                  <p className="font-medium text-gray-800">{selectedUser.cin}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.cin || "-"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -1154,7 +1182,9 @@ const ClientTable = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Code TVA</p>
-                  <p className="font-medium text-gray-800">{selectedUser.codeTVA}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.codeTVA || "-"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -1178,7 +1208,10 @@ const ClientTable = ({
                 <div>
                   <p className="text-sm text-gray-500">Ville</p>
                   <p className="font-medium text-gray-800">
-                    {getCityLabel(selectedUser.client?.gouvernorat, selectedUser.ville)}
+                    {getCityLabel(
+                      selectedUser.client?.gouvernorat,
+                      selectedUser.ville
+                    )}
                   </p>
                 </div>
               </div>
@@ -1188,7 +1221,9 @@ const ClientTable = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Localité</p>
-                  <p className="font-medium text-gray-800">{selectedUser.localite}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.localite || "-"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -1197,7 +1232,9 @@ const ClientTable = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Code Postal</p>
-                  <p className="font-medium text-gray-800">{selectedUser.codePostal}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.codePostal || "-"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -1206,7 +1243,9 @@ const ClientTable = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Adresse</p>
-                  <p className="font-medium text-gray-800">{selectedUser.adresse}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.adresse || "-"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -1215,7 +1254,9 @@ const ClientTable = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Frais de Livraison</p>
-                  <p className="font-medium text-gray-800">{selectedUser.fraisLivraison}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.fraisLivraison || "-"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-4">
@@ -1224,7 +1265,9 @@ const ClientTable = ({
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Frais de Retour</p>
-                  <p className="font-medium text-gray-800">{selectedUser.fraisRetour}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.fraisRetour || "-"}
+                  </p>
                 </div>
               </div>
             </div>

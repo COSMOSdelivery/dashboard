@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Edit, Search, Trash2, Eye, User, Lock, Phone, Percent, CreditCard, Mail } from "lucide-react";
+import {
+  Edit,
+  Search,
+  Trash2,
+  Eye,
+  User,
+  Lock,
+  Phone,
+  Percent,
+  CreditCard,
+  Mail,
+} from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { confirmAlert } from "react-confirm-alert";
@@ -41,11 +52,19 @@ const validateEmail = (email) => {
 };
 
 const validatePassword = (password) => {
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
   return passwordRegex.test(password);
 };
 
-const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCancel, incrementCount }) => {
+const ServiceClientTable = ({
+  role,
+  title,
+  fullWidth = false,
+  onAddClick,
+  onCancel,
+  incrementCount,
+}) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -105,7 +124,10 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem("authToken");
-      const endpoint = role === "ADMIN" ? `${API_URL}/users/allAdmins` : `${API_URL}/users/allServiceClients`;
+      const endpoint =
+        role === "ADMIN"
+          ? `${API_URL}/users/allAdmins`
+          : `${API_URL}/users/allServiceClients`;
       const response = await axios.get(endpoint, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -163,11 +185,18 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                   await axios.delete(`${API_URL}/users/deleteUser/${userId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                   });
-                  setFilteredUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
-                  setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+                  setFilteredUsers((prevUsers) =>
+                    prevUsers.filter((user) => user.id !== userId)
+                  );
+                  setUsers((prevUsers) =>
+                    prevUsers.filter((user) => user.id !== userId)
+                  );
                   notifySuccess(`${title} supprimé avec succès!`);
                 } catch (error) {
-                  console.error(`Erreur lors de la suppression du ${role.toLowerCase()}:`, error);
+                  console.error(
+                    `Erreur lors de la suppression du ${role.toLowerCase()}:`,
+                    error
+                  );
                   notifyError(
                     error.response?.data?.msg ||
                       `Erreur lors de la suppression du ${title.toLowerCase()}`
@@ -260,28 +289,32 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
         break;
       case "Telephone1":
         if (!validateTunisianPhone(value)) {
-          errors.telephone1 = "Numéro de téléphone tunisien invalide (ex: +21612345678 ou 12345678).";
+          errors.telephone1 =
+            "Numéro de téléphone tunisien invalide (ex: +21612345678 ou 12345678).";
         } else {
           delete errors.telephone1;
         }
         break;
       case "telephone2":
         if (value && !validateTunisianPhone(value)) {
-          errors.telephone2 = "Numéro de téléphone tunisien invalide (ex: +21612345678 ou 12345678).";
+          errors.telephone2 =
+            "Numéro de téléphone tunisien invalide (ex: +21612345678 ou 12345678).";
         } else {
           delete errors.telephone2;
         }
         break;
       case "cin":
         if (!validateCIN(value)) {
-          errors.cin = "CIN doit contenir exactement 8 chiffres (ex: 12345678).";
+          errors.cin =
+            "CIN doit contenir exactement 8 chiffres (ex: 12345678).";
         } else {
           delete errors.cin;
         }
         break;
       case "codeTVA":
         if (!validateCodeTVA(value)) {
-          errors.codeTVA = "Code TVA doit être 7 chiffres suivis de A, M ou P (ex: 1234567A).";
+          errors.codeTVA =
+            "Code TVA doit être 7 chiffres suivis de A, M ou P (ex: 1234567A).";
         } else {
           delete errors.codeTVA;
         }
@@ -294,8 +327,10 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
 
   const validateForm = () => {
     const errors = {};
-    if (!validateName(newUser.nom)) errors.nom = "Doit contenir 2 à 50 lettres uniquement.";
-    if (!validateName(newUser.prenom)) errors.prenom = "Doit contenir 2 à 50 lettres uniquement.";
+    if (!validateName(newUser.nom))
+      errors.nom = "Doit contenir 2 à 50 lettres uniquement.";
+    if (!validateName(newUser.prenom))
+      errors.prenom = "Doit contenir 2 à 50 lettres uniquement.";
     if (!validateEmail(newUser.email)) errors.email = "Adresse email invalide.";
     if (!validatePassword(newUser.password))
       errors.password =
@@ -303,12 +338,16 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
     if (newUser.password !== newUser.confirmPassword)
       errors.confirmPassword = "Les mots de passe ne correspondent pas.";
     if (!validateTunisianPhone(newUser.telephone1))
-      errors.telephone1 = "Numéro de téléphone tunisien invalide (ex: +21612345678 ou 12345678).";
+      errors.telephone1 =
+        "Numéro de téléphone tunisien invalide (ex: +21612345678 ou 12345678).";
     if (newUser.telephone2 && !validateTunisianPhone(newUser.telephone2))
-      errors.telephone2 = "Numéro de téléphone tunisien invalide (ex: +21612345678 ou 12345678).";
-    if (!validateCIN(newUser.cin)) errors.cin = "CIN doit contenir exactement 8 chiffres (ex: 12345678).";
+      errors.telephone2 =
+        "Numéro de téléphone tunisien invalide (ex: +21612345678 ou 12345678).";
+    if (!validateCIN(newUser.cin))
+      errors.cin = "CIN doit contenir exactement 8 chiffres (ex: 12345678).";
     if (!validateCodeTVA(newUser.codeTVA))
-      errors.codeTVA = "Code TVA doit être 7 chiffres suivis de A, M ou P (ex: 1234567A).";
+      errors.codeTVA =
+        "Code TVA doit être 7 chiffres suivis de A, M ou P (ex: 1234567A).";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -337,12 +376,16 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
         telephone2: newUser.telephone2 || "",
       };
       const token = localStorage.getItem("authToken");
-      const response = await axios.post(`${API_URL}/users/creatAccount`, userToSubmit, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.post(
+        `${API_URL}/users/creatAccount`,
+        userToSubmit,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setFilteredUsers((prev) => [...prev, response.data]);
       setNewUser({
@@ -395,7 +438,7 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
           <motion.div className="w-full max-w-4xl p-8 relative">
             <br />
             <h3 className="text-2xl font-semibold text-blue-400 mb-6">
-              Ajouter un {title}
+              Ajouter un service client
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -418,7 +461,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                       required
                     />
                     {formErrors.nom && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.nom}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.nom}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -440,7 +485,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                       required
                     />
                     {formErrors.prenom && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.prenom}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.prenom}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -464,14 +511,18 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                     required
                   />
                   {formErrors.email && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.email}
+                    </p>
                   )}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-black-700 mb-2">Mot de passe</label>
+                  <label className="block text-black-700 mb-2">
+                    Mot de passe
+                  </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <Lock className="h-5 w-5 text-gray-400" />
@@ -483,17 +534,23 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                       onChange={handleInputChange}
                       placeholder="Ex: Motdepasse123!"
                       className={`w-full pl-10 px-4 py-2 border ${
-                        formErrors.password ? "border-red-500" : "border-gray-300"
+                        formErrors.password
+                          ? "border-red-500"
+                          : "border-gray-300"
                       } rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent`}
                       required
                     />
                     {formErrors.password && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.password}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.password}
+                      </p>
                     )}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-black-700 mb-2">Confirmer le mot de passe</label>
+                  <label className="block text-black-700 mb-2">
+                    Confirmer le mot de passe
+                  </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <Lock className="h-5 w-5 text-gray-400" />
@@ -505,19 +562,25 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                       onChange={handleInputChange}
                       placeholder="Ex: Motdepasse123!"
                       className={`w-full pl-10 px-4 py-2 border ${
-                        formErrors.confirmPassword ? "border-red-500" : "border-gray-300"
+                        formErrors.confirmPassword
+                          ? "border-red-500"
+                          : "border-gray-300"
                       } rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent`}
                       required
                     />
                     {formErrors.confirmPassword && (
-                      <p className="text-red-500 text-sm mt-1">{formErrors.confirmPassword}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {formErrors.confirmPassword}
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-black-700 mb-2">Téléphone principal</label>
+                <label className="block text-black-700 mb-2">
+                  Téléphone principal
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <Phone className="h-5 w-5 text-gray-400" />
@@ -529,18 +592,24 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                     onChange={handleInputChange}
                     placeholder="Ex: +21612345678"
                     className={`w-full pl-10 px-4 py-2 border ${
-                      formErrors.telephone1 ? "border-red-500" : "border-gray-300"
+                      formErrors.telephone1
+                        ? "border-red-500"
+                        : "border-gray-300"
                     } rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent`}
                     required
                   />
                   {formErrors.telephone1 && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.telephone1}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.telephone1}
+                    </p>
                   )}
                 </div>
               </div>
 
               <div>
-                <label className="block text-black-700 mb-2">Téléphone secondaire (optionnel)</label>
+                <label className="block text-black-700 mb-2">
+                  Téléphone secondaire (optionnel)
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <Phone className="h-5 w-5 text-gray-400" />
@@ -552,11 +621,15 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                     onChange={handleInputChange}
                     placeholder="Ex: +21687654321"
                     className={`w-full pl-10 px-4 py-2 border ${
-                      formErrors.telephone2 ? "border-red-500" : "border-gray-300"
+                      formErrors.telephone2
+                        ? "border-red-500"
+                        : "border-gray-300"
                     } rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent`}
                   />
                   {formErrors.telephone2 && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.telephone2}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.telephone2}
+                    </p>
                   )}
                 </div>
               </div>
@@ -579,7 +652,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                     required
                   />
                   {formErrors.cin && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.cin}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.cin}
+                    </p>
                   )}
                 </div>
               </div>
@@ -602,7 +677,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                     required
                   />
                   {formErrors.codeTVA && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.codeTVA}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.codeTVA}
+                    </p>
                   )}
                 </div>
               </div>
@@ -629,7 +706,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
       ) : (
         <>
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-black-700">{title}</h2>
+            <h2 className="text-xl font-semibold text-gray-700">
+              Services Clients
+            </h2>
             <div className="flex items-center space-x-4">
               <div className="relative">
                 <input
@@ -639,7 +718,10 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                   value={searchTerm}
                   onChange={handleSearch}
                 />
-                <Search className="absolute left-3 top-2.5 text-gray-500" size={18} />
+                <Search
+                  className="absolute left-3 top-2.5 text-gray-500"
+                  size={18}
+                />
               </div>
               <button
                 className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
@@ -675,7 +757,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                   <tr key={index} className="hover:bg-gray-200">
                     <td className="px-6 py-4 text-black-700">{`${user.prenom} ${user.nom}`}</td>
                     <td className="px-6 py-4 text-black-700">{user.email}</td>
-                    <td className="px-6 py-4 text-black-700">{user.telephone1}</td>
+                    <td className="px-6 py-4 text-black-700">
+                      {user.telephone1}
+                    </td>
                     <td className="px-6 py-4">
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -725,7 +809,12 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
               </button>
               <span className="text-gray-700 font-medium">
@@ -743,14 +832,22 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
               </button>
             </div>
           </div>
         </>
       )}
-      <Toaster position="top-right" containerStyle={{ position: "fixed", top: "1rem", right: "1rem" }} />
+      <Toaster
+        position="top-right"
+        containerStyle={{ position: "fixed", top: "1rem", right: "1rem" }}
+      />
       {selectedUser && (
         <motion.div
           className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
@@ -767,7 +864,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-semibold text-gray-800">Détails du {title}</h3>
+              <h3 className="text-2xl font-semibold text-gray-800">
+                Détails du {title}
+              </h3>
               <button
                 onClick={() => setSelectedUser(null)}
                 className="text-gray-500 hover:text-gray-700 transition duration-200"
@@ -779,7 +878,12 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -820,7 +924,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium text-gray-800">{selectedUser.email}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.email}
+                  </p>
                 </div>
               </div>
 
@@ -837,7 +943,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Téléphone principal</p>
-                  <p className="font-medium text-gray-800">{selectedUser.telephone1}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.telephone1}
+                  </p>
                 </div>
               </div>
 
@@ -854,7 +962,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Téléphone secondaire</p>
-                  <p className="font-medium text-gray-800">{selectedUser.telephone2 || "N/A"}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.telephone2 || "N/A"}
+                  </p>
                 </div>
               </div>
 
@@ -875,7 +985,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">CIN</p>
-                  <p className="font-medium text-gray-800">{selectedUser.cin}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.cin}
+                  </p>
                 </div>
               </div>
 
@@ -897,7 +1009,9 @@ const ServiceClientTable = ({ role, title, fullWidth = false, onAddClick, onCanc
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Code TVA</p>
-                  <p className="font-medium text-gray-800">{selectedUser.codeTVA}</p>
+                  <p className="font-medium text-gray-800">
+                    {selectedUser.codeTVA}
+                  </p>
                 </div>
               </div>
             </div>
