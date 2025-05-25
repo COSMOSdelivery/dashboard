@@ -1,4 +1,4 @@
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Lock, Mail, ArrowRight } from "lucide-react";
 import axios from "axios";
@@ -32,10 +32,17 @@ const LoginPage = () => {
       });
 
       if (response.status === 200) {
-        const { token, nom, prenom, email: userEmail, role, id } = response.data;
-        
+        const {
+          token,
+          nom,
+          prenom,
+          email: userEmail,
+          role,
+          id,
+        } = response.data;
+
         console.log("User ID from API response:", id);
-      
+
         localStorage.setItem("authToken", token);
         localStorage.setItem(
           "userInfo",
@@ -50,20 +57,21 @@ const LoginPage = () => {
 
         // Log userInfo after storing in localStorage
         const storedUserInfo = JSON.parse(localStorage.getItem("userInfo"));
+        console.log("Token:", localStorage.getItem("authToken"));
         console.log("Stored user info:", storedUserInfo);
         console.log("Stored user ID:", storedUserInfo.id);
-      
+
         // Dispatch custom events to trigger state update
-        window.dispatchEvent(new Event('storage'));
-        window.dispatchEvent(new Event('authChange'));
-      
+        window.dispatchEvent(new Event("storage"));
+        window.dispatchEvent(new Event("authChange"));
+
         const rolePaths = {
           CLIENT: "/client-dashboard",
           ADMIN: "",
           LIVREUR: "/deliveries",
           SERVICECLIENT: "/orders",
         };
-      
+
         navigate(rolePaths[role] || "/");
       }
     } catch (error) {

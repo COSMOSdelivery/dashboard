@@ -8,6 +8,7 @@ import { Loader2, FileText, Printer, Trash2, Package, AlertCircle, Edit } from "
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Header from "../../components/common/Header";
+import Barcode from 'react-barcode';
 
 import {
   Accordion,
@@ -360,7 +361,11 @@ const ManifestesPage = () => {
                                   <div className="flex justify-between items-center">
                                     <div>
                                       <div className="flex items-center space-x-2">
-                                        <span className="font-medium text-gray-800">#{order.code_a_barre}</span>
+                                       <div className="flex flex-col items-start space-y-1">
+  <Barcode value={order.code_a_barre} height={40} width={1.5} displayValue={false} />
+  <span className="text-xs text-gray-600">#{order.code_a_barre}</span>
+</div>
+
                                         <Badge 
                                           variant="outline" 
                                           className={getStateBadgeColor(order.etat)}

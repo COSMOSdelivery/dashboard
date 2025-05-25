@@ -16,6 +16,7 @@ import {
   ChevronDown,
   AlertCircle,
   CheckCircle,
+  Printer,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -212,7 +213,7 @@ const validators = {
   },
 };
 
-// Composant InputField (déplacé hors de OrderForm)
+// Composant InputField
 const InputField = ({
   label,
   name,
@@ -339,7 +340,6 @@ const OrderForm = ({
   const [touched, setTouched] = useState({});
   const [availableCities, setAvailableCities] = useState([]);
 
-  // Formatage automatique des champs
   const formatField = (name, value) => {
     switch (name) {
       case "telephone1":
@@ -367,7 +367,6 @@ const OrderForm = ({
     }
   };
 
-  // Validation en temps réel
   const validateField = (name, value) => {
     let error = null;
     if (name === "ville") {
@@ -731,6 +730,45 @@ const OrdersTable = ({ commandes, onViewDetails }) => {
     return city ? city.label : ville || "-";
   };
 
+  const handlePrint = async (commande) => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(`${API_URL}/command/${commande.code_a_barre}/print`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: 'blob', // Important for handling binary data (PDF)
+      });
+
+      // Create a blob URL for the PDF
+      const file = new Blob([response.data], { type: 'application/pdf' });
+      const fileURL = URL.createObjectURL(file);
+
+      // Open the PDF in a new window
+      const printWindow = window.open(fileURL);
+      if (printWindow) {
+        printWindow.onload = () => {
+          printWindow.focus();
+          printWindow.print();
+        };
+      } else {
+        // Fallback: trigger download if pop-up is blocked
+        const link = document.createElement('a');
+        link.href = fileURL;
+        link.download = `commande_${commande.code_a_barre}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Clean up the blob URL
+      URL.revokeObjectURL(fileURL);
+    } catch (error) {
+      console.error('Erreur lors de l\'impression de la commande:', error);
+      alert(error.response?.data?.error || "Erreur lors de l'impression de la commande");
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <table className="w-full">
@@ -787,10 +825,17 @@ const OrdersTable = ({ commandes, onViewDetails }) => {
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                 <Button
                   variant="ghost"
-                  className="text-blue-600 hover:text-blue-800"
+                  className="text-blue-600 hover:text-blue-800 mr-2"
                   onClick={() => onViewDetails(commande)}
                 >
                   <Eye className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="text-blue-600 hover:text-blue-800"
+                  onClick={() => handlePrint(commande)}
+                >
+                  <Printer className="h-4 w-4" />
                 </Button>
               </td>
             </tr>
