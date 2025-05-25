@@ -1,3 +1,6 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { motion } from "framer-motion";
 import {
   LineChart,
   Line,
@@ -5,43 +8,65 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
   ResponsiveContainer,
 } from "recharts";
-import { motion } from "framer-motion";
+import config from "../../config.json";
 
-const salesData = [
-  { name: "Jul", sales: 4200 },
-  { name: "Aug", sales: 3800 },
-  { name: "Sep", sales: 5100 },
-  { name: "Oct", sales: 4600 },
-  { name: "Nov", sales: 5400 },
-  { name: "Dec", sales: 7200 },
-  { name: "Jan", sales: 6100 },
-  { name: "Feb", sales: 5900 },
-  { name: "Mar", sales: 6800 },
-  { name: "Apr", sales: 6300 },
-  { name: "May", sales: 7100 },
-  { name: "Jun", sales: 7500 },
-];
+const API_URL = config.API_URL;
 
 const SalesOverviewChart = () => {
+  const [monthlyOrdersData, setMonthlyOrdersData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchMonthlyOrdersData = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/stat/monthly-orders`);
+
+        if (response.status === 200) {
+          // Transform data to match Recharts format
+          const transformedData = response.data.map((item) => ({
+            month: item.month, // e.g., "2025-05"
+            Commandes: item.total_orders,
+          }));
+          setMonthlyOrdersData(transformedData);
+        } else {
+          throw new Error("Échec de la récupération des données mensuelles.");
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMonthlyOrdersData();
+  }, []);
+  if (loading) {
+    return <div>Loading daily orders data...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
   return (
     <motion.div
-      className="bg-white   backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-200"
+      className="bg-white backdrop-blur-md shadow-lg rounded-xl p-6 border border-gray-200"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <h2 className="text-lg font-medium mb-4 text-black-700">
-        Aperçu des ventes
+      <h2 className="text-xl font-semibold text-gray-700 mb-4">
+        Commandes par mois
       </h2>
-
-      <div className="h-80">
-        <ResponsiveContainer width={"100%"} height={"100%"}>
-          <LineChart data={salesData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#4B5563" />
-            <XAxis dataKey={"name"} stroke="#9ca3af" />
-            <YAxis stroke="#9ca3af" />
+      <div style={{ width: "100%", height: 300 }}>
+        <ResponsiveContainer>
+          <LineChart data={monthlyOrdersData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis dataKey="month" stroke="#9CA3AF" />
+            <YAxis stroke="#9CA3AF" />
             <Tooltip
               contentStyle={{
                 backgroundColor: "rgba(31, 41, 55, 0.8)",
@@ -49,13 +74,18 @@ const SalesOverviewChart = () => {
               }}
               itemStyle={{ color: "#E5E7EB" }}
             />
+            <Legend
+              wrapperStyle={{ paddingTop: "20px" }}
+              formatter={(value) => <span className="text-gray-700">{value}</span>}
+            />
             <Line
               type="monotone"
-              dataKey="sales"
-              stroke="#6366F1"
-              strokeWidth={3}
-              dot={{ fill: "#6366F1", strokeWidth: 2, r: 6 }}
-              activeDot={{ r: 8, strokeWidth: 2 }}
+              dataKey="Commandes"
+              stroke="#29B6F6"
+              strokeWidth={2}
+              isAnimationActive={true}
+              animationDuration={1000}
+              animationEasing="ease-in-out"
             />
           </LineChart>
         </ResponsiveContainer>

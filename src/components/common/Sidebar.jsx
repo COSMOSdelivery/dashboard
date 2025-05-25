@@ -41,7 +41,7 @@ const Sidebar = ({ role }) => {
             name: "Feedbacks",
             icon: MessageSquare,
             color: "#3B82F6",
-            href: "/feedbacks",
+            href: "/Allfeedbacks",
           },
           {
             name: "Manifestes",
@@ -59,7 +59,7 @@ const Sidebar = ({ role }) => {
             name: "Statistiques",
             icon: TrendingUp,
             color: "#EF4444",
-            href: "/statistics",
+            href: "/stat-livraison",
           },
           {
             name: "Paramètres",
@@ -86,7 +86,7 @@ const Sidebar = ({ role }) => {
             name: "Feedbacks",
             icon: MessageSquare,
             color: "#3B82F6",
-            href: "/feedbacks",
+            href: "/Allfeedbacks",
           },
           {
             name: "Manifestes",
