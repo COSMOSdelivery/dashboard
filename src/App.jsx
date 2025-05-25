@@ -29,7 +29,7 @@ import ManifesteService from "./pages/Service Client/Manifests";
 import Feedback from "./pages/Client/FeedbackPage";
 import CreateFeedback from "./pages/Client/CreateFeedbackPage";
 import FeedbackService from "./pages/Service Client/Feedback";
-
+import StatLivraison from"./pages/Admin/DashboardStatsLivraison";;
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const isAuthenticated = Boolean(localStorage.getItem("authToken"));
@@ -134,6 +134,7 @@ function App() {
         <Route path="/edit-admin/:userId" element={<EditAdminPage />} />
         <Route path="/edit-client/:userId" element={<EditClientPage />} />
         <Route path="/edit-livreur/:userId" element={<EditLivreurPage />} />
+        <Route path="/stat-livraison" element={<StatLivraison/>} />
         <Route path="/edit-service-client/:userId" element={<EditServicePage />} />
         <Route path="/my-manifests" element={<Manifeste/>} />
         <Route path="/deliveries" element={<Orders/>} />
@@ -159,7 +160,7 @@ function App() {
         <Route path="/my-feedbacks" element={<Feedback />} />
         <Route path="/create-feedback" element={<CreateFeedback/>} />
         <Route path="/manifests" element={<ManifesteService/>} />
-        <Route path="/feedbacks" element={<FeedbackService/>} />
+        <Route path="/Allfeedbacks" element={<FeedbackService/>} />
 
 
       

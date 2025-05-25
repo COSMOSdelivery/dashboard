@@ -79,6 +79,12 @@ const OrdersTable = () => {
     }
   };
 
+  // Fonction pour vérifier la compatibilité des gouvernorats
+  const checkGovernorateCompatibility = (orderGovernorate, courierGovernorate) => {
+    if (!orderGovernorate || !courierGovernorate) return false;
+    return orderGovernorate.toLowerCase().trim() === courierGovernorate.toLowerCase().trim();
+  };
+
   // Fonction pour affecter directement les commandes filtrées au livreur sélectionné
   const handleDirectAssignToCourier = async () => {
     if (filteredOrders.length === 0 || !selectedCourierId) {
@@ -86,7 +92,30 @@ const OrdersTable = () => {
       return;
     }
 
-    const orderIds = filteredOrders.map(order => order.commandId);    setAssigningOrders(true);
+    // Vérifier la compatibilité des gouvernorats avant l'assignation
+    const selectedCourier = couriers.find(courier => courier.id.toString() === selectedCourierId);
+    if (!selectedCourier) {
+      toast.error("Livreur introuvable");
+      return;
+    }
+
+    // Filtrer les commandes compatibles avec le gouvernorat du livreur
+    const compatibleOrders = filteredOrders.filter(order => 
+      checkGovernorateCompatibility(order.gouvernorat, selectedCourier.gouvernorat)
+    );
+
+    if (compatibleOrders.length === 0) {
+      toast.error(`Aucune commande compatible avec le gouvernorat du livreur: ${selectedCourier.gouvernorat}`);
+      return;
+    }
+
+    if (compatibleOrders.length < filteredOrders.length) {
+      const incompatibleCount = filteredOrders.length - compatibleOrders.length;
+      toast.warning(`${incompatibleCount} commande(s) ignorée(s) car incompatible(s) avec le gouvernorat du livreur`);
+    }
+
+    const orderIds = compatibleOrders.map(order => order.commandId);
+    setAssigningOrders(true);
     const token = localStorage.getItem("authToken");
 
     try {
@@ -141,7 +170,7 @@ const OrdersTable = () => {
     }
   };
 
-  // Fonction pour sélectionner/désélectionner toutes les commandes
+  // Fonction pour sélectionner/désélectionner toutes les commandes visibles
   const handleSelectAllOrders = () => {
     if (selectedOrders.length === filteredOrders.length) {
       setSelectedOrders([]);
@@ -178,7 +207,7 @@ const OrdersTable = () => {
   const fetchOrders = async () => {
     const token = localStorage.getItem("authToken");
     try {
-      const response = await axios.get(`${API_URL}/command/clientAllCommands`, {
+      const response = await axios.get(`${API_URL}/command/AllCommands`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -191,7 +220,7 @@ const OrdersTable = () => {
         const transformedData = response.data.map((order) => ({
           id: order.code_a_barre,
           commandId: order.id, // Stockez l'ID réel de la commande
-          // autres propriétés...          customer: `${order.nom_prioritaire} ${order.prenom_prioritaire}`,
+          customer: `${order.nom_prioritaire} ${order.prenom_prioritaire}`,
           total: order.prix * order.nb_article,
           status: order.etat,
           date: new Date(order.dateAjout).toISOString().split("T")[0],
@@ -262,10 +291,18 @@ const OrdersTable = () => {
     if (selectedCourier && selectedCourier.gouvernorat) {
       // Filtrer les commandes par gouvernorat du livreur
       const filtered = orders.filter(order => 
-        order.gouvernorat && order.gouvernorat.toLowerCase() === selectedCourier.gouvernorat.toLowerCase()
+        checkGovernorateCompatibility(order.gouvernorat, selectedCourier.gouvernorat)
       );
       
       setFilteredOrders(filtered);
+      
+      // Mettre à jour la sélection pour ne garder que les commandes compatibles
+      if (multiSelectMode) {
+        const compatibleSelectedOrders = selectedOrders.filter(orderId => 
+          filtered.some(order => order.id === orderId)
+        );
+        setSelectedOrders(compatibleSelectedOrders);
+      }
     } else {
       // Si le livreur n'a pas de gouvernorat, afficher un message
       setFilteredOrders([]);
@@ -277,6 +314,17 @@ const OrdersTable = () => {
   useEffect(() => {
     let filtered = orders;
     
+    // Appliquer le filtre par livreur si un livreur est sélectionné
+    if (selectedCourierId) {
+      const selectedCourier = couriers.find(courier => courier.id.toString() === selectedCourierId);
+      
+      if (selectedCourier && selectedCourier.gouvernorat) {
+        filtered = filtered.filter(order => 
+          checkGovernorateCompatibility(order.gouvernorat, selectedCourier.gouvernorat)
+        );
+      }
+    }
+    
     // Appliquer le filtre par texte (recherche)
     if (searchTerm) {
       filtered = filtered.filter(
@@ -286,19 +334,20 @@ const OrdersTable = () => {
       );
     }
     
-    // Appliquer le filtre par livreur si un livreur est sélectionné
-    if (selectedCourierId) {
-      const selectedCourier = couriers.find(courier => courier.id.toString() === selectedCourierId);
-      
-      if (selectedCourier && selectedCourier.gouvernorat) {
-        filtered = filtered.filter(order => 
-          order.gouvernorat && order.gouvernorat.toLowerCase() === selectedCourier.gouvernorat.toLowerCase()
-        );
-      }
-    }
-    
     setFilteredOrders(filtered);
   }, [searchTerm, orders, selectedCourierId, couriers]);
+
+  // Fonction pour obtenir le nombre de commandes compatibles pour un livreur donné
+  const getCompatibleOrdersCount = (courierId) => {
+    if (!courierId) return orders.length;
+    
+    const courier = couriers.find(c => c.id.toString() === courierId);
+    if (!courier || !courier.gouvernorat) return 0;
+    
+    return orders.filter(order => 
+      checkGovernorateCompatibility(order.gouvernorat, courier.gouvernorat)
+    ).length;
+  };
 
   return (
     <motion.div
@@ -320,12 +369,15 @@ const OrdersTable = () => {
               onChange={handleCourierChange}
               disabled={loadingCouriers}
             >
-              <option value="">Tous les livreurs</option>
-              {couriers.map(courier => (
-                <option key={courier.id} value={courier.id}>
-                  {`${courier.nom} ${courier.prenom}`}
-                </option>
-              ))}
+              <option value="">Tous les livreurs ({orders.length})</option>
+              {couriers.map(courier => {
+                const compatibleCount = getCompatibleOrdersCount(courier.id);
+                return (
+                  <option key={courier.id} value={courier.id}>
+                    {`${courier.nom} ${courier.prenom} - ${courier.gouvernorat || 'Sans région'} (${compatibleCount})`}
+                  </option>
+                );
+              })}
             </select>
             <Filter 
               className="absolute left-3 top-2.5 text-gray-700" 
@@ -406,6 +458,19 @@ const OrdersTable = () => {
         </div>
       </div>
 
+      {/* Affichage des informations de filtrage */}
+      {selectedCourierId && (
+        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <strong>Livreur sélectionné:</strong> {couriers.find(c => c.id.toString() === selectedCourierId)?.nom} {couriers.find(c => c.id.toString() === selectedCourierId)?.prenom}
+            <br />
+            <strong>Gouvernorat:</strong> {couriers.find(c => c.id.toString() === selectedCourierId)?.gouvernorat || 'Non spécifié'}
+            <br />
+            <strong>Commandes compatibles:</strong> {filteredOrders.length} sur {orders.length}
+          </p>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center items-center h-40">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
@@ -455,79 +520,90 @@ const OrdersTable = () => {
 
             <tbody className="divide-y divide-gray-300">
               {filteredOrders.length > 0 ? (
-                filteredOrders.map((order, index) => (
-                  <motion.tr
-                    key={order.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className={
-                      selectedOrders.includes(order.id) ? "bg-blue-50" : ""
-                    }
-                  >
-                    {/* Case à cocher pour la sélection en mode multi-sélection */}
-                    {multiSelectMode && !selectedCourierId && (
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <input
-                          type="checkbox"
-                          checked={selectedOrders.includes(order.id)}
-                          onChange={() => handleOrderSelection(order.id)}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded"
-                        />
-                      </td>
-                    )}
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700">
-                      {order.id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700">
-                      {order.customer}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700">
-                      {order.total.toFixed(2)} TND
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          statusConfig[order.status]?.bg || statusConfig.default.bg
-                        } ${statusConfig[order.status]?.text || statusConfig.default.text}`}
-                      >
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
-                      {order.date}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
-                      {order.gouvernorat || "-"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
-                      {order.livreur}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
-                      <button
-                        className="text-indigo-400 hover:text-indigo-300 mr-2"
-                        onClick={() => handleEditClick(order.id)}
-                        aria-label="Modifier la commande"
-                      >
-                        <Edit size={18} />
-                      </button>
-                      {!multiSelectMode && !selectedCourierId && (
-                        <button
-                          className="text-green-400 hover:text-green-300"
-                          onClick={() => handleCourierClick(order.id)}
-                          aria-label="Affecter un livreur"
-                        >
-                          <Truck size={18} />
-                        </button>
+                filteredOrders.map((order, index) => {
+                  // Vérifier si la commande est compatible avec le livreur sélectionné
+                  const isCompatible = selectedCourierId ? (() => {
+                    const selectedCourier = couriers.find(c => c.id.toString() === selectedCourierId);
+                    return selectedCourier && checkGovernorateCompatibility(order.gouvernorat, selectedCourier.gouvernorat);
+                  })() : true;
+
+                  return (
+                    <motion.tr
+                      key={order.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
+                      className={`
+                        ${selectedOrders.includes(order.id) ? "bg-blue-50" : ""}
+                        ${!isCompatible && selectedCourierId ? "bg-red-50 opacity-60" : ""}
+                      `}
+                    >
+                      {/* Case à cocher pour la sélection en mode multi-sélection */}
+                      {multiSelectMode && !selectedCourierId && (
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <input
+                            type="checkbox"
+                            checked={selectedOrders.includes(order.id)}
+                            onChange={() => handleOrderSelection(order.id)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded"
+                          />
+                        </td>
                       )}
-                    </td>
-                  </motion.tr>
-                ))
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700">
+                        {order.id}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700">
+                        {order.customer}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-black-700">
+                        {order.total.toFixed(2)} TND
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            statusConfig[order.status]?.bg || statusConfig.default.bg
+                          } ${statusConfig[order.status]?.text || statusConfig.default.text}`}
+                        >
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
+                        {order.date}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
+                        <span className={selectedCourierId && !isCompatible ? "text-red-600 font-medium" : ""}>
+                          {order.gouvernorat || "-"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
+                        {order.livreur}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-black-800">
+                        <button
+                          className="text-indigo-400 hover:text-indigo-300 mr-2"
+                          onClick={() => handleEditClick(order.id)}
+                          aria-label="Modifier la commande"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        {!multiSelectMode && !selectedCourierId && (
+                          <button
+                            className="text-green-400 hover:text-green-300"
+                            onClick={() => handleCourierClick(order.id)}
+                            aria-label="Affecter un livreur"
+                          >
+                            <Truck size={18} />
+                          </button>
+                        )}
+                      </td>
+                    </motion.tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan={multiSelectMode && !selectedCourierId ? 9 : 8} className="px-6 py-4 text-center text-sm text-gray-500">
                     {selectedCourierId 
-                      ? "Aucune commande correspondant aux gouvernorats de ce livreur" 
+                      ? "Aucune commande correspondant au gouvernorat de ce livreur" 
                       : "Aucune commande trouvée"}
                   </td>
                 </tr>
