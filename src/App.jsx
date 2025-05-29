@@ -7,11 +7,20 @@ import OverviewPageClient from "./pages/Client/OverviewPageClient";
 import UsersPage from "./pages/Admin/UsersPage";
 import SalesPage from "./pages/Admin/SalesPage";
 import OrdersPage from "./pages/Admin/OrdersPage";
+import AssignReturnPage from "./pages/Admin/AssignReturnPage";
+import ReturnsPage from "./pages/Admin/ReturnsPage"; // Adjust path as needed
+import NavexPage from "./pages/Admin/NavexPage";
+import CreateDevriefPage from "./pages/Admin/CreateDebriefPage";
+import PaymentsPage from "./pages/Admin/PaymentsPage";
+import DebriefPage from "./pages/Admin/DebriefPage"; // Adjust path as needed
+import AbandonedOrdersPage from "./pages/Admin/AbandonedOrdersPage";
+import AdminCreateOrder from "./pages/Admin/AdminCreateOrder"; // Adjust path as needed
+import StockPage from "./pages/Admin/StockPage";
 import AnalyticsPage from "./pages/Admin/AnalyticsPage";
 import SettingsPage from "./pages/Admin/SettingsPage";
 import LoginPage from "./pages/Admin/LoginPage";
 import NotFoundPage from "./pages/Admin/NotFoundPage";
-import Searchcolis from "./pages/Client/Searchcolis";
+import OrdresPageClient from "./pages/Client/OrdresPageClient";
 import EditAdminPage from "./pages/Admin/EditAdminPage";
 import EditClientPage from "./pages/Admin/EditClientPage";
 import EditLivreurPage from "./pages/Admin/EditLivreurPage";
@@ -29,17 +38,20 @@ import ManifesteService from "./pages/Service Client/Manifests";
 import Feedback from "./pages/Client/FeedbackPage";
 import CreateFeedback from "./pages/Client/CreateFeedbackPage";
 import FeedbackService from "./pages/Service Client/Feedback";
-import StatLivraison from"./pages/Admin/DashboardStatsLivraison";;
+import StatLivraison from "./pages/Admin/DashboardStatsLivraison";
+import PickupPage from "./pages/Admin/PickupPage";
+
+// Placeholder components for new routes
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const isAuthenticated = Boolean(localStorage.getItem("authToken"));
   let userRole = "GUEST";
-  
+
   try {
     userRole = JSON.parse(localStorage.getItem("userInfo"))?.role || "GUEST";
     console.log("isAuthenticated:", isAuthenticated);
-console.log("userRole:", userRole);
-console.log("userInfo:", localStorage.getItem("userInfo"));
+    console.log("userRole:", userRole);
+    console.log("userInfo:", localStorage.getItem("userInfo"));
   } catch (error) {
     console.error("Error parsing userInfo:", error);
   }
@@ -115,6 +127,8 @@ function App() {
         </>
       )}
       <Routes>
+        <Route path="/preparation-livraisons" element={<CreateDevriefPage />} />
+
         <Route
           path="/client-dashboard"
           element={
@@ -127,27 +141,28 @@ function App() {
           path="/my-orders"
           element={
             <ProtectedRoute allowedRoles={["CLIENT"]}>
-              <Searchcolis />
+              <OrdresPageClient />
             </ProtectedRoute>
           }
         />
+        <Route path="/orders/create" element={<AdminCreateOrder />} />
         <Route path="/edit-admin/:userId" element={<EditAdminPage />} />
         <Route path="/edit-client/:userId" element={<EditClientPage />} />
         <Route path="/edit-livreur/:userId" element={<EditLivreurPage />} />
-        <Route path="/stat-livraison" element={<StatLivraison/>} />
-        <Route path="/edit-service-client/:userId" element={<EditServicePage />} />
-        <Route path="/my-manifests" element={<Manifeste/>} />
-        <Route path="/deliveries" element={<Orders/>} />
+        <Route
+          path="/edit-service-client/:userId"
+          element={<EditServicePage />}
+        />
+        <Route path="/stat-livraison" element={<StatLivraison />} />
+        <Route path="/my-manifests" element={<Manifeste />} />
+        <Route path="/deliveries" element={<Orders />} />
         <Route path="/statistics" element={<StatisticLivreur />} />
-        <Route path="/my-payments" element={<MesPaiements/>} />
-
-
-
+        <Route path="/my-payments" element={<MesPaiements />} />
         <Route
           path="/search-parcels"
           element={
             <ProtectedRoute allowedRoles={["CLIENT"]}>
-              <Searchcolis />
+              <OrdresPageClient />
             </ProtectedRoute>
           }
         />
@@ -155,15 +170,12 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/verify-OTP" element={<VerifyOtp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/create-manifest" element={<CreateManifeste/>} />
+        <Route path="/create-manifest" element={<CreateManifeste />} />
         <Route path="/my-returns" element={<Retours />} />
         <Route path="/my-feedbacks" element={<Feedback />} />
-        <Route path="/create-feedback" element={<CreateFeedback/>} />
-        <Route path="/manifests" element={<ManifesteService/>} />
-        <Route path="/Allfeedbacks" element={<FeedbackService/>} />
-
-
-      
+        <Route path="/create-feedback" element={<CreateFeedback />} />
+        <Route path="/manifests" element={<ManifesteService />} />
+        <Route path="/Allfeedbacks" element={<FeedbackService />} />
         <Route
           path="/"
           element={
@@ -173,10 +185,58 @@ function App() {
           }
         />
         <Route
+          path="/assign-return"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <AssignReturnPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/users"
           element={
             <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
               <UsersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stock"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <StockPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/navex"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <NavexPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payments"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <PaymentsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/debrief"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <DebriefPage />
+            </ProtectedRoute>
+          }
+        />
+                <Route
+          path="/Pickup"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <PickupPage />
             </ProtectedRoute>
           }
         />
@@ -197,6 +257,14 @@ function App() {
           }
         />
         <Route
+          path="/orders/deleted"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <AbandonedOrdersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/analytics"
           element={
             <ProtectedRoute allowedRoles={["ADMIN"]}>
@@ -204,10 +272,22 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/settings" element={<SettingsPage />} />
+        {/* New Routes for Navex, Stock, and Retours */}
         <Route
-          path="/settings"
+          path="/stock"
           element={
-              <SettingsPage />
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <StockPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/returns"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <ReturnsPage />
+            </ProtectedRoute>
           }
         />
         <Route path="*" element={<NotFoundPage />} />

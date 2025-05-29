@@ -44,6 +44,8 @@ const LoginPage = () => {
         console.log("User ID from API response:", id);
 
         localStorage.setItem("authToken", token);
+        //afficher token in console
+        console.log("Token stored in localStorage:", token);
         localStorage.setItem(
           "userInfo",
           JSON.stringify({

@@ -6,6 +6,7 @@ import config from "../../config.json";
 const API_URL = config.API_URL;
 import Header from "../../components/common/Header";
 
+// Configuration des statuts avec icônes et styles
 const statusConfig = {
   EN_ATTENTE: { bg: "bg-yellow-50", text: "text-yellow-600", icon: Clock },
   A_ENLEVER: { bg: "bg-blue-50", text: "text-blue-600", icon: Package },
@@ -15,119 +16,162 @@ const statusConfig = {
   EN_COURS: { bg: "bg-pink-50", text: "text-pink-600", icon: Truck },
   A_VERIFIER: { bg: "bg-orange-50", text: "text-orange-600", icon: AlertCircle },
   LIVRES: { bg: "bg-teal-50", text: "text-teal-600", icon: CheckCircle },
+  LIVRES_PAYE: { bg: "bg-teal-100", text: "text-teal-700", icon: CheckCircle },
+  ECHANGE: { bg: "bg-red-50", text: "text-red-600", icon: RefreshCw },
+  RETOUR_DEFINITIF: { bg: "bg-red-100", text: "text-red-700", icon: RefreshCw },
+  RETOUR_INTER_AGENCE: { bg: "bg-blue-100", text: "text-blue-700", icon: RefreshCw },
+  RETOUR_EXPEDITEURS: { bg: "bg-purple-100", text: "text-purple-700", icon: RefreshCw },
+  RETOUR_RECU_PAYE: { bg: "bg-green-100", text: "text-green-700", icon: CheckCircle },
   default: { bg: "bg-gray-50", text: "text-gray-600", icon: Loader },
 };
-const OrdersGridForCourier = () => {
-    const [searchTerm, setSearchTerm] = useState("");
-    const [regionFilter, setRegionFilter] = useState("");
-    const [orders, setOrders] = useState([]);
-    const [filteredOrders, setFilteredOrders] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [selectedOrder, setSelectedOrder] = useState(null);
-    const [regions, setRegions] = useState([]);
-    const [editStatus, setEditStatus] = useState(""); // État pour le statut sélectionné dans le dialogue/ État pour stocker les régions uniques
-    const handleViewDetails = (order) => {
-        setSelectedOrder(order);
-        setEditStatus(order.status); // Initialiser le statut dans le dialogue avec le statut actuel de la commande
-      };
-    useEffect(() => {
-      const fetchOrders = async () => {
-        const token = localStorage.getItem("authToken");
-        const id_livreur = JSON.parse(localStorage.getItem("userInfo"))?.id || "1";
-  
-        try {
-          const response = await axios.get(
-            `${API_URL}/command/livreurAllCommands/${id_livreur}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          if (response.status === 200) {
-            const transformedData = response.data.map((order) => ({
-              id: order.code_a_barre,
-              customer: `${order.nom_prioritaire} ${order.prenom_prioritaire}`,
-              total: order.prix * order.nb_article,
-              status: order.etat,
-              date: new Date(order.dateAjout).toISOString().split("T")[0],
-              region: order.gouvernorat, // Ajouter la région à l'objet order
-            }));
-  
-            setOrders(transformedData);
-            setFilteredOrders(transformedData);
-  
-            // Extraire les régions uniques des commandes
-            const uniqueRegions = [...new Set(transformedData.map((order) => order.region))];
-            setRegions(uniqueRegions); // Mettre à jour l'état des régions
-          } else {
-            throw new Error("Failed to fetch orders");
-          }
-        } catch (error) {
-          setError(error.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchOrders();
-    }, []);
-  
-    useEffect(() => {
-      let filtered = orders;
-  
-      // Appliquer le filtre de recherche
-      if (searchTerm) {
-        filtered = filtered.filter(
-          (order) =>
-            order.id.toString().includes(searchTerm.toLowerCase()) ||
-            order.customer.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
-  
-      // Appliquer le filtre de région
-      if (regionFilter) {
-        filtered = filtered.filter((order) => order.region === regionFilter);
-      }
-  
-      setFilteredOrders(filtered);
-    }, [searchTerm, regionFilter, orders]);
-  
 
-    const handleSaveStatus = async () => {
-        if (!selectedOrder) return;
-    
-        const token = localStorage.getItem("authToken");
-    
-        try {
-          const response = await axios.put(
-            `${API_URL}/command/updateStatus/${selectedOrder.id}`,
-            { status: editStatus },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-    
-          if (response.status === 200) {
-            // Mettre à jour l'état local des commandes
-            const updatedOrders = orders.map((order) =>
-              order.id === selectedOrder.id ? { ...order, status: editStatus } : order
-            );
-            setOrders(updatedOrders);
-            setFilteredOrders(updatedOrders);
-    
-            // Fermer le dialogue
-            setSelectedOrder(null);
-          } else {
-            throw new Error("Failed to update order status");
+// Ordre des états pour déterminer les transitions valides
+const statusOrder = [
+  "EN_ATTENTE",
+  "A_ENLEVER",
+  "ENLEVE",
+  "AU_DEPOT",
+  "RETOUR_DEPOT",
+  "EN_COURS",
+  "A_VERIFIER",
+  "LIVRES",
+  "LIVRES_PAYE",
+  "ECHANGE",
+  "RETOUR_DEFINITIF",
+  "RETOUR_INTER_AGENCE",
+  "RETOUR_EXPEDITEURS",
+  "RETOUR_RECU_PAYE",
+];
+
+const OrdersGridForCourier = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [regionFilter, setRegionFilter] = useState("");
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [regions, setRegions] = useState([]);
+  const [editStatus, setEditStatus] = useState("");
+
+  // Récupérer les commandes
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const token = localStorage.getItem("authToken");
+      const id_livreur = JSON.parse(localStorage.getItem("userInfo"))?.id || "1";
+
+      try {
+        const response = await axios.get(
+          `${API_URL}/command/livreurAllCommands/${id_livreur}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
-        } catch (error) {
-          setError(error.message);
+        );
+        if (response.status === 200) {
+          const transformedData = response.data.map((order) => ({
+            id: order.code_a_barre,
+            customer: `${order.nom_prioritaire} ${order.prenom_prioritaire}`,
+            total: order.prix * order.nb_article,
+            status: order.etat,
+            date: new Date(order.dateAjout).toISOString().split("T")[0],
+            region: order.gouvernorat,
+          }));
+
+          setOrders(transformedData);
+          setFilteredOrders(transformedData);
+
+          // Extraire les régions uniques
+          const uniqueRegions = [...new Set(transformedData.map((order) => order.region))];
+          setRegions(uniqueRegions);
+        } else {
+          throw new Error("Failed to fetch orders");
         }
-      };
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  // Filtrer les commandes selon la recherche et la région
+  useEffect(() => {
+    let filtered = orders;
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (order) =>
+          order.id.toString().includes(searchTerm.toLowerCase()) ||
+          order.customer.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    if (regionFilter) {
+      filtered = filtered.filter((order) => order.region === regionFilter);
+    }
+
+    setFilteredOrders(filtered);
+  }, [searchTerm, regionFilter, orders]);
+
+  // Gérer l'affichage des détails de la commande
+  const handleViewDetails = (order) => {
+    setSelectedOrder(order);
+    setEditStatus(order.status);
+  };
+
+  // Filtrer les statuts disponibles pour le menu déroulant
+  const getAvailableStatuses = (currentStatus) => {
+    const currentIndex = statusOrder.indexOf(currentStatus);
+    if (currentIndex === -1) {
+      return [currentStatus]; // Si l'état actuel n'est pas dans statusOrder, retourner uniquement cet état
+    }
+    // Retourner l'état actuel et les états suivants
+    return statusOrder.slice(currentIndex);
+  };
+
+  // Sauvegarder le nouveau statut
+  const handleSaveStatus = async () => {
+    if (!selectedOrder) return;
+
+    const token = localStorage.getItem("authToken");
+    const id_livreur = JSON.parse(localStorage.getItem("userInfo"))?.id || "1";
+    const payload = {
+      id_livreur,
+      code_a_barre: selectedOrder.id,
+      commentaire: "",
+      state: editStatus,
+    };
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/command/setCommandStatus`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        const updatedOrders = orders.map((order) =>
+          order.id === selectedOrder.id ? { ...order, status: editStatus } : order
+        );
+        setOrders(updatedOrders);
+        setFilteredOrders(updatedOrders);
+        setSelectedOrder(null);
+      } else {
+        throw new Error("Failed to update order status");
+      }
+    } catch (error) {
+      setError(error.response?.data?.msg || error.message || "Failed to update status");
+    }
+  };
+
   return (
     <motion.div
       className="flex-1 overflow-auto relative z-10 bg-white"
@@ -242,7 +286,7 @@ const OrdersGridForCourier = () => {
                   value={editStatus}
                   onChange={(e) => setEditStatus(e.target.value)}
                 >
-                  {Object.keys(statusConfig).map((status) => (
+                  {getAvailableStatuses(selectedOrder.status).map((status) => (
                     <option key={status} value={status}>
                       {status}
                     </option>

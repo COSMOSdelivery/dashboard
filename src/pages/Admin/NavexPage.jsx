@@ -34,7 +34,7 @@ const statusOptions = [
 
 const API_URL = config.API_URL || "http://localhost:3000/api";
 
-const OrdersPage = () => {
+const NavexPage = () => {
   const navigate = useNavigate();
   const [orderStats, setOrderStats] = useState({
     totalOrders: 0,
@@ -251,7 +251,7 @@ const OrdersPage = () => {
         <FilterModal
           isOpen={isFilterModalOpen}
           onClose={() => {
-            console.log("Closing modal (OrdersPage onClose)");
+            console.log("Closing modal (NavexPage onClose)");
             setIsFilterModalOpen(false);
           }}
           onApply={handleApplyFilter}
@@ -262,8 +262,7 @@ const OrdersPage = () => {
   );
 };
 
-OrdersPage.propTypes = {
-  // No props for this page component, but added for consistency
+NavexPage.propTypes = {
 };
 
-export default OrdersPage;
+export default NavexPage;

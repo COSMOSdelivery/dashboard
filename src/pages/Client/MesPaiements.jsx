@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Printer, AlertCircle } from "lucide-react";
+import { FileText, Printer, AlertCircle, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { toast,ToastContainer } from "react-toastify";
 import Header from "../../components/common/Header";
-import config from "../../config.json"; // Assurez-vous que le chemin est correct
-const API_URL = config.API_URL; // Définissez l'URL de l'API
+import config from "../../config.json";
+
+const API_URL = config.API_URL;
 
 const PaymentsPage = () => {
-  const [payments, setPayments] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Récupération de l'ID client depuis le localStorage
   const clientId = JSON.parse(localStorage.getItem("userInfo"))?.id;
 
   useEffect(() => {
@@ -22,14 +22,13 @@ const PaymentsPage = () => {
       return;
     }
 
-    fetch(`${API_URL}/paiements/client/${clientId}`)
+    fetch(`${API_URL}/paiements/client/${clientId}/orders`)
       .then((res) => {
-        if (!res.ok)
-          throw new Error("Erreur lors du chargement des paiements.");
+        if (!res.ok) throw new Error("Erreur lors du chargement des commandes.");
         return res.json();
       })
-      .then((data) => {
-        setPayments(data);
+      .then((response) => {
+        setOrders(response.data || []);
         setLoading(false);
       })
       .catch((err) => {
@@ -57,14 +56,53 @@ const PaymentsPage = () => {
 
   const getStatusBadgeColor = (status) => {
     switch (status.toLowerCase()) {
-      case "payé":
+      case "paye":
         return "bg-green-50 text-green-700 border-green-200";
-      case "en attente":
+      case "en_attente":
         return "bg-yellow-50 text-yellow-700 border-yellow-200";
-      case "annulé":
+      case "non_paye":
         return "bg-red-50 text-red-700 border-red-200";
+      case "refuse":
+        return "bg-red-600 text-white border-red-700";
+      case "livres_paye":
+        return "bg-blue-50 text-blue-700 border-blue-200";
       default:
         return "bg-gray-50 text-gray-700 border-gray-200";
+    }
+  };
+
+  const handleConfirmPayment = async (paymentId) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_URL}/paiements/confirm`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_paiement: paymentId }),
+      });
+
+      if (!res.ok) throw new Error("Erreur lors de la confirmation du paiement.");
+      const response = await res.json();
+      toast.success(response.message);
+
+      setOrders((prevOrders) =>
+        prevOrders.map((order) => ({
+          ...order,
+          paiements: order.paiements.map((p) =>
+            p.id === paymentId ? { ...p, statut: "PAYE" } : p
+          ),
+          etat: order.paiements.some((p) => p.id === paymentId)
+            ? "LIVRES_PAYE"
+            : order.etat,
+          statutPaiement: order.paiements.some((p) => p.id === paymentId)
+            ? "PAYE"
+            : order.statutPaiement,
+        }))
+      );
+    } catch (err) {
+      toast.error(err.message);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -78,7 +116,7 @@ const PaymentsPage = () => {
             <div className="flex items-center space-x-2">
               <FileText className="h-5 w-5 text-gray-500" />
               <CardTitle className="text-xl font-medium text-gray-800">
-                Gestion des Paiements
+                Gestion des Commandes Payées
               </CardTitle>
             </div>
           </div>
@@ -89,21 +127,21 @@ const PaymentsPage = () => {
             <p className="text-center text-gray-500">Chargement...</p>
           ) : error ? (
             <div className="text-center text-red-600">{error}</div>
-          ) : payments.length === 0 ? (
+          ) : orders.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
               <AlertCircle className="h-12 w-12 text-gray-300 mb-4" />
               <h3 className="text-lg font-medium text-gray-700">
-                Aucun paiement disponible
+                Aucune commande payée disponible
               </h3>
               <p className="text-gray-500 mt-2 max-w-md">
-                Vous n'avez pas encore enregistré de paiement.
+                Vous n'avez pas de commandes en attente de confirmation.
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {payments.map((payment) => (
+              {orders.map((order) => (
                 <Card
-                  key={payment.id}
+                  key={order.code_a_barre}
                   className="border rounded-lg overflow-hidden"
                 >
                   <CardHeader className="bg-gray-50 p-4">
@@ -113,37 +151,72 @@ const PaymentsPage = () => {
                           variant="outline"
                           className="bg-blue-50 text-blue-700 border-blue-200"
                         >
-                          #{payment.invoiceNumber || `Paiement-${payment.id}`}
+                          Commande #{order.code_a_barre}
                         </Badge>
                         <span className="font-medium">
-                          {formatDate(payment.date)}
+                          {formatDate(order.dateAjout)}
                         </span>
                         <span className="text-gray-600 ml-3">
-                          Client: {payment.client || `#${payment.id_client}`}
+                          Client: {order.client?.nomShop || `#${order.id_client}`}
                         </span>
                       </div>
-                      <div className="flex items-center space-x-3 text-gray-500 text-sm">
+                      <div className="flex items-center space-x-3">
                         <span className="font-medium">
-                          {formatMontant(payment.montant)}
+                          {formatMontant(order.prix)}
                         </span>
                         <Badge
                           variant="outline"
-                          className={getStatusBadgeColor(payment.statut)}
+                          className={getStatusBadgeColor(order.etat)}
                         >
-                          {payment.statut}
+                          {order.etat}
                         </Badge>
                       </div>
                     </div>
                   </CardHeader>
                   <CardContent className="p-4">
-                    <div className="flex flex-wrap gap-3">
+                    <div className="space-y-2">
+                      {order.paiements.map((payment) => (
+                        <div
+                          key={payment.id}
+                          className="flex items-center justify-between"
+                        >
+                          <div>
+                            <span className="font-medium">
+                              Paiement: {formatMontant(payment.montant)}
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className={getStatusBadgeColor(payment.statut)}
+                            >
+                              {payment.statut}
+                            </Badge>
+                          </div>
+                          {payment.statut === "EN_ATTENTE" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                              onClick={() => handleConfirmPayment(payment.id)}
+                              disabled={loading}
+                            >
+                              {loading ? (
+                                <span className="animate-spin h-4 w-4 mr-2">⏳</span>
+                              ) : (
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                              )}
+                              Confirmer Paiement
+                            </Button>
+                          )}
+                        </div>
+                      ))}
                       <Button
                         variant="outline"
                         size="sm"
                         className="bg-white text-gray-700 border-gray-200 hover:bg-gray-100"
                         onClick={() =>
-                          (window.location.href = `/payments/${payment.id}/print`)
+                          (window.location.href = `/payments/${order.paiements[0]?.id}/print`)
                         }
+                        disabled={!order.paiements[0]}
                       >
                         <Printer className="h-4 w-4 mr-2" />
                         Imprimer Facture
@@ -156,6 +229,7 @@ const PaymentsPage = () => {
           )}
         </CardContent>
       </Card>
+      <ToastContainer />
     </div>
   );
 };
