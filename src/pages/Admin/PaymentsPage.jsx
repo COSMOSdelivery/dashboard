@@ -1,45 +1,56 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CreditCard, AlertCircle } from 'lucide-react';
-import Header from '../../components/common/Header';
-import StatCard from '../../components/common/StatCard';
-import PaymentControls from '../../components/Payments/PaymentControls';
-import PaymentListItem from '../../components/Payments/PaymentListItem';
-import PaymentDetailsModal from '../../components/Payments/PaymentDetailsModal';
-import useClosedDebriefs from '../../hooks/useClosedDebriefs';
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { CreditCard, AlertCircle, Plus, ArrowLeft } from "lucide-react";
+import Header from "../../components/common/Header";
+import StatCard from "../../components/common/StatCard";
+import PaymentControls from "../../components/Payments/PaymentControls";
+import PaymentListItem from "../../components/Payments/PaymentListItem";
+import PaymentDetailsModal from "../../components/Payments/PaymentDetailsModal";
+import ActionButton from "../../components/common/ActionButton";
+import useClosedDebriefs from "../../hooks/useClosedDebriefs";
 
 const PaymentsPage = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL'); // Pour filtrer par statut de paiement (PENDING, PAID)
-  const [sortBy, setSortBy] = useState('date');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL"); // Pour filtrer par statut de paiement (PENDING, PAID)
+  const [sortBy, setSortBy] = useState("date");
   const [selectedDebrief, setSelectedDebrief] = useState(null);
   const navigate = useNavigate();
-  const { debriefs, loading, error } = useClosedDebriefs(searchTerm, statusFilter, sortBy);
+  const { debriefs, loading, error } = useClosedDebriefs(
+    searchTerm,
+    statusFilter,
+    sortBy
+  );
+
+  const handleAddPayment = () => {
+    navigate("/add-payment");
+  };
 
   const handleViewDebrief = (debriefId) => {
     const debrief = debriefs.find((d) => d.id === debriefId);
     setSelectedDebrief(debrief);
   };
+
   const handleCloseModal = () => setSelectedDebrief(null);
 
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) throw new Error('Invalid date');
-      return date.toLocaleDateString('fr-FR', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
+      if (isNaN(date.getTime())) throw new Error("Invalid date");
+      return date.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
       });
     } catch {
-      return 'Date invalide';
+      return "Date invalide";
     }
   };
 
   const stats = useMemo(
     () => ({
       total: debriefs.length,
-      pendingPayments: debriefs.filter((d) => d.paymentStatus === 'PENDING').length,
+      pendingPayments: debriefs.filter((d) => d.paymentStatus === "PENDING")
+        .length,
       totalAmount: debriefs.reduce((acc, d) => acc + (d.paymentAmount || 0), 0),
     }),
     [debriefs]
@@ -50,9 +61,24 @@ const PaymentsPage = () => {
       <Header title="Paiements des Débriefs Clos" />
       <main className="flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <StatCard title="Débriefs Clos" value={stats.total} icon={CreditCard} color="bg-blue-100" />
-          <StatCard title="Paiements en attente" value={stats.pendingPayments} icon={AlertCircle} color="bg-orange-100" />
-          <StatCard title="Montant Total" value={`${stats.totalAmount.toFixed(2)} €`} icon={CreditCard} color="bg-blue-100" />
+          <StatCard
+            title="Débriefs Clos"
+            value={stats.total}
+            icon={CreditCard}
+            color="bg-blue-100"
+          />
+          <StatCard
+            title="Paiements en attente"
+            value={stats.pendingPayments}
+            icon={AlertCircle}
+            color="bg-orange-100"
+          />
+          <StatCard
+            title="Montant Total"
+            value={`${stats.totalAmount.toFixed(2)} TND`}
+            icon={CreditCard}
+            color="bg-blue-100"
+          />
         </div>
 
         <PaymentControls
@@ -61,14 +87,17 @@ const PaymentsPage = () => {
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
           sortBy={sortBy}
-          setSortBy={setSortBy}
+                  setSortBy={setSortBy}
+            onAdd={handleAddPayment}
         />
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           {loading ? (
             <div className="text-center py-16">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
-              <p className="text-gray-500 mt-4">Chargement des débriefs clos...</p>
+              <p className="text-gray-500 mt-4">
+                Chargement des débriefs clos...
+              </p>
             </div>
           ) : error ? (
             <div className="text-center py-16">
@@ -84,24 +113,42 @@ const PaymentsPage = () => {
                   debrief={debrief}
                   onView={handleViewDebrief}
                   formatDate={formatDate}
-                  style={{ animationDelay: `${index * 0.1}s`, animation: 'fadeInUp 0.5s ease-out forwards' }}
+                  style={{
+                    animationDelay: `${index * 0.1}s`,
+                    animation: "fadeInUp 0.5s ease-out forwards",
+                  }}
                 />
               ))}
             </div>
           ) : (
             <div className="text-center py-16">
               <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun débrief clos trouvé</h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Aucun débrief clos trouvé
+              </h3>
               <p className="text-gray-500 mb-6">
-                {searchTerm || statusFilter !== 'ALL'
-                  ? 'Essayez de modifier vos critères de recherche'
-                  : 'Aucun débrief clos disponible pour les paiements'}
+                {searchTerm || statusFilter !== "ALL"
+                  ? "Essayez de modifier vos critères de recherche"
+                  : "Aucun débrief clos disponible pour les paiements"}
               </p>
             </div>
           )}
         </div>
-        <PaymentDetailsModal debrief={selectedDebrief} onClose={handleCloseModal} />
+        <PaymentDetailsModal
+          debrief={selectedDebrief}
+          onClose={handleCloseModal}
+        />
       </main>
+      <div className="bg-white border-t border-gray-200 p-6 flex justify-between">
+        <ActionButton
+          onClick={() => navigate("/dashboard")} // Adjust to your main dashboard route
+          icon={ArrowLeft}
+          label="Retour"
+          color="bg-gray-600"
+          ariaLabel="Retourner au tableau de bord"
+        />
+        
+      </div>
       <style jsx>{`
         @keyframes fadeInUp {
           from {

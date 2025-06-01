@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { motion } from 'framer-motion';
-import StatCard from '../../components/common/StatCard';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { motion } from "framer-motion";
+import StatCard from "../../components/common/StatCard";
 import {
   FaBox,
   FaTruck,
@@ -12,11 +12,27 @@ import {
   FaUndo,
   FaListAlt,
   FaMoneyBillWave, // Nouvelle icône pour les revenus
-} from 'react-icons/fa';
-import config from '../../config.json';
-import Header from '../../components/common/Header';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
+} from "react-icons/fa";
+import config from "../../config.json";
+import Header from "../../components/common/Header";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../components/ui/card";
 
 const API_URL = config.API_URL;
 
@@ -38,14 +54,18 @@ const StatisticsDashboard = () => {
     // Fetch statistics from the backend
     const fetchStatistics = async () => {
       try {
-        const id_livreur = JSON.parse(localStorage.getItem('userInfo'))?.id || '1';
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get(`${API_URL}/stat/statistics/${id_livreur}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const id_livreur =
+          JSON.parse(localStorage.getItem("userInfo"))?.id || "1";
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(
+          `${API_URL}/stat/statistics/${id_livreur}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setStatistics(response.data);
       } catch (error) {
-        console.error('Error fetching statistics:', error);
+        console.error("Error fetching statistics:", error);
       }
     };
 
@@ -54,24 +74,24 @@ const StatisticsDashboard = () => {
 
   // Data for the bar chart
   const barChartData = [
-    { name: 'Livrées', value: statistics.deliveredOrders },
-    { name: 'En Cours', value: statistics.inProgressOrders },
-    { name: 'En Attente', value: statistics.pendingOrders },
-    { name: 'Retard', value: statistics.delayedOrders },
-    { name: 'Retournées', value: statistics.returnedOrders },
+    { name: "Livrées", value: statistics.deliveredOrders },
+    { name: "En Cours", value: statistics.inProgressOrders },
+    { name: "En Attente", value: statistics.pendingOrders },
+    { name: "Retard", value: statistics.delayedOrders },
+    { name: "Retournées", value: statistics.returnedOrders },
   ];
 
   // Data for the pie chart
   const pieChartData = [
-    { name: 'Livrées', value: statistics.deliveredOrders },
-    { name: 'En Cours', value: statistics.inProgressOrders },
-    { name: 'En Attente', value: statistics.pendingOrders },
-    { name: 'Retard', value: statistics.delayedOrders },
-    { name: 'Retournées', value: statistics.returnedOrders },
+    { name: "Livrées", value: statistics.deliveredOrders },
+    { name: "En Cours", value: statistics.inProgressOrders },
+    { name: "En Attente", value: statistics.pendingOrders },
+    { name: "Retard", value: statistics.delayedOrders },
+    { name: "Retournées", value: statistics.returnedOrders },
   ];
 
   // Colors for the pie chart
-  const COLORS = ['#10B981', '#F59E0B', '#EF4444', '#DC2626', '#7C3AED'];
+  const COLORS = ["#10B981", "#F59E0B", "#EF4444", "#DC2626", "#7C3AED"];
 
   return (
     <div className="flex-1 overflow-auto relative z-10">
@@ -142,7 +162,7 @@ const StatisticsDashboard = () => {
           <StatCard
             name="Mes revenus"
             icon={FaMoneyBillWave}
-            value={`${statistics.livreurRevenue.toFixed(2)} €`} // Afficher les revenus avec 2 décimales
+            value={`${statistics.livreurRevenue.toFixed(2)} TND`} // Afficher les revenus avec 2 décimales
             color="#6D28D9"
           />
         </motion.div>
@@ -150,7 +170,6 @@ const StatisticsDashboard = () => {
         {/* CHARTS SECTION */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Bar Chart */}
-          
 
           {/* Pie Chart */}
           <Card>
@@ -170,7 +189,10 @@ const StatisticsDashboard = () => {
                     label
                   >
                     {pieChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip />

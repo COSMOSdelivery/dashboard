@@ -304,7 +304,7 @@ const OverviewPage = () => {
             <StatCard
               name="Commandes Aujourd'hui"
               icon={ShoppingBag}
-              value={`${orderStats.todayOrders} dt`}
+              value={`${orderStats.todayOrders}`}
               color="#6366F1"
               subtitle="Montant total des commandes"
             />
@@ -323,7 +323,7 @@ const OverviewPage = () => {
               subtitle="Bénéfice enregistré"
             />
             <StatCard
-              name="Total Clients"
+              name="Total Utilisateurs"
               icon={Users}
               value={orderStats.totalUsers.toString()}
               color="#8B5CF6"

@@ -27,12 +27,6 @@ const Sidebar = ({ role }) => {
         return [
           { name: "Aperçu", icon: BarChart2, color: "#042351", href: "/" },
           {
-            name: "Utilisateurs",
-            icon: Users,
-            color: "#EC4899",
-            href: "/users",
-          },
-          {
             name: "Commandes",
             icon: ShoppingCart,
             color: "#F59E0B",
@@ -56,10 +50,10 @@ const Sidebar = ({ role }) => {
             ],
           },
           {
-            name: "Feedbacks",
-            icon: MessageSquare,
-            color: "#3B82F6",
-            href: "/Allfeedbacks",
+            name: "Debrief",
+            icon: ScrollText,
+            color: "#2563EB",
+            href: "/debrief",
           },
           {
             name: "Pickup",
@@ -80,6 +74,7 @@ const Sidebar = ({ role }) => {
             color: "#EF4444",
             href: "/stat-livraison",
           },
+
           {
             name: "Navex",
             icon: MapPin,
@@ -97,6 +92,18 @@ const Sidebar = ({ role }) => {
             icon: RefreshCw,
             color: "#0284C7",
             href: "/returns",
+          },
+          {
+            name: "Feedbacks",
+            icon: MessageSquare,
+            color: "#3B82F6",
+            href: "/Allfeedbacks",
+          },
+          {
+            name: "Utilisateurs",
+            icon: Users,
+            color: "#EC4899",
+            href: "/users",
           },
           {
             name: "Paramètres",

@@ -5,23 +5,19 @@ import Header from '../../components/common/Header';
 import StatCard from '../../components/common/StatCard';
 import DebriefControls from '../../components/Debrief/DebriefControls';
 import DebriefListItem from '../../components/Debrief/DebriefListItem';
-import DebriefDetailsModal from '../../components/Debrief/DebriefDetailsModal';
 import useDebriefs from '../../hooks/useDebriefs';
 
 const DebriefPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [sortBy, setSortBy] = useState('date');
-  const [selectedDebrief, setSelectedDebrief] = useState(null);
   const navigate = useNavigate();
   const { debriefs, loading, error, validateDebrief, deleteDebrief } = useDebriefs(searchTerm, statusFilter, sortBy);
 
   const handleAddDebrief = () => navigate('/preparation-livraisons');
   const handleViewDebrief = (debriefId) => {
-    const debrief = debriefs.find((d) => d.id === debriefId);
-    setSelectedDebrief(debrief);
+    navigate(`/debrief/validate/${debriefId}`); // Navigate to validation page
   };
-  const handleCloseModal = () => setSelectedDebrief(null);
   const handleEditDebrief = (debriefId) => navigate(`/debrief/edit/${debriefId}`);
   const handleDeleteDebrief = async (id) => {
     if (await deleteDebrief(id)) navigate('/preparation-livraisons', { state: { debriefDeleted: true } });
@@ -110,7 +106,6 @@ const DebriefPage = () => {
             </div>
           )}
         </div>
-        <DebriefDetailsModal debrief={selectedDebrief} onClose={handleCloseModal} />
       </main>
       <style jsx>{`
         @keyframes fadeInUp {

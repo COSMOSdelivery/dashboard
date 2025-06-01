@@ -14,9 +14,9 @@ const PickupPage = () => {
   const [sortBy, setSortBy] = useState('date');
   const [selectedPickup, setSelectedPickup] = useState(null);
   const navigate = useNavigate();
-  const { pickups, loading, error, validatePickup, deletePickup } = usePickups(searchTerm, statusFilter, sortBy);
+  const { pickups, loading, error, deletePickup } = usePickups(searchTerm, statusFilter, sortBy);
 
-  const handleAddPickup = () => navigate('/preparation-pickups');
+  const handleAddPickup = () => navigate('/assign-pickup');
   const handleViewPickup = (pickupId) => {
     const pickup = pickups.find((p) => p.id === pickupId);
     setSelectedPickup(pickup);
@@ -24,7 +24,7 @@ const PickupPage = () => {
   const handleCloseModal = () => setSelectedPickup(null);
   const handleEditPickup = (pickupId) => navigate(`/pickup/edit/${pickupId}`);
   const handleDeletePickup = async (id) => {
-    if (await deletePickup(id)) navigate('/preparation-pickups', { state: { pickupDeleted: true } });
+    if (await deletePickup(id)) navigate('/assign-pickup', { state: { pickupDeleted: true } });
   };
 
   const formatDate = (dateString) => {
@@ -91,7 +91,6 @@ const PickupPage = () => {
                   onView={handleViewPickup}
                   onEdit={handleEditPickup}
                   onDelete={handleDeletePickup}
-                  onValidate={validatePickup}
                   formatDate={formatDate}
                   style={{ animationDelay: `${index * 0.1}s`, animation: 'fadeInUp 0.5s ease-out forwards' }}
                 />

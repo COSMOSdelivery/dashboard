@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { motion } from 'framer-motion';
-import StatCard from '../../components/common/StatCard';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { motion } from "framer-motion";
+import StatCard from "../../components/common/StatCard";
 import OrderDistribution from "../../components/orders/OrderDistribution";
 
 import {
@@ -17,11 +17,29 @@ import {
   FaUsers,
   FaAward,
   FaChartLine,
-} from 'react-icons/fa';
-import config from '../../config.json';
-import Header from '../../components/common/Header';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/card';
+} from "react-icons/fa";
+import config from "../../config.json";
+import Header from "../../components/common/Header";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+} from "recharts";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../components/ui/card";
 
 const API_URL = config.API_URL;
 
@@ -51,14 +69,17 @@ const AdminGlobalStatistics = () => {
   useEffect(() => {
     const fetchGlobalStatistics = async () => {
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get(`${API_URL}/stat/admin/global-statistics`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const token = localStorage.getItem("authToken");
+        const response = await axios.get(
+          `${API_URL}/stat/admin/global-statistics`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         setStatistics(response.data);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching global statistics:', error);
+        console.error("Error fetching global statistics:", error);
         setLoading(false);
       }
     };
@@ -79,47 +100,49 @@ const AdminGlobalStatistics = () => {
 
   // Data for the global bar chart
   const globalBarChartData = [
-    { name: 'Livrées', value: statistics.global.deliveredOrders },
-    { name: 'En Cours', value: statistics.global.inProgressOrders },
-    { name: 'En Attente', value: statistics.global.pendingOrders },
-    { name: 'Retard', value: statistics.global.delayedOrders },
-    { name: 'Retournées', value: statistics.global.returnedOrders },
+    { name: "Livrées", value: statistics.global.deliveredOrders },
+    { name: "En Cours", value: statistics.global.inProgressOrders },
+    { name: "En Attente", value: statistics.global.pendingOrders },
+    { name: "Retard", value: statistics.global.delayedOrders },
+    { name: "Retournées", value: statistics.global.returnedOrders },
   ];
 
   // Data for the global pie chart
   const globalPieChartData = [
-    { name: 'Livrées', value: statistics.global.deliveredOrders },
-    { name: 'En Cours', value: statistics.global.inProgressOrders },
-    { name: 'En Attente', value: statistics.global.pendingOrders },
-    { name: 'Retard', value: statistics.global.delayedOrders },
-    { name: 'Retournées', value: statistics.global.returnedOrders },
+    { name: "Livrées", value: statistics.global.deliveredOrders },
+    { name: "En Cours", value: statistics.global.inProgressOrders },
+    { name: "En Attente", value: statistics.global.pendingOrders },
+    { name: "Retard", value: statistics.global.delayedOrders },
+    { name: "Retournées", value: statistics.global.returnedOrders },
   ];
 
   // Data for top performers chart
-  const topPerformersData = statistics.topPerformers.map((performer, index) => ({
-    name: performer.livreurInfo ? 
-      `${performer.livreurInfo.prenom} ${performer.livreurInfo.nom}` : 
-      `Livreur ${performer.id_livreur}`,
-    livraisons: performer.deliveredOrders,
-    taux: parseFloat(performer.deliveryRate.toFixed(1)),
-    revenus: parseFloat(performer.livreurRevenue.toFixed(2)),
-  }));
+  const topPerformersData = statistics.topPerformers.map(
+    (performer, index) => ({
+      name: performer.livreurInfo
+        ? `${performer.livreurInfo.prenom} ${performer.livreurInfo.nom}`
+        : `Livreur ${performer.id_livreur}`,
+      livraisons: performer.deliveredOrders,
+      taux: parseFloat(performer.deliveryRate.toFixed(1)),
+      revenus: parseFloat(performer.livreurRevenue.toFixed(2)),
+    })
+  );
 
   // Data for livreur performance comparison
   const livreurComparisonData = statistics.livreurStats
     .sort((a, b) => b.deliveredOrders - a.deliveredOrders)
     .slice(0, 10)
-    .map(livreur => ({
-      name: livreur.livreurInfo ? 
-        `${livreur.livreurInfo.prenom} ${livreur.livreurInfo.nom}` : 
-        `Livreur ${livreur.id_livreur}`,
+    .map((livreur) => ({
+      name: livreur.livreurInfo
+        ? `${livreur.livreurInfo.prenom} ${livreur.livreurInfo.nom}`
+        : `Livreur ${livreur.id_livreur}`,
       livraisons: livreur.deliveredOrders,
       enCours: livreur.inProgressOrders,
       enRetard: livreur.delayedOrders,
     }));
 
   // Colors for charts
-  const COLORS = ['#10B981', '#F59E0B', '#EF4444', '#DC2626', '#7C3AED'];
+  const COLORS = ["#10B981", "#F59E0B", "#EF4444", "#DC2626", "#7C3AED"];
 
   return (
     <div className="flex-1 overflow-auto relative z-10">
@@ -195,13 +218,13 @@ const AdminGlobalStatistics = () => {
           <StatCard
             name="Revenus Totaux"
             icon={FaMoneyBillWave}
-            value={`${statistics.global.totalRevenue.toFixed(2)} €`}
+            value={`${statistics.global.totalRevenue.toFixed(2)} TND`}
             color="#6D28D9"
           />
           <StatCard
             name="Commission Livreurs"
             icon={FaAward}
-            value={`${statistics.global.totalLivreurRevenue.toFixed(2)} €`}
+            value={`${statistics.global.totalLivreurRevenue.toFixed(2)} TND`}
             color="#BE185D"
           />
           <StatCard
@@ -214,7 +237,6 @@ const AdminGlobalStatistics = () => {
 
         {/* CHARTS SECTION */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          
           <OrderDistribution />
         </div>
 
@@ -228,7 +250,12 @@ const AdminGlobalStatistics = () => {
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={topPerformersData}>
-                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                  <XAxis
+                    dataKey="name"
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                  />
                   <YAxis />
                   <Tooltip />
                   <Legend />
@@ -246,11 +273,16 @@ const AdminGlobalStatistics = () => {
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={topPerformersData}>
-                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                  <XAxis
+                    dataKey="name"
+                    angle={-45}
+                    textAnchor="end"
+                    height={100}
+                  />
                   <YAxis />
-                  <Tooltip formatter={(value) => [`${value} €`, 'Revenus']} />
+                  <Tooltip formatter={(value) => [`${value} TND`, "Revenus"]} />
                   <Legend />
-                  <Bar dataKey="revenus" fill="#6D28D9" name="Revenus (€)" />
+                  <Bar dataKey="revenus" fill="#6D28D9" name="Revenus (TND)" />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -260,12 +292,19 @@ const AdminGlobalStatistics = () => {
         {/* LIVREUR COMPARISON SECTION */}
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle>Comparaison des Performances - Top 10 Livreurs</CardTitle>
+            <CardTitle>
+              Comparaison des Performances - Top 10 Livreurs
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={400}>
               <BarChart data={livreurComparisonData}>
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+                <XAxis
+                  dataKey="name"
+                  angle={-45}
+                  textAnchor="end"
+                  height={100}
+                />
                 <YAxis />
                 <Tooltip />
                 <Legend />
@@ -276,7 +315,6 @@ const AdminGlobalStatistics = () => {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-        
       </main>
     </div>
   );

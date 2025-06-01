@@ -1,6 +1,6 @@
-import { Search } from 'lucide-react';
+import { Search,Plus } from 'lucide-react';
 
-const PaymentControls = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, sortBy, setSortBy }) => {
+const PaymentControls = ({ searchTerm, setSearchTerm, statusFilter, setStatusFilter, sortBy, setSortBy,onAdd }) => {
   return (
     <div className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
       <div className="relative w-full md:w-1/3">
@@ -30,7 +30,14 @@ const PaymentControls = ({ searchTerm, setSearchTerm, statusFilter, setStatusFil
         >
           <option value="date">Trier par date</option>
           <option value="paymentAmount">Trier par montant</option>
-        </select>
+              </select>
+                      <button
+          onClick={onAdd}
+          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Ajouter
+        </button>
       </div>
     </div>
   );

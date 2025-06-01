@@ -1,18 +1,27 @@
 import { useState, useEffect } from 'react';
 
 // Simuler une API (à remplacer par vos appels réels à l'API)
-const fetchPickups = async () => {
-  // Exemple de données simulées (remplacez par une requête API réelle, ex. : fetch('/api/pickups'))
-  return [
-    { id: 1, date: '2025-05-28', status: 'OPEN', itemsPickedUp: 10 },
-    { id: 2, date: '2025-05-27', status: 'CLOSED', itemsPickedUp: 15 },
-    { id: 3, date: '2025-05-26', status: 'OPEN', itemsPickedUp: 8 },
-  ];
-};
-
-const validatePickupAPI = async (id) => {
-  // Simuler la validation d'un pickup (remplacez par une requête API réelle, ex. : PATCH /api/pickups/:id)
-  return true;
+const fetchPickups = async (searchTerm, statusFilter, sortBy) => {
+  try {
+    const response = await fetch(
+      `/command/allCommands?searchTerm=${encodeURIComponent(searchTerm || '')}&statusFilter=${statusFilter || 'ALL'}&sortBy=${sortBy || 'date'}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`, // Adjust based on your auth method
+        },
+      }
+    );
+    if (!response.ok) throw new Error('Failed to fetch pickups');
+    const data = await response.json();
+    return data.map(pickup => ({
+      id: pickup.code_a_barre,
+      date: pickup.dateAjout, // Adjust if using a different date field
+      status: pickup.etat === 'EN_ATTENTE' || pickup.etat === 'A_ENLEVER' ? 'OPEN' : 'CLOSED', // Map etat to OPEN/CLOSED
+      itemsPickedUp: pickup.nb_article,
+    }));
+  } catch (error) {
+    throw new Error('Erreur lors du chargement des pickups');
+  }
 };
 
 const deletePickupAPI = async (id) => {
@@ -67,25 +76,6 @@ const usePickups = (searchTerm, statusFilter, sortBy) => {
     loadPickups();
   }, [searchTerm, statusFilter, sortBy]);
 
-  // Valider un pickup
-  const validatePickup = async (id) => {
-    try {
-      const success = await validatePickupAPI(id);
-      if (success) {
-        setPickups((prevPickups) =>
-          prevPickups.map((pickup) =>
-            pickup.id === id ? { ...pickup, status: 'CLOSED' } : pickup
-          )
-        );
-        return true;
-      }
-      return false;
-    } catch (err) {
-      setError('Erreur lors de la validation du pickup');
-      return false;
-    }
-  };
-
   // Supprimer un pickup
   const deletePickup = async (id) => {
     try {
@@ -101,7 +91,7 @@ const usePickups = (searchTerm, statusFilter, sortBy) => {
     }
   };
 
-  return { pickups, loading, error, validatePickup, deletePickup };
+  return { pickups, loading, error, deletePickup };
 };
 
 export default usePickups;

@@ -4,9 +4,11 @@ import { LogOut } from "lucide-react";
 import Sidebar from "./components/common/Sidebar";
 import OverviewPage from "./pages/Admin/OverviewPage";
 import OverviewPageClient from "./pages/Client/OverviewPageClient";
+import ValidateDebriefPage from "./pages/Admin/ValidateDebriefPage";
 import UsersPage from "./pages/Admin/UsersPage";
 import SalesPage from "./pages/Admin/SalesPage";
 import OrdersPage from "./pages/Admin/OrdersPage";
+import AssignPickupPage from "./pages/Admin/AssignPickupPage";
 import AssignReturnPage from "./pages/Admin/AssignReturnPage";
 import ReturnsPage from "./pages/Admin/ReturnsPage"; // Adjust path as needed
 import NavexPage from "./pages/Admin/NavexPage";
@@ -16,6 +18,7 @@ import DebriefPage from "./pages/Admin/DebriefPage"; // Adjust path as needed
 import AbandonedOrdersPage from "./pages/Admin/AbandonedOrdersPage";
 import AdminCreateOrder from "./pages/Admin/AdminCreateOrder"; // Adjust path as needed
 import StockPage from "./pages/Admin/StockPage";
+import AddPaymentPage from "./pages/Admin/AddPaymentPage";
 import AnalyticsPage from "./pages/Admin/AnalyticsPage";
 import SettingsPage from "./pages/Admin/SettingsPage";
 import LoginPage from "./pages/Admin/LoginPage";
@@ -184,6 +187,7 @@ function App() {
             </ProtectedRoute>
           }
         />
+        
         <Route
           path="/assign-return"
           element={
@@ -191,6 +195,27 @@ function App() {
               <AssignReturnPage />
             </ProtectedRoute>
           }
+        />
+        <Route path="/debrief/validate/:debriefId"  element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <ValidateDebriefPage />
+            </ProtectedRoute>
+          } />
+        <Route
+          path="/assign-pickup"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <AssignPickupPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-payment"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN", "SERVICECLIENT"]}>
+              <AddPaymentPage />
+            </ProtectedRoute>
+        }
         />
         <Route
           path="/users"
